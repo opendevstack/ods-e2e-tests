@@ -1,5 +1,7 @@
 package util
 
+import groovyjarjarcommonscli.MissingArgumentException
+
 import java.util.regex.Pattern
 
 class SpecHelper {
@@ -18,7 +20,10 @@ class SpecHelper {
                 matcher.each { match ->
                     def nameToReplace = match[0]
                     def valueToReplace = env[match[1]]
-
+                    if (!valueToReplace) {
+                        println "ERROR: Missing properties in configuration $match[0]"
+                        throw IllegalStateException("ERROR: Missing properties in configuration $match[0]")
+                    }
                     value = value.replaceAll(Pattern.quote(nameToReplace), valueToReplace)
                     properties[key] = value
                 }

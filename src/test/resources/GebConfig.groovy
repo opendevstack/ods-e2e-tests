@@ -2,8 +2,9 @@ import geb.report.ScreenshotReporter
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.firefox.FirefoxDriver
+import org.openqa.selenium.firefox.FirefoxOptions
+import org.openqa.selenium.firefox.FirefoxProfile
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
-
 import util.SpecHelper
 
 def properties = new SpecHelper().getApplicationProperties()
@@ -25,7 +26,7 @@ waiting {
 }
 
 environments {
-	
+	// TODO Add the proxy to all the drivers
 	// run via “./gradlew chromeTest”
 	// See: http://code.google.com/p/selenium/wiki/ChromeDriver
 	htmlUnit {
@@ -61,7 +62,13 @@ environments {
 	firefox {
 		atCheckWaiting = 1
 
-		driver = { new FirefoxDriver() }
+		driver = {
+			// For testing in local we accept untrusted certificates
+			def profile = new FirefoxProfile()
+			profile.acceptUntrustedCertificates = true
+			FirefoxOptions options = new FirefoxOptions().setProfile(profile)
+			new FirefoxDriver(options);
+		}
 	}
 
 }
