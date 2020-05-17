@@ -70,8 +70,12 @@ environments {
 			new FirefoxDriver(options);
 		}
 	}
-
 }
+
+autoClearWebStorage = true
+autoClearCookies = true
+
+
 // Report configuration
 reporter =  new ScreenshotReporter()
 reportsDir = new File(properties."config.reports.dir")
