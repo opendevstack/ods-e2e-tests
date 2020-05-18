@@ -1,6 +1,7 @@
 package jira.modules
 
 import geb.Module
+import jira.pages.DashboardPage
 import util.SpecHelper
 
 class LoginModule  extends Module {
@@ -12,7 +13,7 @@ class LoginModule  extends Module {
         loginForm { $("#loginform") }
         loginFormUsernameInput { $("#login-form-username") }
         loginFormPasswordInput { $("#login-form-password") }
-        loginFormSubmitButton  { $("#login") }        
+        loginFormSubmitButton  { $("#login") }
     }
 
     void fillLoginData() {
@@ -22,5 +23,12 @@ class LoginModule  extends Module {
 
     void doLogin() {
         loginFormSubmitButton.click()
+    }
+
+    void doLoginProcess() {
+        sleep(5000)
+        fillLoginData()
+        doLogin()
+        sleep(5000)
     }
 }

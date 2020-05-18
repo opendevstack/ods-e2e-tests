@@ -13,6 +13,7 @@ class ProvAppSpec  extends GebReportingSpec {
     def setup() {
         baseUrl = applicationProperties."config.provisioning.url"
     }
+
     def "can login to the ProvApp"() {
         given: "user go to the login page"
         to ProvAppLoginPage

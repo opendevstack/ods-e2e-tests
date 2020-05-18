@@ -1,8 +1,12 @@
 package provapp.modules
 
 import geb.Module
+import util.SpecHelper
 
 class LoginModule  extends Module {
+
+    static Properties applicationProperties = new SpecHelper().getApplicationProperties()
+
     static content = {
         loginForm { $("form[name=f]") }
         loginFormUsernameInput { loginForm.$("input[name=username]") }
@@ -11,8 +15,8 @@ class LoginModule  extends Module {
     }
 
     void fillLoginData() {
-        loginFormUsernameInput.value(applicationProperties."config.user.name")
-        loginFormPasswordInput.value(applicationProperties."config.user.password")
+        loginFormUsernameInput.value(applicationProperties."config.provisioning-app.user.name")
+        loginFormPasswordInput.value(applicationProperties."config.provisioning-app.user.password")
     }
 
     void doLogin() {

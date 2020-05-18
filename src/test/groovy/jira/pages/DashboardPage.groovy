@@ -4,8 +4,8 @@ import geb.Page
 import jira.modules.LoginModule
 
 class DashboardPage extends Page {
-    static url = "/secure/Dashboard.jspa"
-    static at = { title ==  "System Dashboard - JIRA"}
+    static url = "/"
+    static at = { title.startsWith("System Dashboard")}
 
     static content = {
         loginForm { module LoginModule }

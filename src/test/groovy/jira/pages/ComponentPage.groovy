@@ -10,6 +10,14 @@ class ComponentPage extends Page {
     }
 
     static content = {
-        
+        componentTable { $("#components-table") }
+        componentTableNames { $(".components-table__name>div>a")}
+    }
+
+    def getComponents() {
+        componentTableNames.collect { it.text().minus("Technology-") }
+    }
+    Boolean existComponent(String name) {
+        components.contains(name)
     }
 }

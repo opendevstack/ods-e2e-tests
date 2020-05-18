@@ -5,6 +5,8 @@ import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.firefox.FirefoxProfile
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
+import org.openqa.selenium.Proxy
+
 import util.SpecHelper
 
 def properties = new SpecHelper().getApplicationProperties()
@@ -29,22 +31,31 @@ environments {
 	// TODO Add the proxy to all the drivers
 	// run via “./gradlew chromeTest”
 	// See: http://code.google.com/p/selenium/wiki/ChromeDriver
+	def env = System.getenv()
+	if (env.HTTP_PROXY) {
+		Proxy proxy = new Proxy();
+		URL url = new URL(env.HTTP_PROXY);
+		proxy.setHttpProxy("${url.getHost()}:${url.getPort()}");
+		proxy.setHttpProxy()
+		proxy.setNoProxy(env.NO_PROXY)
+	}
+
 	htmlUnit {
 		HtmlUnitDriver driver = new HtmlUnitDriver(BrowserVersion.CHROME, true)
-
-		def env = System.getenv()
 		if (env.HTTP_PROXY) {
-			Proxy proxy = new Proxy();
-			URL url = new URL(env.HTTP_PROXY);
-			proxy.setHttpProxy("${url.getHost()}:${url.getPort()}");
-			proxy.setNoProxy(env.NO_PROXY)
 			driver.setProxySettings(proxy);
 		}
 
 		return driver
 	}
 	chrome {
-		driver = { new ChromeDriver() }
+		//if (env.HTTP_PROXY) {
+		//	ChromeOptions options = new ChromeOptions();
+		//	options.setCapability("proxy", proxy);
+		//	driver = { new ChromeDriver(options) }
+		//} else {
+			driver = { new ChromeDriver() }
+		//}
 	}
 
 	// run via “./gradlew chromeHeadlessTest”
