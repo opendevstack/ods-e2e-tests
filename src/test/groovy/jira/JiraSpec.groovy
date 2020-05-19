@@ -55,7 +55,7 @@ class JiraSpec extends GebReportingSpec {
         to ProjectPage, projectName
 
         then: "We are in the project page"
-        waitFor {title.toUpperCase ().startsWith(projectName.toString().toUpperCase())}
+        at ProjectPage
         report()
     }
 
