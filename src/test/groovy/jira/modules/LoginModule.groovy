@@ -1,10 +1,9 @@
 package jira.modules
 
 import geb.Module
-import jira.pages.DashboardPage
 import util.SpecHelper
 
-class LoginModule  extends Module {
+class LoginModule extends Module {
 
     static Properties applicationProperties = new SpecHelper().getApplicationProperties()
 
@@ -13,7 +12,7 @@ class LoginModule  extends Module {
         loginForm { $("#loginform") }
         loginFormUsernameInput { $("#login-form-username") }
         loginFormPasswordInput { $("#login-form-password") }
-        loginFormSubmitButton  { $("#login") }
+        loginFormSubmitButton { $("#login") }
     }
 
     void fillLoginData() {
