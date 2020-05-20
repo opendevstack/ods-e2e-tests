@@ -11,7 +11,7 @@ class OpenShiftLoginPage extends Page {
     static content = {
         username { $("input", name: "username") }
         password { $("input", name: "password") }
-        loginButton(to: ConsoleCatalogPage) { $("button", type: "submit") }
+        loginButton { $("button", type: "submit") }
     }
 
     def doLogin() {

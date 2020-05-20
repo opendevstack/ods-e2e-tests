@@ -1,12 +1,12 @@
 package openshift
 
-import geb.Browser
-import geb.Page
+
 import geb.spock.GebReportingSpec
 import openshift.pages.OpenShiftLoginPage
-import openshift.pages.LoginSelectorPage
+import common.pages.LoginSelectorPage
 import openshift.pages.ConsoleCatalogPage
 import openshift.pages.ConsoleProjectsPage
+import openshift.pages.OpenShiftLoginSelectorPage
 import util.SpecHelper
 
 class OpenShiftSpec extends GebReportingSpec{
@@ -20,7 +20,7 @@ class OpenShiftSpec extends GebReportingSpec{
 
     def "can login to OpenShift"() {
         when: "Visit openshift login page"
-        to LoginSelectorPage
+        to OpenShiftLoginSelectorPage
 
         then: "Display the page to select the way we login"
         waitFor { title == 'Login - OpenShift Container Platform' }
@@ -41,7 +41,7 @@ class OpenShiftSpec extends GebReportingSpec{
 
     def "Check existing projects"() {
         when: "Visit openshift login page"
-        to LoginSelectorPage
+        to OpenShiftLoginSelectorPage
 
         then: "Display the page to select the way we login"
         waitFor { title == 'Login - OpenShift Container Platform' }
