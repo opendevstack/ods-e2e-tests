@@ -90,11 +90,12 @@ class ProvAppSpec extends GebReportingSpec {
             $("#resButton").text() == "Close"
         }
 
-        // then:
-        // $("#resProject").classes().sort() != ["alert", "alert-danger"]
-        // report()
-
+        // TODO: Finish when the provapp is working again
+        then:
+        false
+        report()
     }
+
     def "can add a component to an existing project"() {
         given: "We are logged in the provissioning app"
         doLoginProcess()
