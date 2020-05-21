@@ -32,7 +32,7 @@ environments {
 	// run via “./gradlew chromeTest”
 	// See: http://code.google.com/p/selenium/wiki/ChromeDriver
 	def env = System.getenv()
-	//System.setProperty("webdriver.chrome.driver", "c:\\opt\\chromedriver\\chromedriver.exe");
+	//ystem.setProperty("webdriver.chrome.driver", "c:\\opt\\chromedriver\\chromedriver.exe");
 
 	if (env.HTTP_PROXY) {
 		Proxy proxy = new Proxy();
@@ -43,13 +43,13 @@ environments {
 	}
 
 	chrome {
-		if (env.HTTP_PROXY) {
-			ChromeOptions options = new ChromeOptions();
-			options.setCapability("proxy", proxy);
-			driver = { new ChromeDriver(options) }
-		} else {
+		// if (env.HTTP_PROXY) {
+		// 	ChromeOptions options = new ChromeOptions();
+		// 	options.setCapability("proxy", proxy);
+		// 	driver = { new ChromeDriver(options) }
+		// } else {
 			driver = { new ChromeDriver() }
-		}
+		// }
 	}
 
 	// run via “./gradlew chromeHeadlessTest”
