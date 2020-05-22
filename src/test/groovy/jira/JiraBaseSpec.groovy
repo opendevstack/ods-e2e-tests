@@ -7,9 +7,10 @@ import util.SpecHelper
 class JiraBaseSpec extends GebReportingSpec {
 
     static Properties applicationProperties = new SpecHelper().getApplicationProperties()
+    static JavascriptExecutor js
+
     String projectName
     String componentName
-    JavascriptExecutor js
     def setup() {
         js = (JavascriptExecutor) driver
         baseUrl = applicationProperties."config.jira.url"

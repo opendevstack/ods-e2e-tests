@@ -49,12 +49,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         report()
 
         when: "Modify the Story 1"
-        issueMenu.moreMenu.click()
-        sleep(1000)
-        def element = driver.findElement(By.cssSelector ("#create-subtask > a"))
-        js.executeScript("arguments[0].scrollIntoView();", element);
-        issueMenu.moreMenuCreateSubtask.click()
-        sleep(2000)
+        issueMenu.clickCreateSubtask()
         report()
 
         then:
@@ -64,7 +59,5 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //when: "Therefore open Story1 → select"
 //
         //and: "under 'More' the button Create subtask"
-
-
     }
 }
