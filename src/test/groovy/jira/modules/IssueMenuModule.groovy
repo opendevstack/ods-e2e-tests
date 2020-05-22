@@ -9,7 +9,7 @@ class IssueMenuModule  extends Module {
     def driver
 
     static content = {
-        moreMenu { $("#opsbar-operations_more") }
+        moreMenu(wait:true) { $("#opsbar-operations_more") }
         moreMenuCreateSubtask { $("#create-subtask > a") }
     }
 
