@@ -44,18 +44,18 @@ webdriverBinaries {
     geckodriver geckoDriverVersion
     fallbackTo32Bit = true
     driverUrlsConfiguration = resources.text.fromFile('repository-3.0.json')
+    drivers.each { driver ->
+        task "${driver}Test"(type: Test) {
+            group JavaBasePlugin.VERIFICATION_GROUP
+
+            outputs.upToDateWhen { false }  // Always run tests
+
+            systemProperty "geb.build.reportsDir", reporting.file("geb/$name")
+            systemProperty "geb.env", driver
+        }
+    }
 }
 
-/*drivers.each { driver ->
-    task "${driver}Test"(type: Test) {
-        group JavaBasePlugin.VERIFICATION_GROUP
-
-        outputs.upToDateWhen { false }  // Always run tests
-
-        systemProperty "geb.build.reportsDir", reporting.file("geb/$name")
-        systemProperty "geb.env", driver
-    }
-}*/
 
 test {
     //dependsOn drivers.collect { tasks["${it}Test"] }
