@@ -18,21 +18,28 @@ class CreateSubtaskDialogModule extends Module {
                                      NotRelevantLess : 5,
                                      NotRelevantZero : 6,
     ]
+    static GxPRelevanceGroupTypesStrings = GxPRelevanceGroupTypes.collectEntries { e -> [(e.value): e.key] }
+
     static SeverityOfImpactTypes = [None  : 2,
                                     Low   : 3,
                                     Medium: 4,
                                     High  : 5,
     ]
+    static SeverityOfImpactTypesStrings = SeverityOfImpactTypes.collectEntries { e -> [(e.value): e.key] }
+
     static ProbabilityOfDetectionTypes = [None        : 2,
                                           Immediate   : 3,
                                           BeforeImpact: 4,
                                           AfterImpact : 5,
     ]
+    static ProbabilityOfDetectionTypesStrings = ProbabilityOfDetectionTypes.collectEntries { e -> [(e.value): e.key] }
+
     static ProbabilityOfOccurrenceTypes = [None  : 3,
                                            High  : 4,
                                            Low   : 5,
                                            Medium: 6,
     ]
+    static ProbabilityOfOccurrenceTypesStrings = ProbabilityOfOccurrenceTypes.collectEntries { e -> [(e.value): e.key] }
 
     static content = {
         createSubtaskDialogForm { $("#create-subtask-dialog") }
@@ -43,7 +50,16 @@ class CreateSubtaskDialogModule extends Module {
         gxPRelevanceGroup(wait: true) {
             createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.GxPRelevanceGroup)")
         }
-
+        severityOfImpactGroup(wait: true) {
+            createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.SeverityOfImpactGroup)")
+        }
+        probabilityOfDetectionGroup(wait: true) {
+            createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.ProbabilityOfDetectionGroup)")
+        }
+        //probabilityOfOccurrenceGroup(wait: true) {
+        //    createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.ProbabilityOfOccurrenceGroup)")
+        //}
+        createSubmitButton(wait: true) { createSubtaskDialogForm.$("#create-issue-submit") }
     }
 
     def selectRadioButtonsGroup(group, radioButton) {
@@ -69,16 +85,16 @@ class CreateSubtaskDialogModule extends Module {
         selectRadioButtonsGroup(groupPosition.ProbabilityOfOccurrenceGroup, probability)
     }
 
-    def fillRiskSubtask(data) {
+    def fillRiskSubtask(data, prefix = '') {
         summaryInput = data.summaryInput
         descriptionTextLink.click()
         descriptionEditor = data.descriptionEditor
         riskComment = data.riskComment
-        browser.report("Data filled 1")
+        browser.report(prefix + 'fill_data_1')
         selectGxPRelevanceForRisk(data.gxPRelevance)
         selectSeverityOfImpact(data.severityOfImpact)
         selectProbabilityOfDetection(data.probabilityOfDetection)
-        selectProbabilityOfOccurrence(data.probabilityOfOccurrence)
-        browser.report("Data filled 2")
+        //if (probabilityOfOccurrenceGroup.size()) selectProbabilityOfOccurrence(data.probabilityOfOccurrence)
+        browser.report(prefix + 'fill_data_2')
     }
 }

@@ -17,5 +17,31 @@ class IssuesPage extends Page {
         searchButton(required: true, wait: true) { $("div.search-options-container > button") }
         issueMenu { module(new IssueMenuModule(driver: driver)) }
         createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver)) }
+        subsTaskView(required: true, wait: true) { $("#view-subtasks") }
+        subsTaskTable(required: true, wait: true) { subsTaskView.$("#issuetable") }
+        subsTaskIssues(required: true, wait: true) { subsTaskTable.$("tr") }
+    }
+
+    def findStoryBySummary(projectName, summary) {
+        searchTextArea = "project = $projectName and type = Story and summary ~ '$summary' ORDER BY created DESC"
+        searchButton.click()
+        sleep(1000)
+    }
+
+    def getSubtasks() {
+        subsTaskIssues.
+                collectEntries {
+                    [it.getAttribute("data-issuekey"),
+                     [
+                             key    : it.getAttribute("data-issuekey"),
+                             summary: it.$("td.stsummary > a").text(),
+                             status : it.$("td.status > span").text(),
+                     ]
+                    ]
+                }
+    }
+
+    def getLatestSubtask(){
+        subsTaskIssues.last().getAttribute("data-issukey")
     }
 }
