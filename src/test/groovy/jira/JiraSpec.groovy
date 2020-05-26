@@ -1,24 +1,11 @@
 package jira
 
-import geb.spock.GebReportingSpec
+
 import jira.pages.ComponentPage
 import jira.pages.DashboardPage
 import jira.pages.ProjectPage
-import util.SpecHelper
 
-class JiraSpec extends GebReportingSpec {
-
-    static Properties applicationProperties = new SpecHelper().getApplicationProperties()
-    String projectName
-    String componentName
-
-    def setup() {
-        baseUrl = applicationProperties."config.jira.url"
-        projectName = 'VTATL1'
-        componentName = 'demo-app-front-end'
-
-    }
-
+class JiraSpec extends JiraBaseSpec {
 
     def "can login to Jira"() {
         given: "Visit the dashboard Page"
