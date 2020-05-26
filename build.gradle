@@ -1,8 +1,8 @@
 plugins {
     id "idea"
     id "groovy"
-    //id "com.github.erdi.webdriver-binaries" version "2.2"
-    //id "com.github.erdi.idea-base" version "2.2"
+    id "com.github.erdi.webdriver-binaries" version "2.2"
+    id "com.github.erdi.idea-base" version "2.2"
     id 'com.adarshr.test-logger' version "2.0.0"
 }
 
@@ -39,28 +39,27 @@ dependencies {
     testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 }
 
-//webdriverBinaries {
-//    chromedriver {
-//        version = chromeDriverVersion
-//        //fallbackTo32Bit = true
-//    }
-//    geckodriver geckoDriverVersion
-//}
-//
-//drivers.each { driver ->
-//    task "${driver}Test"(type: Test) {
-//        group JavaBasePlugin.VERIFICATION_GROUP
-//
-//        outputs.upToDateWhen { false }  // Always run tests
-//
-//        systemProperty "geb.build.reportsDir", reporting.file("geb/$name")
-//        systemProperty "geb.env", driver
-//    }
-//}
+webdriverBinaries {
+    chromedriver  chromeDriverVersion
+    geckodriver geckoDriverVersion
+    fallbackTo32Bit = true
+    driverUrlsConfiguration = resources.text.fromFile('repository-3.0.json')
+    drivers.each { driver ->
+        task "${driver}Test"(type: Test) {
+            group JavaBasePlugin.VERIFICATION_GROUP
+
+            outputs.upToDateWhen { false }  // Always run tests
+
+            systemProperty "geb.build.reportsDir", reporting.file("geb/$name")
+            systemProperty "geb.env", driver
+        }
+    }
+}
+
 
 test {
-    //dependsOn drivers.collect { tasks["${it}Test"] }
-    //enabled = false
+    dependsOn drivers.collect { tasks["${it}Test"] }
+    enabled = false
     systemProperties System.properties
 }
 
