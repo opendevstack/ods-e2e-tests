@@ -58,8 +58,8 @@ webdriverBinaries {
 
 
 test {
-    //dependsOn drivers.collect { tasks["${it}Test"] }
-    //enabled = false
+    dependsOn drivers.collect { tasks["${it}Test"] }
+    enabled = false
     systemProperties System.properties
 }
 
