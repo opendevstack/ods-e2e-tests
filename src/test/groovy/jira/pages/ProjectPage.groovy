@@ -1,6 +1,7 @@
 package jira.pages
 
 import geb.Page
+import jira.modules.NavigationBarModule
 
 class ProjectPage extends Page {
 
@@ -11,6 +12,7 @@ class ProjectPage extends Page {
     }
     static at = { $("#summary-subnav-title > span").text() == "Activity" }
     static content = {
-        loginForm { module LoginModule }
+        navigationBar(wait: true, required: false) { module(NavigationBarModule) }
+        loginForm(wait: true, required: false) { module LoginModule }
     }
 }

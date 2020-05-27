@@ -7,6 +7,150 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
     def currentStoryKey
     def projectSummary
+    def issues = [
+            story1: [
+                    summary                   : "Story 1: Test Creating Story 1",
+                    description               : "As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
+                    component                 : "Technology-demo-app-front-end",
+                    gampTopic                 : CreateStoryIssuePage.gampTopics.functionalRequirements,
+                    funcSpecSummary           : "Standard functionality",
+                    funcSpecSummaryDescription: "Standard functionality of Jira supported by configuration of issue type in the ODS project template to suport the creation of the C-CSD document (Combined Specification Document).",
+                    configSpecSummary         : "Configuration Jira",
+                    configSpecDescription     : "template configuration",
+            ],
+            story2: [
+                    summary                   : "Story 2: Test Creating Story 2",
+                    description               : "Story 2 description:As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
+                    component                 : "Technology-demo-app-front-end",
+                    gampTopic                 : CreateStoryIssuePage.gampTopics.dataRequirements,
+                    funcSpecSummary           : "Story 2: funcSpecSummary",
+                    funcSpecSummaryDescription: "Story 2: funcSpecSummaryDescription - Standard functionallity of Jira supported by configuration of issue type in the ODS project template to suport the creation of the C-CSD document (Combined Specification Document).",
+                    configSpecSummary         : "Story 2 configSpecSummary: Configuration Jira",
+                    configSpecDescription     : "Story 2 configSpecDescription: template configuration",
+            ],
+            story3: [
+                    summary                   : "Story 3: Test Creating Story 3",
+                    description               : "Story 3 description:As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
+                    component                 : "Technology-demo-app-front-end",
+                    gampTopic                 : CreateStoryIssuePage.gampTopics.interfaceRequirements,
+                    funcSpecSummary           : "Story 3: funcSpecSummary",
+                    funcSpecSummaryDescription: "Story 3: funcSpecSummaryDescription - Standard functionallity of Jira supported by configuration of issue type in the ODS project template to suport the creation of the C-CSD document (Combined Specification Document).",
+                    configSpecSummary         : "Story 3 configSpecSummary: Configuration Jira",
+                    configSpecDescription     : "Story 3 configSpecDescription: template configuration",
+            ],
+            story4: [
+                    summary                   : "Story 4: Test Creating Story 4",
+                    description               : "Story 4 description:As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
+                    component                 : "Technology-demo-app-front-end",
+                    gampTopic                 : CreateStoryIssuePage.gampTopics.interfaceRequirements,
+                    funcSpecSummary           : "Story 4: funcSpecSummary",
+                    funcSpecSummaryDescription: "Story 4: funcSpecSummaryDescription - Standard functionallity of Jira supported by configuration of issue type in the ODS project template to suport the creation of the C-CSD document (Combined Specification Document).",
+                    configSpecSummary         : "Story 4 configSpecSummary: Configuration Jira",
+                    configSpecDescription     : "Story 4 configSpecDescription: template configuration",
+            ],
+    ]
+
+    // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
+    // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
+    // amend the Documentation chapter issues and check the issue workflows.
+    def "RT_04_001"() {
+        // STEP 1 Log in as team member who has rights to the project.
+        given: "Log in as team member who has rights to the project"
+        to DashboardPage
+        loginForm.doLoginProcess()
+
+        expect: "We can login in Jira"
+        at DashboardPage
+
+        when: "visit project page"
+        to ProjectPage, projectName
+        projectSummary = $("div.project-summary-section.project-description > p").text()
+
+        then: "Login in the project is successful."
+        at ProjectPage
+        report('Step_1_login')
+
+        when: "Click on create"
+        navigationBar.createLink.click()
+        then:
+        at IssueCreationSelectorPage
+
+        when:
+        selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        nextButton.click()
+
+        then:
+        at CreateStoryIssuePage
+
+        when:
+        createIssue(issues.story1, this)
+        issues.story1.issueKey = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        report('Story 1 created')
+
+        then:
+        at IssuePage
+
+        when: "Click on create"
+        navigationBar.createLink.click()
+        then:
+        at IssueCreationSelectorPage
+
+        when:
+        selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        nextButton.click()
+
+        then:
+        at CreateStoryIssuePage
+
+        when:
+        createIssue(issues.story2, this)
+        issues.story2.issueKey = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        report('Story 2 created')
+
+        then:
+        at IssuePage
+
+        when: "Click on create"
+        navigationBar.createLink.click()
+        then:
+        at IssueCreationSelectorPage
+
+        when:
+        selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        nextButton.click()
+
+        then:
+        at CreateStoryIssuePage
+
+        when:
+        createIssue(issues.story3, this)
+        report('Story 3 created')
+        issues.story3.issueKey = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+
+        then:
+        at IssuePage
+
+        when: "Click on create"
+        navigationBar.createLink.click()
+        then:
+        at IssueCreationSelectorPage
+
+        when:
+        selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        nextButton.click()
+
+        then:
+        at CreateStoryIssuePage
+
+        when:
+        createIssue(issues.story4, this)
+        issues.story4.issueKey = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        report('Story 4 created')
+
+        then:
+        at IssuePage
+
+    }
 
     // TEST CASES TEST GROUP 02
     // CHECK THE CORRECTNESS OF CALCULATION – RISK ASSESSMENT WITHOUT PROBABILITY OF OCCURRENCE
@@ -205,23 +349,23 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         Map rar = getRiskAssesmentReport()
         assert rar.containsKey(raData1.key)
         def ra1 = rar.get(raData1.key)
-        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData1.gxPRelevance].toLowerCase() == ra1.gxPRelevance.replaceAll("\\s","").replaceAll("/","").toLowerCase()
-        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData1.severityOfImpact].toLowerCase() == ra1.severityOfImpact.replaceAll("\\s","").toLowerCase()
-        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData1.probabilityOfDetection].toLowerCase()== ra1.probabilityOfDetection.replaceAll("\\s","").toLowerCase()
+        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData1.gxPRelevance].toLowerCase() == ra1.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
+        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData1.severityOfImpact].toLowerCase() == ra1.severityOfImpact.replaceAll("\\s", "").toLowerCase()
+        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData1.probabilityOfDetection].toLowerCase() == ra1.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
 
         and:
         assert rar.containsKey(raData2.key)
         def ra2 = rar.get(raData2.key)
-        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData2.gxPRelevance].toLowerCase() == ra2.gxPRelevance.replaceAll("\\s","").replaceAll("/","").toLowerCase()
-        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData2.severityOfImpact].toLowerCase() == ra2.severityOfImpact.replaceAll("\\s","").toLowerCase()
-        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData2.probabilityOfDetection].toLowerCase() == ra2.probabilityOfDetection.replaceAll("\\s","").toLowerCase()
+        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData2.gxPRelevance].toLowerCase() == ra2.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
+        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData2.severityOfImpact].toLowerCase() == ra2.severityOfImpact.replaceAll("\\s", "").toLowerCase()
+        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData2.probabilityOfDetection].toLowerCase() == ra2.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
 
         and:
         assert rar.containsKey(raData3.key)
         def ra3 = rar.get(raData3.key)
-        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData3.gxPRelevance].toLowerCase() == ra3.gxPRelevance.replaceAll("\\s","").replaceAll("/","").toLowerCase()
-        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData3.severityOfImpact].toLowerCase() == ra3.severityOfImpact.replaceAll("\\s","").toLowerCase()
-        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData3.probabilityOfDetection].toLowerCase() == ra3.probabilityOfDetection.replaceAll("\\s","").toLowerCase()
+        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData3.gxPRelevance].toLowerCase() == ra3.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
+        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData3.severityOfImpact].toLowerCase() == ra3.severityOfImpact.replaceAll("\\s", "").toLowerCase()
+        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData3.probabilityOfDetection].toLowerCase() == ra3.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
 
         report('Step_14_Risk_Assesment')
 

@@ -3,6 +3,7 @@ package jira.pages
 import geb.Page
 import jira.modules.CreateSubtaskDialogModule
 import jira.modules.IssueMenuModule
+import jira.modules.NavigationBarModule
 
 class IssuePage extends Page {
     static url = '/browse'
@@ -13,6 +14,7 @@ class IssuePage extends Page {
 
     static at = { $("#issue-content.issue-edit-form") }
     static content = {
+        navigationBar { module(NavigationBarModule) }
         issueMenu { module(new IssueMenuModule(driver: driver)) }
         createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver)) }
         subsTaskView(required: true, wait: true) { $("#view-subtasks") }
@@ -23,7 +25,7 @@ class IssuePage extends Page {
                 it.getAttribute('data-fieldtypecompletekey') == 'org.opendevstack.jira.plugins.projecttemplate:field.risk.riskprioritynumber'
             }
         }
-        riskpriority(wait:true ) {
+        riskpriority(wait: true) {
             $("div").find {
                 it.getAttribute('data-fieldtype') == 'field.risk.riskpriority'
             }
