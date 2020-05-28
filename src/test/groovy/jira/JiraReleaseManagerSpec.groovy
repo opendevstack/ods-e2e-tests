@@ -2,6 +2,7 @@ package jira
 
 import jira.modules.CreateSubtaskDialogModule
 import jira.pages.*
+import spock.lang.Unroll
 
 class JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
@@ -50,10 +51,13 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
+
     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
     // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
     // amend the Documentation chapter issues and check the issue workflows.
+    @Unroll
     def "RT_04_001"() {
+
         // STEP 1 Log in as team member who has rights to the project.
         given: "Log in as team member who has rights to the project"
         to DashboardPage
@@ -70,86 +74,193 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         at ProjectPage
         report('Step_1_login')
 
+        // STEP 2 Click on “Create” and choose a Jira issue type Story.
         when: "Click on create"
         navigationBar.createLink.click()
         then:
         at IssueCreationSelectorPage
 
-        when:
+        when: "Select to create a Story"
         selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        report('Step 2 - Start Creating a Story ')
         nextButton.click()
 
-        then:
+        then: "We are in the issue creation of type Story"
         at CreateStoryIssuePage
 
+        // STEP 3 Add all required information.
+        //        Add a component to the Story.
+        //        Add a GAMP topic.
+        //        Click on “Create”.
         when:
         createIssue(issues.story1, this)
-        issues.story1.issueKey = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
-        report('Story 1 created')
+        issues.story1.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 
-        then:
-        at IssuePage
+        then: "The story has been created and we are in the IssuePage"
+        at IssueBrowsePage
+        report('Step 3 - Story 1 created')
 
+        // STEP 4 Repeat steps 2 and 3 creating three additional specifications.
+        //        For each Story choose a different GAMP topic.
         when: "Click on create"
         navigationBar.createLink.click()
         then:
         at IssueCreationSelectorPage
 
-        when:
+        when: "Select to create a Story"
         selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        report('Step 4 - Start Creating a Story 2')
         nextButton.click()
 
-        then:
+        then: "We are in the issue creation of type Story"
         at CreateStoryIssuePage
 
         when:
         createIssue(issues.story2, this)
-        issues.story2.issueKey = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
-        report('Story 2 created')
+        issues.story2.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 
-        then:
-        at IssuePage
+        then: "The story has been created and we are in the IssuePage"
+        at IssueBrowsePage
+        report('Step 4 - Story 2 created')
 
         when: "Click on create"
         navigationBar.createLink.click()
         then:
         at IssueCreationSelectorPage
 
-        when:
+        when: "Select to create a Story"
         selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        report('Step 4 - Start Creating a Story 3')
         nextButton.click()
 
-        then:
+        then: "We are in the issue creation of type Story"
         at CreateStoryIssuePage
 
         when:
         createIssue(issues.story3, this)
-        report('Story 3 created')
-        issues.story3.issueKey = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        issues.story3.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 
-        then:
-        at IssuePage
+        then: "The story has been created and we are in the IssuePage"
+        at IssueBrowsePage
+        report('Step 4 - Story 3 created')
 
         when: "Click on create"
         navigationBar.createLink.click()
         then:
         at IssueCreationSelectorPage
 
-        when:
+        when: "Select to create a Story"
         selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        report('Step 4 - Start Creating a Story 4')
         nextButton.click()
 
-        then:
+        then: "We are in the issue creation of type Story"
         at CreateStoryIssuePage
 
         when:
         createIssue(issues.story4, this)
-        issues.story4.issueKey = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
-        report('Story 4 created')
+        issues.story4.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+
+        then: "The story has been created and we are in the IssuePage"
+        at IssueBrowsePage
+        report('Step 4 - Story 4 created')
+
+
+        // STEP 5 Open Stories 1 and 2 and go through their workflow to the status “Done”.
+        when:
+        moveStoryToDone(issues.story1.key)
+        sleep(1000)
+        report('Story 1: Move to Done')
+
+        and:
+        to IssuesPage
+
+        and:
+        findIssue(projectName:projectName, issueId: issues.story1.key, status: 'Done')
+        sleep(2000)
 
         then:
-        at IssuePage
+        $("span.issue-link-key").size() == 1
 
+        when:
+        moveStoryToDone(issues.story2.key)
+        sleep(1000)
+        report('Story 2: Move to Done')
+
+        and:
+        to IssuesPage
+
+        and:
+        findIssue(projectName:projectName, issueId: issues.story2.key, status: 'Done')
+        sleep(2000)
+
+        then:
+        $("span.issue-link-key").size() == 1
+
+        // STEP 6 Open Story 3 and move it to the status “Cancelled”..
+        when:
+        moveStoryToCancel(issues.story3.key)
+        sleep(1000)
+        report('Story 3: Move to Cancel')
+
+        and:
+        to IssuesPage
+
+        and:
+        findIssue(projectName:projectName, issueId: issues.story3.key, status: 'Cancelled')
+        sleep(2000)
+
+        then:
+        $("span.issue-link-key").size() == 1
+
+        // STEP 7 Open Story 4 and move it to the status “In progress”.
+        when:
+        moveStoryToInProgress(issues.story4.key)
+        sleep(1000)
+        report('Story 4: Move to In Progress')
+
+        and:
+        to IssuesPage
+
+        and:
+        findIssue(projectName:projectName, issueId: issues.story4.key, status: '"In Progress"')
+        sleep(2000)
+
+        then:
+        $("span.issue-link-key").size() == 1
+
+        // STEP 8 Filter the Jira issues in order to have all “Documentation chapters” relevant for C-CSD in the list.
+        //        Open each issue and amend it accordingly.
+        //        Go through the workflow of the “Documentation chapter” issues and set their status to “Done”.
+        //        Save the changes.
+
+    }
+
+    /**
+     * Move a issue to status 'Cancel'
+     */
+    private void moveStoryToDone(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsConfirmDoR().click()
+        issueMenu.transitionButtonsImplement().click()
+        issueMenu.transitionButtonsIConfirmDoD().click()
+    }
+
+    /**
+     * Move a issue to status 'Cancel'
+     */
+    private void moveStoryToCancel(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsCancel().click()
+    }
+
+    /**
+     * Move a issue to status 'In Progress'
+     */
+    private void moveStoryToInProgress(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsConfirmDoR.click()
+        issueMenu.transitionButtonsImplement.click()
     }
 
     // TEST CASES TEST GROUP 02
@@ -228,7 +339,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // STEP 5
         and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
         raData1.key = subsTaskIssues.last().getAttribute("data-issuekey")
-        to IssuePage, raData1.key
+        to IssueBrowsePage, raData1.key
 
         then: "Risk priority number must be 18 and risk priority HIGH"
         assert riskprioritynumber.text() == '18'
@@ -277,7 +388,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // STEP 9 Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
         and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
         raData2.key = subsTaskIssues.last().getAttribute("data-issuekey")
-        to IssuePage, raData2.key
+        to IssueBrowsePage, raData2.key
 
         then: "Risk priority number must be 4 and risk priority MEDIUM"
         assert riskprioritynumber.text() == '4'
@@ -326,7 +437,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
         raData3.key = subsTaskIssues.last().getAttribute("data-issuekey")
 
-        to IssuePage, raData3.key
+        to IssueBrowsePage, raData3.key
 
         then: "Risk priority number must be 1 and risk priority LOW"
         assert riskprioritynumber.text() == '1'
