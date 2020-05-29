@@ -11,18 +11,19 @@ class IssuesPage extends Page {
     //static at = { $("div.issue-navigator") }
 
     static content = {
-        searchForm { $("#content > div.navigator-container.navigator-sidebar-collapsed > div.navigator-body > div > form") }
-        activateAdvancedSearchLink(required: true) { $("div.search-options-container > div > a.switcher-item.active") }
-        searchTextArea(required: true, wait: true) { $("#advanced-search") }
-        searchButton(required: true, wait: true) { $("div.search-options-container > button") }
+        searchForm { $('#content > div.navigator-container.navigator-sidebar-collapsed > div.navigator-body > div > form') }
+        activateAdvancedSearchLink(required: true) { $('div.search-options-container > div > a.switcher-item.active') }
+        searchTextArea(required: true, wait: true) { $('#advanced-search') }
+        searchButton(required: true, wait: true) { $('div.search-options-container > button') }
         issueMenu { module(new IssueMenuModule(driver: driver)) }
         createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver)) }
-        subsTaskView(required: true, wait: true) { $("#view-subtasks") }
-        subsTaskTable(required: true, wait: true) { subsTaskView.$("#issuetable") }
-        subsTaskIssues(required: true, wait: true) { subsTaskTable.$("tr") }
-        layoutSwitcherButton(required: true, wait: true) { $("#layout-switcher-button") }
-        layoutSwitcherOptionDetail(required: true, wait: true) { $("#layout-switcher-options > div > ul > li:nth-child(1) > a") }
-        layoutSwitcherOptionList(required: true, wait: true) { $("#layout-switcher-options > div > ul > li:nth-child(2) > a") }
+        subsTaskView(required: true, wait: true) { $('#view-subtasks') }
+        subsTaskTable(required: true, wait: true) { subsTaskView.$('#issuetable') }
+        subsTaskIssues(required: true, wait: true) { subsTaskTable.$('tr') }
+        layoutSwitcherButton(required: true, wait: true) { $('#layout-switcher-button') }
+        layoutSwitcherOptionDetail(required: true, wait: true) { $('#layout-switcher-options > div > ul > li:nth-child(1) > a') }
+        layoutSwitcherOptionList(required: true, wait: true) { $('#layout-switcher-options > div > ul > li:nth-child(2) > a') }
+        issuesTable { $('#issuetable') }
     }
 
     /**
@@ -34,58 +35,96 @@ class IssuesPage extends Page {
      * issueStatus
      */
     def findIssue(Map args) {
-        def queryString = "project = $args.projectName "
-        queryString += args.issueId ? " and issue = $args.issueId" : ""
-        queryString += args.issueType ? " and issuetype = $args.issueType" : ""
-        queryString += args.status ? " and status = $args.status" : ""
+        def queryString = "project = $args.projectName"
+        queryString += args.issueId ? " and issue = $args.issueId" : ''
+        queryString += args.issueType ? " and issuetype = $args.issueType" : ''
+        queryString += args.status ? " and status = $args.status" : ''
 
         searchTextArea = queryString
-        print "?????? findIssue: $queryString"
+        println "?????? findIssue: $queryString"
         searchButton.click()
     }
 
+    /**
+     * Find document chapters based in some parameters
+     * projectName: Key of the project like VTATL2
+     * document: Type of document f.e. CSD
+     */
     def findDocumentChapters(Map args) {
-        def queryString = "project = $args.projectName AND issuetype in ('Documentation Chapter', Story) AND labels = Doc:CSD ORDER BY priority DESC, issuekey DESC"
+        def queryString = "project = $args.projectName AND issuetype in ('Documentation Chapter', Story) " +
+                "AND labels = Doc:$args.document " +
+                "ORDER BY 'EDP Heading Number' ASC"
         searchTextArea = queryString
-        print "?????? findDocumentChapters: $queryString"
+        println "?????? findDocumentChapters: $queryString"
         searchButton.click()
     }
 
-    // Find a story by its summary
+    /**
+     * Find a issue by its summary
+     * projectName: Key of the project like VTATL2
+     * summary: summary of the project
+     */
     def findStoryBySummary(projectName, summary) {
         searchTextArea = "project = $projectName and type = Story and summary ~ '$summary' ORDER BY created DESC"
         searchButton.click()
         sleep(1000)
     }
 
-    // Get all the subtasks that we can see in a issuePage
+    /**
+     * Get all the subtasks that we can see in a issuePage
+     * projectName: Key of the project like VTATL2
+     * summary: summary of the project
+     * Note: getSubtasks and getIssuesList looks the same but have different structure so different css selector
+     */
     def getSubtasks() {
         subsTaskIssues.
                 collectEntries {
-                    [it.getAttribute("data-issuekey"),
+                    [it.getAttribute('data-issuekey'),
                      [
-                             key    : it.getAttribute("data-issuekey"),
-                             summary: it.$("td.stsummary > a").text(),
-                             status : it.$("td.status > span").text(),
+                             key    : it.getAttribute('data-issuekey'),
+                             summary: it.$('td.stsummary > a').text(),
+                             status : it.$('td.status > span').text(),
                      ]
                     ]
                 }
     }
-    // GEt the latest subtask
+    /**
+     * Get the latest subtask
+     */
     def getLatestSubtask() {
-        subsTaskIssues.last().getAttribute("data-issukey")
+        subsTaskIssues.last().getAttribute('data-issukey')
     }
 
-    // Switch the layout to List View
+    /**
+     * Switch the layout to List View
+     */
     def switchLayoutToList() {
         layoutSwitcherButton.click()
         layoutSwitcherOptionList.click()
     }
 
-    // Switch the layout to Detail View
+    /**
+     * Switch the layout to Detail View
+     * @return
+     */
     def switchLayoutToDetail() {
         layoutSwitcherButton.click()
         layoutSwitcherOptionDetail.click()
     }
 
+    /**
+     * Get the list of issues in the ListView
+     * @return
+     */
+    Map getIssuesList() {
+        issuesTable.$('tr.issuerow').collectEntries {
+            [it.getAttribute('data-issuekey'),
+             [
+                     key    : it.getAttribute('data-issuekey'),
+                     summary: it.$('td.summary > p > a').text(),
+                     status : it.$('td.status > span').text(),
+             ]
+            ]
+        }
+    }
 }

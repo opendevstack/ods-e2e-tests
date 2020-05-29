@@ -2,7 +2,6 @@ package jira
 
 import jira.modules.CreateSubtaskDialogModule
 import jira.pages.*
-import spock.lang.Unroll
 
 class JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
@@ -51,11 +50,32 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
+    def documentChapters = [CSD: [
+            "1"  : [edpContent: "This document was prepared for GxP-software development using agile methodologies using BI-AS-ATLASSIAN. The purpose of the document is to ensure the application BI-AS ATLASSIAN supports the planned requirements to manage the agile software development process.",],
+            "2"  : [edpContent: "The BI-AS-ATLASSIAN system provides four components, which are in scope of validation:\n" +
+                    "Jira: This tool helps users to track and manage project tasks using agile methodologies. It enables users to have transparency of the tasks within the team and is the source of SLC documentation, which is later managed in a document management system.\n" +
+                    "Bitbucket: The tool enables the software development team to store the software codes centrally and controlled in a repository. It also helps in version control that integrates with Jira.\n" +
+                    "Crowd: Identity management infrastructure for the Atlassian environment: Manage users from multiple sources, like Active Directory or Microsoft Azure AD - and control authentication permissions in one single location.\n" +
+                    "Confluence is a Wiki and helps to create, organize and discuss work within the team. It is further used for GBS demand management.",],
+            "3.1": [edpContent: "Agile project managment: Jira provides a project management tool. It enables users to track tasks (issues in Jira terminology) through configurable workflows. The tasks are organized by project, allowing tracking issues at a project level with complete transparency. Permissions are granular and on a per-project level. \n" +
+                    "Jira projects are provisioned by an ODS component and content from Jira is used to compile SLC documents by ODS for software applications. There can be multiple ODS templates (boilerplates for different software technologies) with different settings for new projects. In general templates contain settings associated with specific project types (i.e. permissions, project type, issue type scheme, etc.).",],
+            "3.2": [edpContent: "21 CFR Part 11 Compliance Assessment is required for the system.",],
+            "5.1": [edpContent: "|*Term*|*Definition*|\n" +
+                    "| AD| Active Directory, a (user and groups) directory service developed by Microsoft for Windows domain Networks.|\n" +
+                    "|Azure AD| Azure Active Directory, and AD using the Microsoft Cloud (Azure)|",],
+            "5.2": [edpContent: "|*Abbreviation*|*Meaning*|\n" +
+                    "| BI| Boehringer Ingelheim|\n" +
+                    "| | |",],
+            "6"  : [edpContent: "BI-AS-ATLASSIAN Validation Plan, ITEMS DocID 20548551, latest Version.",],
+            "7"  : [edpContent: "|*Version*|*Date*|*Author*|*Change Reference*|\n" +
+                    "| 1.0|See Summary of electronic document or signature page of printout.| xyz| Initial version|",],
+    ]
+    ]
+
 
     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
     // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
     // amend the Documentation chapter issues and check the issue workflows.
-    @Unroll
     def "RT_04_001"() {
 
         // STEP 1 Log in as team member who has rights to the project.
@@ -167,74 +187,104 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
 
         // STEP 5 Open Stories 1 and 2 and go through their workflow to the status “Done”.
-        when:
+        when: "Move story 1 to Done"
         moveStoryToDone(issues.story1.key)
         sleep(1000)
         report('Story 1: Move to Done')
 
-        and:
+        and: "Search for that issue in status Done"
         to IssuesPage
-
-        and:
-        findIssue(projectName:projectName, issueId: issues.story1.key, status: 'Done')
+        switchLayoutToList()
+        findIssue(projectName: projectName, issueId: issues.story1.key, status: 'Done')
         sleep(2000)
 
-        then:
-        $("span.issue-link-key").size() == 1
+        then: "There must be one issue"
+        waitFor {
+            $("tr.issuerow").size() == 1
+        }
 
-        when:
+        when: "Move story 2 to Done"
         moveStoryToDone(issues.story2.key)
         sleep(1000)
         report('Story 2: Move to Done')
 
-        and:
+        and: "Search for that issue in status Done"
         to IssuesPage
-
-        and:
-        findIssue(projectName:projectName, issueId: issues.story2.key, status: 'Done')
+        switchLayoutToList()
+        findIssue(projectName: projectName, issueId: issues.story2.key, status: 'Done')
         sleep(2000)
 
-        then:
-        $("span.issue-link-key").size() == 1
+        then: "There must be one issue"
+        $("tr.issuerow").size() == 1
 
         // STEP 6 Open Story 3 and move it to the status “Cancelled”..
-        when:
+        when: "Move story 3 to Cancelled"
         moveStoryToCancel(issues.story3.key)
         sleep(1000)
         report('Story 3: Move to Cancel')
 
-        and:
+        and: "Search for that issue in status Done"
         to IssuesPage
-
-        and:
-        findIssue(projectName:projectName, issueId: issues.story3.key, status: 'Cancelled')
+        switchLayoutToList()
+        findIssue(projectName: projectName, issueId: issues.story3.key, status: 'Cancelled')
         sleep(2000)
 
-        then:
-        $("span.issue-link-key").size() == 1
+        then: "There must be one issue"
+        $("tr.issuerow").size() == 1
 
         // STEP 7 Open Story 4 and move it to the status “In progress”.
-        when:
+        when: "Move Story 4 into progress"
         moveStoryToInProgress(issues.story4.key)
         sleep(1000)
         report('Story 4: Move to In Progress')
 
-        and:
+        and: "Search for that issue in status In progress"
         to IssuesPage
+        switchLayoutToList()
 
-        and:
-        findIssue(projectName:projectName, issueId: issues.story4.key, status: '"In Progress"')
+        findIssue(projectName: projectName, issueId: issues.story4.key, status: '"In Progress"')
         sleep(2000)
 
-        then:
-        $("span.issue-link-key").size() == 1
+        then: "There must be one issue"
+        $("tr.issuerow").size() == 1
 
         // STEP 8 Filter the Jira issues in order to have all “Documentation chapters” relevant for C-CSD in the list.
         //        Open each issue and amend it accordingly.
         //        Go through the workflow of the “Documentation chapter” issues and set their status to “Done”.
         //        Save the changes.
+        when: "Go to the Issues page"
+        to IssuesPage
+        switchLayoutToList()
+
+        and: "Find the document chapters of CSD"
+        findDocumentChapters(projectName: projectName, document: 'CSD')
+        sleep(1000)
+        report("Document Chapters")
+
+        and: "Visit the document Chapters and set the information in edpContent"
+        def documentChaptersIssues = getIssuesList()
+
+        documentChaptersIssues.each {
+            to IssueBrowsePage, it.key
+            println it
+            sleep(1000)
+            report()
+            edpContentEditor.click()
+
+            waitFor { $("li", 'data-mode': 'source') }.click()
+            edpContent.value(documentChapters.CSD[edpHeadingNumber.text()].edpContent)
+            edpContentSubmitButton.click()
+            sleep(1000)
+            report()
+        }
+
+        then: "All finished"
+        true
+
 
     }
+
+    // Helpers to make more understandable the tests.
 
     /**
      * Move a issue to status 'Cancel'
@@ -286,6 +336,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         when: "Visit issues page"
         to IssuesPage
         sleep(1000)
+        switchLayoutToDetail()
         if (!searchTextArea) {
             activateAdvancedSearchLink.click()
         }

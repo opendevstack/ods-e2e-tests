@@ -52,16 +52,16 @@ class CreateStoryIssuePage extends Page {
         summary = story.summary?:""
         description = story.description?:""
         componentsTextArea = story.component?:""
-        spec.report()
+        spec.report('Fill data 1')
         gampTopicSelect = story.gampTopic?:""
         reqAcceptanceCriteria = story.reqAcceptanceCriteria?:""
-        spec.report()
+        spec.report('Fill data 1')
         funcSpecSummary = story.funcSpecSummary?:""
         funcSpecSummaryDescription = story.funcSpecSummaryDescription?:""
-        spec.report()
+        spec.report('Fill data 1')
         funcSpecAcceptanceCriteria = story.funcSpecAcceptanceCriteria?:""
         configSpecSummary = story.configSpecSummary?:""
-        spec.report()
+        spec.report('Fill data 1')
         issueCreateButton.click()
     }
 

@@ -7,6 +7,9 @@ import jira.modules.NavigationBarModule
 
 class IssueBrowsePage extends Page {
     static url = '/browse'
+    static edpContentEditorId = 'customfield_12025-val'
+    static edpHeadingNumberId = 'customfield_12024'
+    static edpContentId = 'customfield_12025'
 
     String convertToPath(Object[] args) {
         args ? '/' + args*.toString().join('/') : ''
@@ -32,26 +35,10 @@ class IssueBrowsePage extends Page {
             }
         }
         statusVal(required: true, wait: true) { $('#status-val > span') }
-    }
-
-    def isInStatusDone() {
-        waitFor {
-            statusVal.hasClass('jira-issue-status-lozenge-done')
-        }
-    }
-
-    def isInStatusCancelled() {
-        waitFor {
-            statusVal.hasClass('jira-issue-status-lozenge-done') &&
-                    statusVal.text().toUpperCase() == 'Cancelled'.toUpperCase()
-        }
-    }
-
-    def isInStatusInProgress() {
-        waitFor {
-            statusVal.hasClass('jira-issue-status-lozenge-done') &&
-                    statusVal.text().toUpperCase() == 'Cancelled'.toUpperCase()
-        }
+        edpContentEditor(wait: true, required: true) { $("#$edpContentEditorId") }
+        edpHeadingNumber { $("#$edpHeadingNumberId-val") }
+        edpContent { $("#$edpContentId-wiki-edit > textarea") }
+        edpContentSubmitButton { $("#customfield_12025-form button.submit") }
     }
 
 
