@@ -7,7 +7,7 @@ import org.openqa.selenium.firefox.FirefoxProfile
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.openqa.selenium.Proxy
 
-import util.SpecHelper
+import org.ods.e2e.util.SpecHelper
 
 def properties = new SpecHelper().getApplicationProperties()
 
