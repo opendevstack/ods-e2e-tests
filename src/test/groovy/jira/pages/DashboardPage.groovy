@@ -8,6 +8,6 @@ class DashboardPage extends Page {
     static at = { title.startsWith("System Dashboard") }
 
     static content = {
-        loginForm { module LoginModule }
+        loginForm(wait: true) { module LoginModule }
     }
 }
