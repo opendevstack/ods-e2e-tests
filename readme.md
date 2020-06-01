@@ -34,11 +34,12 @@ To run with all, you can run:
 
 Replace `./gradlew` with `gradlew.bat` in the above examples if you're on Windows.
 
-## Test done
+## Tests done
 
 ### Provisioning App
 `ProvAppSpec.groovy`
 * Visit and login to the Provisioning App
+* Create a project
 * Add a quickstarter to a project *(Pending solve some issues with the Prov app)*
 
 ### Jira
@@ -47,10 +48,15 @@ Replace `./gradlew` with `gradlew.bat` in the above examples if you're on Window
 * Visit the project summary Page
 * Check for specify components
 
+`JiraReleaseManagerSpec.groovy`
+* RT_02_001: Check the correctness of calculation – risk assessment without probability of occurrence 
+* RT_04_001: Test if a C-CSD document can be created. Start creating an application, use Stories in Jira, amend the Documentation chapter issues and check the issue workflows
+
 ### OpenShift
 `OpenShiftSpec.groovy`
 * Visit and login to Openshift
 * Check the existence of namespaces for for a project (-cd, -dev and -test)
+
 
 
 
