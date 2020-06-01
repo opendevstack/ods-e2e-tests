@@ -38,26 +38,32 @@ Replace `./gradlew` with `gradlew.bat` in the above examples if you're on Window
 
 ### Provisioning App
 `ProvAppSpec.groovy`
-* Visit and login to the Provisioning App
-* Create a project
-* Add a quickstarter to a project *(Pending solve some issues with the Prov app)*
+- [x] Visit and login to the Provisioning App
+- [ ] IN PROGRESS - Create a project
+- [ ] IN PROGRESS - Add a quickstarter to a project *(Pending solve some issues with the Prov app)*
 
 ### Jira
 `JiraSpec.groovy`
-* Visit and login in Jira
-* Visit the project summary Page
-* Check for specify components
+- [x] Visit and login in Jira
+- [x] Visit the project summary Page
+- [x] Check for specify components
 
 `JiraReleaseManagerSpec.groovy`
-* RT_02_001: Check the correctness of calculation – risk assessment without probability of occurrence 
-* RT_04_001: Test if a C-CSD document can be created. Start creating an application, use Stories in Jira, amend the Documentation chapter issues and check the issue workflows
+- [x] RT_02_001: Check the correctness of calculation – risk assessment without probability of occurrence
+- [x] RT_04_001: Test if a C-CSD document can be created. Start creating an application, use Stories in Jira, amend the Documentation chapter issues and check the issue workflows
+- [x] RT_06_001: Create Technical Specification Tasks in Jira, check their workflow.
 
 ### OpenShift
 `OpenShiftSpec.groovy`
-* Visit and login to Openshift
-* Check the existence of namespaces for for a project (-cd, -dev and -test)
+- [x] Visit and login to Openshift
+- [x] Check the existence of namespaces for for a project (-cd, -dev and -test)
 
-
+### Jenkins
+`JenkinsSpec.groovy`
+- [x] can login to Jenkins
+- [x] checking project folder existence
+- [x] checking component creation job existence
+- [x] checking component build job master branch finalize successfully
 
 
 

@@ -35,6 +35,7 @@ class IssuesPage extends Page {
      * issueStatus
      */
     def findIssue(Map args) {
+        switchLayoutToList()
         def queryString = "project = $args.projectName"
         queryString += args.issueId ? " and issue = $args.issueId" : ''
         queryString += args.issueType ? " and issuetype = $args.issueType" : ''
