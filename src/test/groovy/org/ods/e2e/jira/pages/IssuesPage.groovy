@@ -101,6 +101,7 @@ class IssuesPage extends Page {
     def switchLayoutToList() {
         layoutSwitcherButton.click()
         layoutSwitcherOptionList.click()
+        waitFor { issuesTable }
     }
 
     /**
@@ -117,6 +118,7 @@ class IssuesPage extends Page {
      * @return
      */
     Map getIssuesList() {
+        waitFor { issuesTable }
         issuesTable.$('tr.issuerow').collectEntries {
             [it.getAttribute('data-issuekey'),
              [

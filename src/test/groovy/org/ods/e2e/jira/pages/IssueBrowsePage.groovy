@@ -36,8 +36,8 @@ class IssueBrowsePage extends Page {
         }
         statusVal(required: true, wait: true) { $('#status-val > span') }
         edpContentEditor(wait: true, required: true) { $("#$edpContentEditorId") }
-        edpHeadingNumber { $("#$edpHeadingNumberId-val") }
-        edpContent { $("#$edpContentId-wiki-edit > textarea") }
+        edpHeadingNumber(wait: true, required: true) { $("#$edpHeadingNumberId-val") }
+        edpContent(wait: true, required: true) { $("#$edpContentId-wiki-edit > textarea") }
         edpContentSubmitButton { $("#customfield_12025-form button.submit") }
     }
 
