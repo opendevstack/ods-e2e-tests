@@ -1,5 +1,6 @@
 package org.ods.e2e.jira
 
+import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.pages.*
 
@@ -7,7 +8,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
     def currentStoryKey
     def projectSummary
-    def issues = [
+    def static issues = [
             story1: [
                     summary                   : "Story 1: Test Creating Story 1",
                     description               : "As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
@@ -50,7 +51,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
-    def documentChapters = [CSD: [
+    def static documentChapters = [CSD: [
             "1"  : [edpContent: "This document was prepared for GxP-software development using agile methodologies using BI-AS-ATLASSIAN. The purpose of the document is to ensure the application BI-AS ATLASSIAN supports the planned requirements to manage the agile software development process.",],
             "2"  : [edpContent: "The BI-AS-ATLASSIAN system provides four components, which are in scope of validation:\n" +
                     "Jira: This tool helps users to track and manage project tasks using agile methodologies. It enables users to have transparency of the tasks within the team and is the source of SLC documentation, which is later managed in a document management system.\n" +
@@ -70,6 +71,27 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             "7"  : [edpContent: "|*Version*|*Date*|*Author*|*Change Reference*|\n" +
                     "| 1.0|See Summary of electronic document or signature page of printout.| xyz| Initial version|",],
     ]
+    ]
+
+    def static technicalSpecifications = [
+            tst1: [
+                    summary                    : "TST1",
+                    component                  : "Technology-demo-app-front-end",
+                    systemDesignSpecification  : "TST1: System Design Specification",
+                    softwareDesignSpecification: "TST1: Software Design Specification",
+            ],
+            tst2: [
+                    summary                    : "TST2",
+                    component                  : "Technology-demo-app-front-end",
+                    systemDesignSpecification  : "TST2: System Design Specification",
+                    softwareDesignSpecification: "TST2: Software Design Specification",
+            ],
+            tst4: [
+                    summary                    : "TST4",
+                    component                  : "Technology-demo-app-front-end",
+                    systemDesignSpecification  : "TST4: System Design Specification",
+                    softwareDesignSpecification: "TST4: Software Design Specification",
+            ],
     ]
 
 
@@ -341,21 +363,22 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         to IssuesPage
         sleep(1000)
         switchLayoutToDetail()
-        if (!searchTextArea) {
-            activateAdvancedSearchLink.click()
-        }
+//        if (!searchTextArea) {
+//            activateAdvancedSearchLink.click()
+//        }
 
         then:
         assert searchTextArea
 
         when: "Search fo the Story with summary 'Story 1'"
-        findStoryBySummary(projectName, 'Story 1')
+        findIssue(projectName: projectName, issueId: issues.story1.key)
+        switchLayoutToDetail()
 
         then: "Story 1 exists"
-        assert $("li", title: "Story 1")
+        waitFor { $("ol.issue-list > li").size() == 1 }
 
         when: "Create a subtask for the Story 1: Open sub task creation form"
-        currentStory = $("li", title: "Story 1")
+        currentStory = $("ol.issue-list > li").first()
         currentStoryKey = currentStory.getAttribute("data-key")
         currentStory.click()
         waitFor { issueMenu.moreMenu }
@@ -406,12 +429,14 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         when:
         to IssuesPage
         sleep(1000)
-        findStoryBySummary(projectName, 'Story 2')
+        findIssue(projectName: projectName, issueId: issues.story2.key)
+        switchLayoutToDetail()
+
         then: "Story 2 exists"
-        assert $("li", title: "Story 2")
+        waitFor { $("ol.issue-list > li").size() == 1 }
 
         when: "Create a subtask for the Story 2: Open sub task creation form"
-        currentStory = $("li", title: "Story 2")
+        currentStory = $("ol.issue-list > li").first()
         currentStoryKey = currentStory.getAttribute("data-key")
         currentStory.click()
         waitFor { issueMenu.moreMenu }
@@ -455,12 +480,14 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         when:
         to IssuesPage
         sleep(1000)
-        findStoryBySummary(projectName, 'Story 3')
+        findIssue(projectName: projectName, issueId: issues.story3.key)
+        switchLayoutToDetail()
+
         then: "Story 3 exists"
-        assert $("li", title: "Story 3")
+        waitFor { $("ol.issue-list > li").size() == 1 }
 
         when: "Create a subtask for the Story 3: Open sub task creation form"
-        currentStory = $("li", title: "Story 3")
+        currentStory = $("ol.issue-list > li").first()
         currentStoryKey = currentStory.getAttribute("data-key")
         currentStory.click()
         waitFor { issueMenu.moreMenu }
@@ -535,5 +562,156 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         report('Step_14_Risk_Assesment')
 
+    }
+
+    // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
+    // Create Technical Specification Tasks in Jira, check their workflow.
+    //
+    // Depends that the previous test had been executed in order to create the Stories that this test use.
+    def "RT_06_001"() {
+
+        // STEP 1 Log in as team member who has rights to the project.
+        given: "Log in as team member who has rights to the project"
+        to DashboardPage
+        loginForm.doLoginProcess()
+
+        expect: "We can login in Jira"
+        at DashboardPage
+
+        when: "visit project page"
+        to ProjectPage, projectName
+        projectSummary = $("div.project-summary-section.project-description > p").text()
+
+        then: "Login in the project is successful."
+        at ProjectPage
+        report('Step_1_login')
+
+        // STEP 2 Click on “Create” and choose a Jira issue type Technical Specification.
+        when: "Click on create"
+        navigationBar.createLink.click()
+        then:
+        at IssueCreationSelectorPage
+
+        when: "Select to create a Technical Specification"
+        selectIssueOfType(IssueCreationSelectorPage.issueType.technicalSpecificationTask)
+        report('Step 2 - Start Creating a Technical Specification')
+        nextButton.click()
+
+        then: "We are in the issue creation of type Technical Specification Task"
+        at CreateTechnicalSpecificationTaskIssuePage
+
+        // STEP 3 Add all required information:
+        //       Summary: TST1
+        //       Description
+        //       Systems Design
+        //       Specification
+        //       Software Design
+        //       Specification
+        // Click on “Create”.
+        when: "We create the Technical Specification Task 1"
+        createIssue(technicalSpecifications.tst1, this)
+        technicalSpecifications.tst1.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+
+        then: "The issue is created"
+        at IssueBrowsePage
+        report("TST1 Created")
+
+        // STEP 4 Link the Story1 to the Technical Specification Task.
+        when: "We add a link to the story 1"
+        addLinkToIssue(CreateLinkDialogModule.linkType.specifies, issues.story1.key)
+        report("Added link to TST1")
+
+        then: "The link exists"
+        assert $("a", 'data-issue-key': issues.story1.key).size() == 1
+
+        // STEP 5 Repeat steps 2 and 3 creating an additional Technical Specification Task. Link it to Story2 and call
+        //      it TST2.
+        //      Repeat steps 2 and 3 creating an additional Technical Specification Task.
+        //      Link it to Story4 and call it TST4.
+
+        // Creation and link of TST2
+        when: "Click on create"
+        navigationBar.createLink.click()
+
+        and: "Select to create a Technical Specification"
+        at IssueCreationSelectorPage
+        selectIssueOfType(IssueCreationSelectorPage.issueType.technicalSpecificationTask)
+        report('Step 5 - Start Creating a Technical Specification 2')
+        nextButton.click()
+
+        and: "We create the Technical Specification Task 2"
+        at CreateTechnicalSpecificationTaskIssuePage
+        createIssue(technicalSpecifications.tst2, this)
+        technicalSpecifications.tst2.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+
+        then: "The issue is created"
+        at IssueBrowsePage
+
+        when: "We add a link to the story 2"
+        addLinkToIssue(CreateLinkDialogModule.linkType.specifies, issues.story2.key)
+        report("Added link to TST2")
+
+        then: "The link exists"
+        assert $("a", 'data-issue-key': issues.story2.key).size() == 1
+
+        // Creation and link of TST4
+        when: "Click on create"
+        navigationBar.createLink.click()
+
+        and: "Select to create a Technical Specification"
+        at IssueCreationSelectorPage
+        selectIssueOfType(IssueCreationSelectorPage.issueType.technicalSpecificationTask)
+        report('Step 5 - Start Creating a Technical Specification 4')
+        nextButton.click()
+
+        and: "We create the Technical Specification Task 2"
+        at CreateTechnicalSpecificationTaskIssuePage
+        createIssue(technicalSpecifications.tst4, this)
+        technicalSpecifications.tst4.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+
+        then: "The issue is created"
+        at IssueBrowsePage
+
+        when: "We add a link to the story 2"
+        addLinkToIssue(CreateLinkDialogModule.linkType.specifies, issues.story4.key)
+        report("Added link to TST4")
+
+        then: "The link exists"
+        assert $("a", 'data-issue-key': issues.story4.key).size() == 1
+
+        when: 'Move to status Done'
+        technicalSpecifications.each {
+            println it
+            to IssueBrowsePage, it.value.key
+            sleep(1000)
+            report()
+            waitFor { issueMenu.transitionButtonTstImplement }.click()
+            sleep(1000)
+            waitFor { issueMenu.transitionButtonsTstConfirmDoD }.click()
+
+        }
+
+        and: "Check all Tehcnical Specification Tasks in Done status"
+        to IssuesPage
+        switchLayoutToList()
+        findIssue(projectName: projectName, issueId: technicalSpecifications.tst1.key, status: 'Done')
+        report('Tecnical Specification Task 1 in Done Status')
+
+        then: 'Technical Specification Task 1 in Done Status'
+        waitFor { $("tr.issuerow").size() == 1 }
+
+        when: "Check Tehcnical Specification Tasks 2 in Done status"
+        findIssue(projectName: projectName, issueId: technicalSpecifications.tst2.key, status: 'Done')
+        report('Tecnical Specification Task 2 in Done Status')
+
+        then: 'Technical Specification Task 2 in Done Status'
+        waitFor { $("tr.issuerow").size() == 1 }
+
+        when:
+        findIssue(projectName: projectName, issueId: technicalSpecifications.tst4.key, status: 'Done')
+        report('Tecnical Specification Task 4 in Done Status')
+
+        then: 'Technical Specification Task 3 in Done Status'
+        waitFor { $("tr.issuerow").size() == 1 }
     }
 }

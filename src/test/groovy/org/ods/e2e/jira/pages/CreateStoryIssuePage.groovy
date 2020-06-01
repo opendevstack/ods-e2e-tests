@@ -2,7 +2,7 @@ package org.ods.e2e.jira.pages
 
 import geb.Page
 
-class CreateStoryIssuePage extends Page {
+class CreateStoryIssuePage extends CreateIssuePage {
     static gampTopicFieldId = 'customfield_11903'
     static reqAcceptanceCriteriaFieldId = 'customfield_12026'
     static funcSpecSummaryFieldId = 'customfield_11905'
@@ -33,10 +33,6 @@ class CreateStoryIssuePage extends Page {
     static at = { browser.currentUrl.contains('CreateIssue') && $("#issue-create-issue-type").text() == 'Story' }
 
     static content = {
-        summary { $("#summary") }
-        description { $ "#description" }
-        componentsTextArea { $("#components-textarea") }
-        componentsSelectIcon { $("#components-multi-select > .icon") }
         gampTopicSelect { $("#$gampTopicFieldId") }
         reqAcceptanceCriteria { $("#$reqAcceptanceCriteriaFieldId") }
         funcSpecSummary { $("#$funcSpecSummaryFieldId") }
@@ -44,12 +40,12 @@ class CreateStoryIssuePage extends Page {
         funcSpecAcceptanceCriteria { $("#$funcSpecAcceptanceCriteriaFieldId") }
         configSpecSummary { $("#$configSpecSummaryFieldId") }
         configSpecDescription { $("#$configSpecDescriptionFieldId") }
-        issueCreateButton { $("#issue-create-submit") }
     }
 
 
     def createIssue(story, spec) {
         summary = story.summary?:""
+        descriptionTextLink.click()
         description = story.description?:""
         componentsTextArea = story.component?:""
         spec.report('Fill data 1')

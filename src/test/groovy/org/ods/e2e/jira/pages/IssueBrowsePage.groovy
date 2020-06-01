@@ -1,6 +1,7 @@
 package org.ods.e2e.jira.pages
 
 import geb.Page
+import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.modules.IssueMenuModule
 import org.ods.e2e.jira.modules.NavigationBarModule
@@ -21,6 +22,7 @@ class IssueBrowsePage extends Page {
         navigationBar { module(NavigationBarModule) }
         issueMenu { module(new IssueMenuModule(driver: driver)) }
         createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver)) }
+        createLinkDialog(wait: true) { module CreateLinkDialogModule }
         subsTaskView(required: true, wait: true) { $('#view-subtasks') }
         subsTaskTable(required: true, wait: true) { subsTaskView.$('#issuetable') }
         subsTaskIssues(required: true, wait: true) { subsTaskTable.$('tr') }
@@ -39,6 +41,14 @@ class IssueBrowsePage extends Page {
         edpHeadingNumber(wait: true, required: true) { $("#$edpHeadingNumberId-val") }
         edpContent(wait: true, required: true) { $("#$edpContentId-wiki-edit > textarea") }
         edpContentSubmitButton { $("#customfield_12025-form button.submit") }
+    }
+
+    def addLinkToIssue(linkType, issueLinked) {
+        issueMenu.clickLink()
+        createLinkDialog.linkTypeSelector = linkType
+        createLinkDialog.issueKeysTextArea = issueLinked
+        createLinkDialog.linkButton.click()
+        sleep(2000)
     }
 
 
