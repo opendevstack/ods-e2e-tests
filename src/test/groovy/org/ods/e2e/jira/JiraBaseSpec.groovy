@@ -18,7 +18,7 @@ class JiraBaseSpec extends GebReportingSpec {
         driver.manage().window().setPosition(new Point(0,0))
 
         js = (JavascriptExecutor) driver
-        baseUrl = applicationProperties."config.jira.url"
+        baseUrl = applicationProperties."config.atlassian.jira.url"
         projectName = applicationProperties."config.project.key".toString().toUpperCase()
         componentName = 'demo-app-front-end'
     }
