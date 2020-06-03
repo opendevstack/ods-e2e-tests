@@ -16,8 +16,8 @@ class LoginModule extends Module {
     }
 
     void fillLoginData() {
-        loginFormUsernameInput.value(applicationProperties."config.jira.user.name")
-        loginFormPasswordInput.value(applicationProperties."config.jira.user.password")
+        loginFormUsernameInput.value(applicationProperties."config.atlassian.user.name")
+        loginFormPasswordInput.value(applicationProperties."config.atlassian.user.password")
     }
 
     void doLogin() {
