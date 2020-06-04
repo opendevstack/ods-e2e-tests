@@ -12,4 +12,9 @@ class ProvAppLoginPage extends Page {
         loginForm { module LoginModule }
 
     }
+
+    def doLoginProcess() {
+        loginForm.fillLoginData()
+        loginForm.doLogin()
+    }
 }

@@ -38,6 +38,7 @@ class ProvAppSpec extends GebReportingSpec {
 
     def "can create a project"() {
         given: "We are logged in the provissioning app"
+        to ProvAppLoginPage
         doLoginProcess()
 
         expect:
@@ -96,6 +97,7 @@ class ProvAppSpec extends GebReportingSpec {
 
     def "can add a component to an existing project"() {
         given: "We are logged in the provissioning app"
+        to ProvAppLoginPage
         doLoginProcess()
 
         expect:
@@ -154,16 +156,6 @@ class ProvAppSpec extends GebReportingSpec {
         // TODO: Finish when the org.ods.e2e.provapp is working again
         then: "Component is added"
         false
-        report()
-    }
-
-
-
-    def doLoginProcess() {
-        to ProvAppLoginPage
-        loginLegend.text() == 'Please Login'
-        loginForm.fillLoginData()
-        loginForm.doLogin()
         report()
     }
 
