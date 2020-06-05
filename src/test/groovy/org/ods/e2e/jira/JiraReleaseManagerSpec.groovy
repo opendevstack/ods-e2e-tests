@@ -296,9 +296,9 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             waitFor { $("li", 'data-mode': 'source') }.click()
             waitFor { edpContent }.value(documentChapters.CSD[edpHeadingNumber.text()].edpContent)
             waitFor { edpContentSubmitButton }.click()
-            sleep(2000)
+            sleep(4000)
             waitFor { issueMenu.transitionButtonDocument }.click()
-            sleep(1000)
+            sleep(4000)
             waitFor { issueMenu.transitionButtonDefine }.click()
 
             report()
