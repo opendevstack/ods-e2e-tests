@@ -1,9 +1,16 @@
 package org.ods.e2e
 
+import org.ods.e2e.bitbucket.pages.DashboardPage
+import org.ods.e2e.bitbucket.pages.LoginPage
+import org.ods.e2e.bitbucket.pages.ProjectPage
 import org.ods.e2e.jenkins.pages.JenkinsConsolePage
 import org.ods.e2e.jenkins.pages.JenkinsLoginPage
 import org.ods.e2e.jenkins.pages.JenkinsLoginSelectorPage
+import org.ods.e2e.jira.pages.ComponentPage
+import org.ods.e2e.openshift.pages.ConsoleCatalogPage
+import org.ods.e2e.openshift.pages.ConsoleProjectsPage
 import org.ods.e2e.openshift.pages.OpenShiftLoginPage
+import org.ods.e2e.openshift.pages.OpenShiftLoginSelectorPage
 import org.ods.e2e.provapp.pages.HomePage
 import org.ods.e2e.provapp.pages.ProvAppLoginPage
 import org.ods.e2e.provapp.pages.ProvisionPage
@@ -40,11 +47,16 @@ class E2ETestsSpec extends BaseSpec {
     ]
 
     def 'create mro project'() {
-        given: 'We will use the default project'
+        given: 'We will use the mro project'
         def project = projects.mro
+        def projectKey = project.key.toLowerCase()
 
+        // ----------------------------------------
+        // Check that we can create a project
+        // TODO: When prov app will work
+        // ----------------------------------------
         when: 'We create the project'
-        browser.setBaseUrl(baseUrlProvisioningApp)
+        baseUrl = baseUrlProvisioningApp
         to ProvAppLoginPage
         doLoginProcess()
 
@@ -58,23 +70,28 @@ class E2ETestsSpec extends BaseSpec {
         and:
         createProject(project, this, true)
 
-        // TODO: When prov app will work
         then:
         true
 
+        // ----------------------------------------------
+        // Check that we can add components to the project
+        // TODO: When prov app will work
+        // ----------------------------------------------
         when:
         addComponents(project.key, project.components, this, true)
 
-        // TODO: When prov app will work
         then:
         true
 
+        // --------------------------------------------------------------------------------
+        // Check that the jobs to initialize the Quick Starters exists in Jenkins
+        // and have finished succesfully
+        // --------------------------------------------------------------------------------
         when:
-        browser.setBaseUrl(baseUrlJenkins)
+        baseUrl = baseUrlJenkins
 
         and:
         doJenkinsLoginProcess()
-        def projectKey = project.key.toLowerCase()
 
         then: 'The project folder exists'
         assert $("#job_$projectKey-cd")
@@ -94,8 +111,84 @@ class E2ETestsSpec extends BaseSpec {
                     job -> job.value.odsStartupComponentJob && job.value.success
                 }
         }
+
+        // --------------------------------------------------------------------------------
+        // Check that the repositories exists in BB and contains the basic setup of the QS
+        // TODO: Check the proper setup of the repositories
+        // --------------------------------------------------------------------------------
+        when: 'Visit Bitbucket'
+        baseUrl = baseUrlBitbucket
+        to LoginPage
+
+        and: 'we do login'
+        doLogin()
+
+        then: 'we are at the Dashboard'
+        at DashboardPage
+        report('at dashboard page')
+
+        when: 'Visit project $projectKey'
+        to ProjectPage, projectKey
+
+        then: 'We are in the project page'
+        currentUrl.endsWith("projects/$projectKey")
+        report('at project page')
+
+        when: 'We visit one repository'
+        def repositories = getRepositoriesInfo()
+
+        then: 'The repositories exits for each component'
+        project.components.each { component ->
+            assert repositories.findAll { repository -> repository.name == projectKey + '-' + component.componentId }.size() == 1
+        }
+
+        // ----------------------------------------
+        // Check in OpenShift Project existence
+        // TODO: Components existence, bc,dc, etc
+        // ----------------------------------------
+        when: 'Visit Openshift'
+        baseUrl = baseUrlOpenshift
+
+        and: 'and login in Openshift'
+        doOpenshiftLoginProcess()
+
+        and: "Visit all project page"
+        to ConsoleProjectsPage
+
+        then:
+        waitFor { projectList }
+        def projects = findProjects(projectKey)
+        assert projects
+        assert projects.contains(projectKey + '-cd')
+        assert projects.contains(projectKey + '-dev')
+        assert projects.contains(projectKey + '-test')
+
+
+        // ----------------------------------------------------
+        // Check in Jira Project and components existence
+        // TODO: Components existence, bc,dc, etc
+        // ----------------------------------------------------
+        when: 'Visit Jira'
+        baseUrl = baseUrlJira
+        def jiraProjectKey = projectKey.toUpperCase()
+
+        and: 'login in Jira'
+        to org.ods.e2e.jira.pages.DashboardPage
+        loginForm.doLoginProcess()
+
+        and:
+        to org.ods.e2e.jira.pages.ProjectPage, jiraProjectKey
+        to ComponentPage, jiraProjectKey
+
+        then:
+        project.components.each { component ->
+            assert existComponent(component.componentId)
+        }
     }
 
+    /**
+     * The login in Jenkins has an special behavior as we have to go across openshift.
+     */
     def doJenkinsLoginProcess() {
         to JenkinsLoginPage
         loginButton.click()
@@ -107,6 +200,20 @@ class E2ETestsSpec extends BaseSpec {
         doLogin()
 
         at JenkinsConsolePage
+    }
+
+    def doOpenshiftLoginProcess() {
+        to OpenShiftLoginSelectorPage
+        waitFor {
+            title == 'Login - OpenShift Container Platform'
+            ldapLink
+        }
+        ldapLink.click()
+
+        at OpenShiftLoginPage
+        doLogin()
+
+        at ConsoleCatalogPage
     }
 
 }
