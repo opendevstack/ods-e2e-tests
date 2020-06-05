@@ -1,10 +1,11 @@
-package org.ods.e2e.jira
+package org.ods.e2e
 
+import org.ods.e2e.jira.JiraBaseSpec
 import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.pages.*
 
-class JiraReleaseManagerSpec extends JiraBaseSpec {
+class  JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
     def currentStoryKey
     def projectSummary
@@ -296,9 +297,9 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             waitFor { $("li", 'data-mode': 'source') }.click()
             waitFor { edpContent }.value(documentChapters.CSD[edpHeadingNumber.text()].edpContent)
             waitFor { edpContentSubmitButton }.click()
-            sleep(2000)
+            sleep(4000)
             waitFor { issueMenu.transitionButtonDocument }.click()
-            sleep(1000)
+            sleep(4000)
             waitFor { issueMenu.transitionButtonDefine }.click()
 
             report()
