@@ -1,10 +1,11 @@
-package org.ods.e2e.jira
+package org.ods.e2e
 
+import org.ods.e2e.jira.JiraBaseSpec
 import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.pages.*
 
-class JiraReleaseManagerSpec extends JiraBaseSpec {
+class  JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
     def currentStoryKey
     def projectSummary
