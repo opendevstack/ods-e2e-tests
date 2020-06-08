@@ -107,7 +107,7 @@ class ProvAppSpec extends GebReportingSpec {
         provisionLink.click()
         report()
 
-        then:
+        then: "We visit the provisioning page"
         at ProvisionPage
 
         and:
