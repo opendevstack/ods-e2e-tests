@@ -8,19 +8,19 @@ class ProjectCreateFormModule extends Module {
                            kanban : 'kanban',
                            edp    : 'EDP-project-template']
     static content = {
-        createForm(required: true) { $("#createProject") }
-        projectName(required: true) { $("#projectName") }
-        projectKey(required: true) { $("#projectKey") }
-        projectDescription(required: true) { createForm.$("#description") }
-        projectType(required: true) { $("#projectType") }
-        projectSpecificCdUserCheckbox(required: true) { $("#projectSpecificCdUser") }
-        projectSpecificCdUser(required: true) { $("#cdUser") }
-        projectSpecialPermissionSetCheckbox(required: true) { $("#specialPermissionSet") }
-        projectAdminUser(required: true) { $("#projectAdminUser") }
-        projectAdminGroup(required: true) { $("#projectAdminGroup") }
-        projectReadonlyGroup(required: true) { $("#projectReadonlyGroup") }
-        bugtrackerSpace(required: true) { $("#bugtrackerSpace") }
-        platformRuntime(required: true) { $("#platformRuntime") }
+        createForm(wait:true, required: true) { $("#createProject") }
+        projectName(wait:true, required: true) { $("#projectName") }
+        projectKey(wait:true, required: true) { $("#projectKey") }
+        projectDescription(wait:true, required: true) { createForm.$("#description") }
+        projectType(wait:true, required: true) { $("#projectType") }
+        projectSpecificCdUserCheckbox(wait:true, required: true) { $("#projectSpecificCdUser") }
+        projectSpecificCdUser(wait:true, required: true) { $("#cdUser") }
+        projectSpecialPermissionSetCheckbox(wait:true, required: true) { $("#specialPermissionSet") }
+        projectAdminUser(wait:true, required: true) { $("#projectAdminUser") }
+        projectAdminGroup(wait:true, required: true) { $("#projectAdminGroup") }
+        projectReadonlyGroup(wait:true, required: true) { $("#projectReadonlyGroup") }
+        bugtrackerSpace(wait:true, required: true) { $("#bugtrackerSpace") }
+        platformRuntime(wait:true, required: true) { $("#platformRuntime") }
 
         startCreationButton(wait: true) { createForm.$("#createProject > fieldset > button") }
     }

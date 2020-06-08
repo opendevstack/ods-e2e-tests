@@ -5,12 +5,12 @@ import geb.Module
 class ProjectModifyFormModule extends Module {
 
     static content = {
-        modifyForm(required: true) { $("#modifyProject") }
-        projectSelectControl(required: true) { $("#projects") }
-        quickStarterTable(required: true) { $("#quickstartTable") }
-        quickStarterAddGroup(required: true) { $(".form-group.quickstartergroup") }
-        addQuickStarterButton(required: true) { $("button.btn-add") }
-        startProvisionButton(required: false) { $("#modifySubmit") }
+        modifyForm(wait: true, required: true) { $("#modifyProject") }
+        projectSelectControl(wait: true, required: true) { $("#projects") }
+        quickStarterTable(wait: true, required: true) { $("#quickstartTable") }
+        quickStarterAddGroup(wait: true, required: true) { $(".form-group.quickstartergroup") }
+        addQuickStarterButton(wait: true, required: true) { $("button.btn-add") }
+        startProvisionButton(wait: true, required: false) { $("#modifySubmit") }
     }
 
     /**
@@ -40,5 +40,15 @@ class ProjectModifyFormModule extends Module {
      */
     def doStartProvision() {
         startProvisionButton.click()
+    }
+
+    /**
+     * Retrieve the list of projects that can be selected to modify
+     * @return the list of projects
+     */
+    def getProjects() {
+        projectSelectControl.$("option").findResults { project ->
+            project.value() ? [key : project.value(), name: project.text()] : null
+        }
     }
 }

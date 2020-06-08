@@ -36,6 +36,10 @@ Replace `./gradlew` with `gradlew.bat` in the above examples if you're on Window
 
 ## Tests done
 
+### Open Dev Stack
+```ODSSpec.groovy```
+- [x] FT_01_005 - Prevent OpenDevStack to delete projects on Atlassian application.
+
 ### Provisioning App
 `ProvAppSpec.groovy`
 - [x] Visit and login to the Provisioning App
@@ -64,6 +68,8 @@ Replace `./gradlew` with `gradlew.bat` in the above examples if you're on Window
 - [x] checking project folder existence
 - [x] checking component creation job existence
 - [x] checking component build job master branch finalize successfully
+
+
 
 
 
