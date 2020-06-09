@@ -6,8 +6,8 @@ class ConsoleProjectsPage extends Page {
     static url = '/console/projects'
 
     static content = {
-        projectList(wait: true) { $(".projects-list") }
-        projectTitles(wait: true) { $(".tile-target") }
+        projectList(wait: true, required: true) { $(".projects-list") }
+        projectTitles(wait: true, required: true) { $(".tile-target") }
     }
 
     def getProjects() {
