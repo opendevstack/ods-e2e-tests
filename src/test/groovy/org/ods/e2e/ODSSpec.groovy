@@ -3,7 +3,9 @@ package org.ods.e2e
 import org.ods.e2e.bitbucket.pages.DashboardPage
 import org.ods.e2e.bitbucket.pages.LoginPage
 import org.ods.e2e.bitbucket.pages.ProjectPage
-import org.ods.e2e.openshift.pages.*
+import org.ods.e2e.jenkins.pages.JenkinsJobFolderPage
+import org.ods.e2e.openshift.pages.ConsoleProjectsPage
+import org.ods.e2e.openshift.pages.PodsPage
 import org.ods.e2e.provapp.pages.HomePage
 import org.ods.e2e.provapp.pages.ProvAppLoginPage
 import org.ods.e2e.provapp.pages.ProvisionPage
@@ -14,7 +16,7 @@ class ODSSpec extends BaseSpec {
 
     def projects = [
             default: [
-                    name        : 'E2E Test Project4',
+                    name        : 'E2E Test Project',
                     description : 'E2E Test Project',
                     key         : 'E2ET3',
                     type        : 'default',
@@ -83,6 +85,7 @@ class ODSSpec extends BaseSpec {
 
         expect: 'We are logged in the provisioning app'
         at HomePage
+        report("step 1 - logged in provissioning app")
 
         // STEP 2: Click on the provisioning link page
         when: 'Click Provision link'
@@ -90,6 +93,7 @@ class ODSSpec extends BaseSpec {
 
         then: 'We visit the provisioning page'
         at ProvisionPage
+        report("step 2 - visit the provisioning page")
 
         // STEP 3: Click on create a new project and provide name
         when: 'We open the project creation form'
@@ -100,6 +104,7 @@ class ODSSpec extends BaseSpec {
         waitFor {
             projectCreateForm.projectKey.value()
         }
+        report("step 3 - set the project name")
 
         // STEP 4: Click on start provision
         and: 'start provisioning'
@@ -120,11 +125,11 @@ class ODSSpec extends BaseSpec {
             project.jenkinsUrl = $("#dataJenkinsUrl > a").text()
             project.bitbucketUrl = $("#dataBitbucketUrl > a").text()
             project.provJobUrl = $("#dataJobUrls > a").text()
-            report('Project created')
         }
-
         then: 'The project has been created'
-        simulate ? true: $("#resProject.alert-success")
+        simulate ? true : $("#resProject.alert-success")
+        report("step 4 - project has been created")
+
 
         // STEP 5: Go to bitbucket and search for the project with the generated project key
         when: 'Visit Bitbucket'
@@ -136,14 +141,13 @@ class ODSSpec extends BaseSpec {
 
         then: 'we are at the Dashboard'
         at DashboardPage
-        report('at dashboard page')
 
         when: 'Visit project'
         to ProjectPage, project.key
 
         then: 'We are in the project page'
-        currentUrl.endsWith("projects/${project.key}")
-        report('bitbucket at project page')
+        currentUrl.endsWith("projects/${project.key}/")
+        report("step 5 - project in bitbucket")
 
         // STEP 6: Go to openshift – and find the new project with its key (-cd). Locate a running Jenkins instance
         when: 'Visit Openshift'
@@ -161,15 +165,16 @@ class ODSSpec extends BaseSpec {
         assert projects
         assert projects.contains(project.key.toLowerCase() + '-cd')
 
-                when: 'Visit pods page'
-                to PodsPage, project.key.toLowerCase() + '-cd'
-                sleep(5000)
+        when: 'Visit pods page'
+        to PodsPage, project.key.toLowerCase() + '-cd'
+        sleep(5000)
 
-                and:
+        and:
         def pods = getPods()
 
         then:
         assert pods.find { pod -> pod.name.startsWith('jenkins') && pod.status == 'Running' }
+        report("step 6 - existing jenkins instance for the project")
 
         // STEP 7: Return to provisioning app (refresh page) and click on modify existing
         when:
@@ -179,6 +184,7 @@ class ODSSpec extends BaseSpec {
         and:
         provisionOptionChooser.doSelectModifyProject()
         projectModifyForm.doSelectProject(project.key)
+        report("step 7 - go to provissioning app")
 
         // STEP 8: Click on the Quickstarter dropdown list and select a boilerplate “Frontend implemented with Vue JS”
         and:
@@ -186,7 +192,7 @@ class ODSSpec extends BaseSpec {
             projectModifyForm.doAddQuickStarter(component.quickStarter, component.componentId, index + 1)
             projectModifyForm.addQuickStarterButton.click()
         }
-        report('Add quickstarters')
+        report("step 8 - add quickstarter")
 
         // STEP 9: Click on Start Provision
         and:
@@ -203,11 +209,63 @@ class ODSSpec extends BaseSpec {
         }
 
         then: 'Quickstarter was added'
-        simulate ? true: $("#resProject.alert-success")
+        simulate ? true : $("#resProject.alert-success")
+        report("step 9 - quick starter provisioned")
 
-        // STEP 10: Go to bitbucket into the above named project and check for your component repository with the name you provided.
+        // STEP 10: Go to bitbucket into the above named project and check for your component repository
+        // with the name you provided.
+        when: 'Visit Bitbucket'
+        baseUrl = baseUrlBitbucket
+        to ProjectPage, project.key
+
+        then: 'We are in the project page'
+        currentUrl.endsWith("projects/${project.key}/")
+
+        when: 'We visit one repository'
+        def repositories = getRepositoriesInfo()
+
+        then: 'The repositories exits for each component'
+        project.components.each { component ->
+            assert repositories.findAll { repository -> repository.name.toLowerCase() == (project.key + '-' + component.componentId).toLowerCase() }.size() == 1
+        }
+        report("step 10 - components repositories in bitbucket")
+
         // STEP 11: Go to your project’s Jenkins and locate the provision job of the component
+        when:
+        baseUrl = getJenkinsBaseUrl(project.key)
+
+        and:
+        doJenkinsLoginProcess()
+
+        then: 'The project folder exists'
+        assert $("#job_${project.key.toLowerCase()}-cd")
+
+        when: 'Visit the jobs'
+        to JenkinsJobFolderPage, "${project.key}-cd"
+
+        and:
+        project.components.each { component ->
+            component.jobs = getComponentJobs(project.key, component.componentId)
+        }
+
+        then: 'The component startup jobs finished succesfully'
+        project.components.each {
+            component ->
+                assert component.jobs.find {
+                    job -> job.value.odsStartupComponentJob && job.value.success
+                }
+        }
+        report("step 11 - provision job of the component")
+
         // STEP 12: Go to your project’s Jenkins and locate the build job of the component – named component - name-master
+        and: 'Checks that exists jobs that are not qs startup jobs for the components'
+        project.components.each {
+            component ->
+                assert component.jobs.find {
+                    job -> !job.value.odsStartupComponentJob
+                }
+        }
+        report("step 12 - build job of the component")
     }
 
     /**
@@ -255,19 +313,5 @@ class ODSSpec extends BaseSpec {
         then: 'The ODS should display a message indicating this actions is not acceptable'
         assert $('#projectName ~ div.with-errors').text()
 
-    }
-
-    def doOpenshiftLoginProcess() {
-        to OpenShiftLoginSelectorPage
-        waitFor {
-            title == 'Login - OpenShift Container Platform'
-            ldapLink
-        }
-        ldapLink.click()
-
-        at OpenShiftLoginPage
-        doLogin()
-
-        at ConsoleCatalogPage
     }
 }

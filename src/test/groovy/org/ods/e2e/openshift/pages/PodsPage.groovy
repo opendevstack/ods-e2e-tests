@@ -5,14 +5,16 @@ import geb.Page
 class PodsPage extends Page {
 
     static url = '/console/project/'
+
     /**
-     * Generate a path with this format:
+     * Adapt the url to get to the pods page
      * /console/project/PROJECT/browse/pods
      * @param args The project, f.e. 'test-cd'
      * @return The url to the Pods page
      */
     String convertToPath(Object[] args) {
-        args ? args[0] + '/browse/pods' : ''
+        def project = args[0].toString().toLowerCase()
+        args ? "$project/browse/pods" : ''
     }
 
     static at = { browser.currentUrl.endsWith('browse/pods') }
