@@ -6,7 +6,7 @@ class RepositoryPage extends Page {
     def project
     def repository
 
-    static url = "https://bitbucket-dev.biscrum.com/projects"
+    static url = "/projects"
 
     static at = { browser.currentUrl.contains("$project/repos/$repository/browse")}
 
@@ -16,9 +16,9 @@ class RepositoryPage extends Page {
      * @param args must contain 2 args, projectName and repositoryName
      */
     String convertToPath(Object[] args) {
-        project = args[0]
+        project = args[0].toString().toUpperCase()
         repository = args[1]
-        args ? '/' + args[0] + '/repos/' + args[1] + '/browse' : ''
+        args ? "/$project/repos/$repository/browse" : ''
     }
 
     static content = {

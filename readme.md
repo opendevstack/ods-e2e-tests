@@ -38,6 +38,7 @@ Replace `./gradlew` with `gradlew.bat` in the above examples if you're on Window
 
 ### Open Dev Stack
 ```ODSSpec.groovy```
+- [x] FT_01_001 - Use the Provisioning app to create a project and add a Quickstarter.
 - [x] FT_01_005 - Prevent OpenDevStack to delete projects on Atlassian application.
 
 ### Provisioning App

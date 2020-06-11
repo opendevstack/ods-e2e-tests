@@ -7,8 +7,14 @@ class ProjectPage extends Page {
 
     static url = "/projects"
 
+    /**
+     * Adapt the url to get to the project page
+     * https://jira-url/browse/ISSUE
+     * @param args must contain 1 arg, projectKey
+     */
     String convertToPath(Object[] args) {
-        args ? "/" + args[0].toString() + "/summary/" : ""
+        def project = args[0].toString().toUpperCase()
+        args ? "/$project/summary/" : ""
     }
     static at = { browser.currentUrl.contains('summary')  }
 

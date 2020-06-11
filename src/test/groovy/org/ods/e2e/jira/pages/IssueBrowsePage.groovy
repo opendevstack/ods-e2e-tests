@@ -12,8 +12,14 @@ class IssueBrowsePage extends Page {
     static edpHeadingNumberId = 'customfield_12024'
     static edpContentId = 'customfield_12025'
 
+    /**
+     * Adapt the url to get to the issue page
+     * https://jira-url/browse/ISSUE
+     * @param args must contain 1 arg, issueKey
+     */
     String convertToPath(Object[] args) {
-        args ? '/' + args*.toString().join('/') : ''
+        def issue = args[0].toString().toUpperCase()
+        args ? "/$issue/" : ''
     }
 
     static at = { browser.currentUrl.contains('browse') }

@@ -1,16 +1,36 @@
 package org.ods.e2e.provapp
 
-import geb.spock.GebReportingSpec
+
 import org.ods.e2e.provapp.pages.HomePage
 import org.ods.e2e.provapp.pages.ProvAppLoginPage
 import org.ods.e2e.provapp.pages.ProvisionPage
+import org.ods.e2e.util.BaseSpec
 import org.ods.e2e.util.SpecHelper
 
-
-class ProvAppSpec extends GebReportingSpec {
+class ProvAppSpec extends BaseSpec {
     static Properties applicationProperties = new SpecHelper().getApplicationProperties()
+
+    def project
+    def component
+
+    def projects = [
+            default: [
+                    name        : 'E2E Test Project',
+                    description : 'E2E Test Project',
+                    key         : 'E2ET3',
+                    type        : 'default',
+                    hasJira     : true,
+                    hasOpenshift: true,
+                    components  : [
+                            [componentId: 'component-vue', quickStarter: ProvisionPage.quickstarters.feVue],
+                    ]
+            ]
+    ]
+
     def setup() {
         baseUrl = applicationProperties."config.provisioning.url"
+        project = projects.default
+        component = project.components.first()
     }
 
     def "can login to the ProvApp"() {
@@ -64,34 +84,38 @@ class ProvAppSpec extends GebReportingSpec {
         assert projectCreateForm
 
         when: "Fill the Project Form"
-        projectCreateForm.projectName = 'project-name'
-        projectCreateForm.projectKey = 'PROJECTKEY'
-        projectCreateForm.projectDescription = 'E2E - Test Project'
-        projectCreateForm.projectType = ProjectCreateFormModule.projectTypes.kanban
+        projectCreateForm.projectName = project.name
+        projectCreateForm.projectKey = project.key
+        projectCreateForm.projectDescription = project.description
+        projectCreateForm.projectType = project.type
 
         and: "Choose to create a Jira / Confluence space"
-        projectCreateForm.bugtrackerSpace = true
+        projectCreateForm.bugtrackerSpace = project.hasJira
 
         and: "Choose to create a Openshift Project"
-        projectCreateForm.platformRuntime = true
+        projectCreateForm.platformRuntime = project.hasOpenshift
 
         and: "Click on provision"
-        projectCreateForm.startCreationButton.click()
+        if (!simulate) projectCreateForm.startCreationButton.click()
 
         and:
-        waitFor {
-            $(".modal-dialog").css("display") != "hidden"
-        }
-        sleep(5000)
-        report()
-        and:
-        waitFor {
-            $("#resButton").text() == "Close"
+        if (!simulate) {
+            waitFor {
+                $(".modal-dialog").css("display") != "hidden"
+            }
+            sleep(5000)
+            report()
         }
 
-        // TODO: Finish when the org.ods.e2e.provapp is working again
+        and:
+        if (!simulate) {
+            waitFor {
+                $("#resButton").text() == "Close"
+            }
+        }
+
         then:
-        false
+        if (!simulate) $("#resProject.alert-success")
         report()
     }
 
@@ -128,34 +152,36 @@ class ProvAppSpec extends GebReportingSpec {
         projectModifyForm.quickStarterTable.classes().sort() == ["table-responsive", "hidden"].sort()
 
         when: "Select a project"
-        projectModifyForm.doSelectProject("JRPSB")
+        projectModifyForm.doSelectProject(project.key)
         report()
 
         then: "Project modification form is displayed"
         projectModifyForm.quickStarterTable.classes() == ["table-responsive"]
 
         when: "Select a quickstarter to add"
-        projectModifyForm.doAddQuickStarter("be-golang-plain", "quick-1", 1)
+        projectModifyForm.doAddQuickStarter(component.quickStarter, component.componentId, 1)
         report()
 
         and: "Provision the QS"
-        projectModifyForm.doStartProvision()
+        if (!simulate) projectModifyForm.doStartProvision()
 
         and: "Wait until the provissioning process is running"
-        waitFor {
-            $(".modal-dialog").css("display") != "hidden"
+        if (!simulate) {
+            waitFor {
+                $(".modal-dialog").css("display") != "hidden"
+            }
+            sleep(5000)
+            report()
         }
-        sleep(5000)
-        report()
-
-        and: "Wait for the provissioning process has finish"
-        waitFor {
-            $("#resButton").text() == "Close"
+        and: "Wait for the provissioning process has finished"
+        if (!simulate) {
+            waitFor {
+                $("#resButton").text() == "Close"
+            }
         }
 
-        // TODO: Finish when the org.ods.e2e.provapp is working again
         then: "Component is added"
-        false
+        if (!simulate) $("#resProject.alert-success")
         report()
     }
 

@@ -27,15 +27,16 @@ class JenkinsConsolePage extends Page {
     }
 
     def getComponentJobs(project, component) {
+        def projectKey = project.toLowerCase()
         jobsTable.$("tr").findAll { it.@id.contains(component) }.
                 collectEntries {
-                    [it.@id - "job_$project-cd-",
+                    [it.@id - "job_$projectKey-cd-",
                      [
-                             id                    : (it.@id - "job_$project-cd-") - 'ods-qs-',
-                             branch                : ((it.@id - "job_$project-cd-") - 'ods-qs-') - "$component-",
+                             id                    : (it.@id - "job_$projectKey-cd-") - 'ods-qs-',
+                             branch                : ((it.@id - "job_$projectKey-cd-") - 'ods-qs-') - "$component-",
                              success               : it.hasClass('job-status-blue'),
                              notBuild              : it.hasClass('job-status-nobuilt'),
-                             odsStartupComponentJob: it.@id.endsWith('-2x'),
+                             odsStartupComponentJob: it.@id.contains('-2x'),
                      ]
                     ]
                 }

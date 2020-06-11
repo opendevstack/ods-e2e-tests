@@ -7,12 +7,14 @@ class CommitsPage extends Page {
     static url = "https://bitbucket-dev.biscrum.com/projects"
 
     /**
-     * Adapt the url to get to the repository page
+     * Adapt the url to get to the commits page
      * https://bitbucket-url/projects/PROJECT/repos/REPOSITORY/browse
      * @param args must contain 2 args, projectName and repositoryName
      */
     String convertToPath(Object[] args) {
-        args ? '/' + args[0] + '/repos/' + args[1] + '/commits' : ''
+        def project = args[0].toString().toUpperCase()
+        def repository = args[1].toString().toLowerCase()
+        args ? "/$project/repos/$repository/commits" : ''
     }
 
     static at = { browser.currentUrl.contains('commits') }

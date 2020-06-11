@@ -33,15 +33,14 @@ class E2ETestsSpec extends BaseSpec {
 
     def projects = [
             mro: [
-                    name        : 'Validation Testing 2',
-                    key         : 'VTATL2',
-                    description : 'Validation Testing 2',
+                    name        : 'E2E Test Project',
+                    description : 'E2E Test Project',
+                    key         : 'E2ET3',
                     type        : 'default',
                     hasJira     : true,
                     hasOpenshift: true,
                     components  : [
-                            [componentId: 'demo-app-carts', quickStarter: ProvisionPage.quickstarters.beGolangPlain],
-                            [componentId: 'demo-app-catalogue', quickStarter: ProvisionPage.quickstarters.beJavaSpringboot],
+                            [componentId: 'component-vue', quickStarter: ProvisionPage.quickstarters.feVue],
                     ]
             ]
     ]
@@ -88,7 +87,7 @@ class E2ETestsSpec extends BaseSpec {
         // and have finished succesfully
         // --------------------------------------------------------------------------------
         when:
-        baseUrl = baseUrlJenkins
+        baseUrl = getJenkinsBaseUrl(project.key)
 
         and:
         doJenkinsLoginProcess()
@@ -131,7 +130,7 @@ class E2ETestsSpec extends BaseSpec {
         to ProjectPage, projectKey
 
         then: 'We are in the project page'
-        currentUrl.endsWith("projects/$projectKey")
+        currentUrl.endsWith("projects/${projectKey.toUpperCase()}/")
         report('at project page')
 
         when: 'We visit one repository'
@@ -139,7 +138,7 @@ class E2ETestsSpec extends BaseSpec {
 
         then: 'The repositories exits for each component'
         project.components.each { component ->
-            assert repositories.findAll { repository -> repository.name == projectKey + '-' + component.componentId }.size() == 1
+            assert repositories.findAll { repository -> repository.name.toLowerCase() == (projectKey + '-' + component.componentId).toLowerCase() }.size() == 1
         }
 
         // ----------------------------------------
@@ -185,35 +184,4 @@ class E2ETestsSpec extends BaseSpec {
             assert existComponent(component.componentId)
         }
     }
-
-    /**
-     * The login in Jenkins has an special behavior as we have to go across openshift.
-     */
-    def doJenkinsLoginProcess() {
-        to JenkinsLoginPage
-        loginButton.click()
-
-        at(new JenkinsLoginSelectorPage())
-        ldapLink.click()
-
-        at OpenShiftLoginPage
-        doLogin()
-
-        at JenkinsConsolePage
-    }
-
-    def doOpenshiftLoginProcess() {
-        to OpenShiftLoginSelectorPage
-        waitFor {
-            title == 'Login - OpenShift Container Platform'
-            ldapLink
-        }
-        ldapLink.click()
-
-        at OpenShiftLoginPage
-        doLogin()
-
-        at ConsoleCatalogPage
-    }
-
 }
