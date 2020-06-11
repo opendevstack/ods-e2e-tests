@@ -21,6 +21,7 @@ class BaseSpec extends GebReportingSpec {
     def baseUrlJenkins
     def baseUrlOpenshift
     def openshiftPublichost
+    def simulate
 
     def setup() {
         driver.manage().window().setSize(new Dimension(1600, 1024))
@@ -33,6 +34,7 @@ class BaseSpec extends GebReportingSpec {
         baseUrlBitbucket = applicationProperties."config.atlassian.bitbucket.url"
         baseUrlJenkins = applicationProperties."config.jenkins.url"
         baseUrlOpenshift = applicationProperties."config.openshift.url"
+        simulate = applicationProperties."config.simulate".toUpperCase() == 'TRUE'
     }
 
     def getApplicationProperties() {
@@ -44,7 +46,7 @@ class BaseSpec extends GebReportingSpec {
      * @param project
      * @return
      */
-    def getJenkinsBaseUrl(project){
+    def getJenkinsBaseUrl(project) {
         return "https://jenkins-${project.toLowerCase()}-cd.$openshiftPublichost"
     }
 

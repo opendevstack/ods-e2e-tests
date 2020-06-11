@@ -12,7 +12,6 @@ import org.ods.e2e.provapp.pages.ProvisionPage
 import org.ods.e2e.util.BaseSpec
 
 class ODSSpec extends BaseSpec {
-    def simulate = true
 
     def projects = [
             default: [

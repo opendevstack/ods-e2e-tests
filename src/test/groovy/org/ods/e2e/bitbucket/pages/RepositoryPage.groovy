@@ -16,8 +16,8 @@ class RepositoryPage extends Page {
      * @param args must contain 2 args, projectName and repositoryName
      */
     String convertToPath(Object[] args) {
-        def project = args[0].toString().toUpperCase()
-        def repository = args[1]
+        project = args[0].toString().toUpperCase()
+        repository = args[1]
         args ? "/$project/repos/$repository/browse" : ''
     }
 

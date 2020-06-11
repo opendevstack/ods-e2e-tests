@@ -42,7 +42,7 @@ class BitbucketSpec extends GebReportingSpec {
         to ProjectPage, projectName
 
         then: "We are in the project page"
-        currentUrl.endsWith("projects/$projectName")
+        currentUrl.endsWith("projects/$projectName/")
         report('at project page')
 
         when: "We visit one repository"
