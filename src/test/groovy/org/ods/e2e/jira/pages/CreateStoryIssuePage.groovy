@@ -1,6 +1,7 @@
 package org.ods.e2e.jira.pages
 
 import geb.Page
+import org.ods.e2e.jira.modules.NavigationBarModule
 
 class CreateStoryIssuePage extends CreateIssuePage {
     static gampTopicFieldId = 'customfield_11903'
@@ -33,6 +34,7 @@ class CreateStoryIssuePage extends CreateIssuePage {
     static at = { browser.currentUrl.contains('CreateIssue') && $("#issue-create-issue-type").text() == 'Story' }
 
     static content = {
+        navigationBar { module(NavigationBarModule) }
         gampTopicSelect { $("#$gampTopicFieldId") }
         reqAcceptanceCriteria { $("#$reqAcceptanceCriteriaFieldId") }
         funcSpecSummary { $("#$funcSpecSummaryFieldId") }

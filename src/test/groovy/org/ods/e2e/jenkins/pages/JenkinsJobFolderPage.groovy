@@ -11,6 +11,6 @@ class JenkinsJobFolderPage extends JenkinsConsolePage {
      */
     String convertToPath(Object[] args) {
         def folder = args[0].toString().toLowerCase()
-        args ? "$folder/" : ''
+        args ? "$folder-cd/" : ''
     }
 }
