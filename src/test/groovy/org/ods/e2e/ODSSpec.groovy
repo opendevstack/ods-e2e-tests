@@ -1,11 +1,13 @@
 package org.ods.e2e
 
+
 import org.ods.e2e.bitbucket.pages.DashboardPage
 import org.ods.e2e.bitbucket.pages.LoginPage
 import org.ods.e2e.bitbucket.pages.ProjectPage
 import org.ods.e2e.bitbucket.pages.RepositoryPage
 import org.ods.e2e.jenkins.pages.JenkinsJobFolderPage
 import org.ods.e2e.openshift.pages.ConsoleProjectsPage
+import org.ods.e2e.openshift.pages.ConsoleResourcesConfigMaps
 import org.ods.e2e.openshift.pages.PodsPage
 import org.ods.e2e.provapp.pages.HomePage
 import org.ods.e2e.provapp.pages.ProvAppLoginPage
@@ -16,6 +18,10 @@ import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 
 class ODSSpec extends BaseSpec {
+
+    def static OPENDEVSTACK = 'OPENDEVSTACK'
+    def static E2E_TEST_BRANCH = 'e2e-test-branch'
+    def static E2E_TEST_FILE = 'e2e-tests.txt'
 
     def projects = [
             default: [
@@ -69,47 +75,6 @@ class ODSSpec extends BaseSpec {
     def setup() {
         // We will start with the provisioning app as the base url
         baseUrl = baseUrlProvisioningApp
-    }
-
-    def "PLAY"() {
-        given:
-        def project = projects.default
-        project.key = 'e2et3'
-
-        // STEP 2:	Checkout / git clone the release manager repository and open metadata.yml
-        //          Result: Repository cloned, metadata.yml is available
-        when:
-        def repositoryFolder = GitUtil.cloneRepository(projects.default.key, releaseManagerComponent.componentId)
-
-        and:
-        DumperOptions options = new DumperOptions()
-        options.setPrettyFlow(true)
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK)
-        Yaml parser = new Yaml(options)
-
-        def metadataYml = parser.load(("$repositoryFolder/metadata.yml" as File).text)
-
-        then:
-        assert metadataYml
-
-        // STEP 3:	Add a new repository section into metadata.yml pointing to the component repository created earlier (see perreq.) – commit and push
-        //          Result: New build of release manager in Jenkins visible, including a new build & deployment of your component.
-        when:
-        def metadataRepositories = metadataYml.getAt('repositories')
-        if (metadataRepositories == null) {
-            metadataYml.putAt('repositories', [])
-            metadataRepositories = metadataYml.getAt('repositories')
-        }
-        metadataRepositories.putAt(metadataRepositories.size, [id: 'a', name: 'aa', type: 'ods'])
-
-        and:
-        parser.dump(metadataYml, new FileWriter("$repositoryFolder/metadata.yml"))
-
-        and:
-        GitUtil.commitAddAll('New component added')
-        then:
-        false
-
     }
 
     /**
@@ -324,6 +289,99 @@ class ODSSpec extends BaseSpec {
     }
 
     /**
+     * Test Objective: To provide evidences that a new boilerplate software updates can be easily added to ODS,
+     * and be available for use.
+     *
+     * Prerequisites: Be logged in as Provisioning Application administrator, have a OpenShift project, have access
+     * to the console/terminal logs of Jenkins, Nexus and SonarQube and have administrator access to the Bitbucket
+     * repositories including the OpenDevStack one.
+     */
+    def "FT_01_002"() {
+        // STEP 1: Go to Bitbucket ODS project – into repository ods-quickstarters
+        //         Result: Project and repository available
+        given:
+        baseUrl = baseUrlBitbucket
+
+        when:
+        to LoginPage
+
+        and: 'we do login'
+        doLogin()
+
+        then: 'we are at the Dashboard'
+        at DashboardPage
+
+        when: 'Visit project'
+        to RepositoryPage, OPENDEVSTACK, 'ods-quickstarters'
+
+        then: 'Project and repository available'
+        currentUrl.endsWith('OPENDEVSTACK/repos/ods-quickstarters/browse')
+        report('step 1 - Project and repository available')
+
+        // STEP 2: Pick one quickstarter repository and create a branch from master – add, and commit a file into /files
+        //         Result: Repository with master branch found, branch modified and committed/pushed
+        when: 'Checkout project'
+        def gitRepository = GitUtil.cloneRepository(OPENDEVSTACK, 'ods-quickstarters', false)
+
+        and: 'Create a branch'
+        GitUtil.checkout(gitRepository, E2E_TEST_BRANCH, true)
+
+        and: 'Add a file into /files'
+        def directory = gitRepository.repository.getWorkTree()
+        new File("$directory/fe-angular/files/$E2E_TEST_FILE").text = 'Testing file for FT_01_002'
+
+        and: 'Commit and push file'
+        GitUtil.add(gitRepository, "fe-angular/files/$E2E_TEST_FILE")
+        GitUtil.commitAddAll(gitRepository, 'Added test file')
+        GitUtil.push(gitRepository)
+
+        and: 'Visit bitbucket to grab evidences of adding files'
+        to RepositoryPage, OPENDEVSTACK, 'ods-quickstarters', 'fe-angular/files', [at: E2E_TEST_BRANCH]
+
+        and: 'Get the existing files'
+        def files = getFiles()
+
+        then: 'exists all the files needed for the LeVADocs templates'
+        files.find { file -> file.name == E2E_TEST_FILE }
+        report("step 2 - Repository with master branch found, branch modified and committed/pushed.")
+
+        // STEP 3: Go to Openshift prov-test project and open available config maps
+        //         Result: Configuration maps available – namely application.properties
+        when: 'Visit Openshift'
+        baseUrl = baseUrlOpenshift
+
+        and: 'and login in Openshift'
+        doOpenshiftLoginProcess()
+
+        and: 'Visit the config maps of the provisioning application'
+        to ConsoleResourcesConfigMaps, 'prov-test'
+
+        and: 'Retrieve the configMaps'
+        def configMaps = getConfigMaps()
+
+        then:
+        configMaps.findAll { configMap -> configMap.name == 'application.properties' }.size() == 1
+
+
+        // STEP 4: In the application.properties config map copy the configuration lines from the quickstarter
+        //         you pick from the step 2
+        //         Result: Existing Quickstarter / boilerplace configuration available
+
+        // STEP 5: Replace the key with a name of your choice and add the branch identifier and Jenkins file path as
+        //         documented in the application.properties – click save
+        //         Result: Config map can be saved
+
+        // STEP 6: From the console or thru OC cli - redeploy the provision application in prov-test
+        //         Result: New deployment of provision app shown in console and new pod available
+
+        // STEP 7: Login and pick modifiy existing project / and locate the new quickstarter
+        //         Result: New quickstarter available in the list in provision application
+
+        // STEP 8: Go to bitbucket, locate the new repository and locate the file added in step 2
+        //         Result: Repository and file available
+    }
+
+    /**
      * Test Objective:
      * The purpose of this test case is to demonstrate the functionality to orchestrate multiple repositories with the
      * deployment, and      * to automatically produce LeVA documentation. This test will use the Provisioning
@@ -417,7 +475,7 @@ class ODSSpec extends BaseSpec {
         // STEP 2:	Checkout / git clone the release manager repository and open metadata.yml
         //          Result: Repository cloned, metadata.yml is available
         when:
-        def repositoryFolder = GitUtil.cloneRepository(projects.default.key, releaseManagerComponent.componentId)
+        def gitRepository = GitUtil.cloneRepository(projects.default.key, releaseManagerComponent.componentId)
 
         and:
         DumperOptions options = new DumperOptions()
@@ -447,10 +505,10 @@ class ODSSpec extends BaseSpec {
         parser.dump(metadataYml, new FileWriter("$repositoryFolder/metadata.yml"))
 
         and: 'Commit the file'
-        GitUtil.commitAddAll('New component added')
+        GitUtil.commitAddAll(gitRepository, 'New component added')
 
         and: 'Push it to the repository'
-        GitUtil.push('origin')
+        GitUtil.push(gitRepository, 'origin')
 
         // TODO: Finalize when having a working QS
         then:
@@ -460,7 +518,7 @@ class ODSSpec extends BaseSpec {
         // STEP 4:	Go to bitbucket opendevstack project and locate ods-document-generation-templates
         //          Result: Repository is available and within document templates for LeVa can be found.
         when: 'Visit project OPENDEVSTACK'
-        to ProjectPage, 'OPENDEVSTACK'
+        to ProjectPage, OPENDEVSTACK
 
         then: 'We are in the project page'
         currentUrl.endsWith("projects/OPENDEVSTACK/")
@@ -474,7 +532,7 @@ class ODSSpec extends BaseSpec {
         }.size() == 1
 
         when:
-        to RepositoryPage, 'OPENDEVSTACK', 'ods-document-generation-templates', 'templates', [at: 'release/v1.0']
+        to RepositoryPage, OPENDEVSTACK, 'ods-document-generation-templates', 'templates', [at: 'release/v1.0']
 
         and: 'Get the existing files'
         def templates = getFiles()
