@@ -12,7 +12,7 @@ class IssuesPage extends Page {
 
     static content = {
         searchForm { $('#content > div.navigator-container.navigator-sidebar-collapsed > div.navigator-body > div > form') }
-        activateAdvancedSearchLink(required: true) { $('div.search-options-container > div > a.switcher-item.active') }
+        activateAdvancedSearchLink(required: false) { $('a.switcher-item.active', 'data-id': 'basic') }
         searchTextArea(required: true, wait: true) { $('#advanced-search') }
         searchButton(required: true, wait: true) { $('div.search-options-container > button') }
         issueMenu { module(new IssueMenuModule(driver: driver)) }
@@ -36,6 +36,7 @@ class IssuesPage extends Page {
      */
     def findIssue(Map args) {
         switchLayoutToList()
+        switchToAdvancedSearch()
         def queryString = "project = $args.projectName"
         queryString += args.issueId ? " and issue = $args.issueId" : ''
         queryString += args.issueType ? " and issuetype = $args.issueType" : ''
@@ -112,6 +113,15 @@ class IssuesPage extends Page {
     def switchLayoutToDetail() {
         layoutSwitcherButton.click()
         layoutSwitcherOptionDetail.click()
+    }
+
+    /**
+     * Switch search mode to advanced, it not already selected.
+     */
+    def switchToAdvancedSearch() {
+        if (activateAdvancedSearchLink.size() == 1) {
+            activateAdvancedSearchLink.click()
+        }
     }
 
     /**

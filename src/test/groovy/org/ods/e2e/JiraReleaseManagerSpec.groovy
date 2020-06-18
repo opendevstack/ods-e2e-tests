@@ -95,7 +95,6 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
-
     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
     // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
     // amend the Documentation chapter issues and check the issue workflows.
@@ -217,7 +216,6 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and: "Search for that issue in status Done"
         to IssuesPage
-        switchLayoutToList()
         findIssue(projectName: projectName, issueId: issues.story1.key, status: 'Done')
         sleep(2000)
 
@@ -233,7 +231,6 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and: "Search for that issue in status Done"
         to IssuesPage
-        switchLayoutToList()
         findIssue(projectName: projectName, issueId: issues.story2.key, status: 'Done')
         sleep(2000)
 
@@ -248,7 +245,6 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and: "Search for that issue in status Done"
         to IssuesPage
-        switchLayoutToList()
         findIssue(projectName: projectName, issueId: issues.story3.key, status: 'Cancelled')
         sleep(2000)
 
@@ -263,7 +259,6 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and: "Search for that issue in status In progress"
         to IssuesPage
-        switchLayoutToList()
 
         findIssue(projectName: projectName, issueId: issues.story4.key, status: '"In Progress"')
         sleep(2000)
@@ -694,7 +689,6 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and: "Check all Tehcnical Specification Tasks in Done status"
         to IssuesPage
-        switchLayoutToList()
         findIssue(projectName: projectName, issueId: technicalSpecifications.tst1.key, status: 'Done')
         report('Tecnical Specification Task 1 in Done Status')
 
