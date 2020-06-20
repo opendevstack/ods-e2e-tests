@@ -37,8 +37,8 @@ class ODSSpec extends BaseSpec {
 
     // MRO Pipeline created previous releases, it will use the repository created for the releaseManagerComponent
     // in this case project.key-e2e-release-manager
-    def releaseManagerPipelineJob = "mro-pipeline-master"
-    def releaseManagerPipelineComponentName = "mro-pipeline"
+    def static releaseManagerPipelineJob = "mro-pipeline-master"
+    def static releaseManagerPipelineComponentName = "mro-pipeline"
 
     def leVADocsTemplates = [
             'CFTP-1.html.tmpl',
@@ -76,7 +76,7 @@ class ODSSpec extends BaseSpec {
 
     def setup() {
         // We will start with the provisioning app as the base url
-        baseUrl = baseUrlProvisioningApp
+        println 'Tests setup'
     }
 
     /**
@@ -102,6 +102,8 @@ class ODSSpec extends BaseSpec {
         // STEP 1: Login to provisioning application with administrator privileges
         given: 'We are logged in the provissioning app'
         def project = projects.default
+        baseUrl = baseUrlProvisioningApp
+
         to ProvAppLoginPage
         doLoginProcess()
 
@@ -604,7 +606,6 @@ class ODSSpec extends BaseSpec {
         then:
         assert pods.find { pod -> pod.name.startsWith('docgen') && pod.status == 'Running' }
         report("step 5 - Document Generation service pod is available")
-
     }
 
     /**
@@ -651,6 +652,10 @@ class ODSSpec extends BaseSpec {
 
         then: 'The ODS should display a message indicating this actions is not acceptable'
         assert $('#projectName ~ div.with-errors').text()
+    }
 
+    def cleanup() {
+        println 'Cleanup method cookies'
+        cleanupAllCookies(projects.default.key)
     }
 }
