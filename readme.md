@@ -11,9 +11,15 @@ You need to set several environment variables in order to make this work, as it 
 
 | Variable | Value |
 |---|---|
-| E2E_USER | Short name of the user |
-| E2E_USER_EMAIL | email of the user (for Jira tools) |
-| E2E_USER_PASSWORD | user password |
+| PROV_APP_USER | Provisioning app user name |
+| PROV_APP_PASSWORD | Provisioning app password |
+| ATLASSIAN_USER | Atlassian user name |
+| ATLASSIAN_PASSWORD | Atlassian password |
+| JENKINS_USER | Jenkins user name |
+| JENKINS_PASSWORD | Jenkins password |
+| OPENSHIFT_USER | Openshift user name |
+| OPENSHIFT_PASSWORD | Openshift password |
+| PROV_APP_NAME | Name of the deployment of the provisioning app |
 | JIRA_URL | Url of Jira instance related with the prov app |
 | OPENSHIFT_PROJECT | project identifier for prov app in the preliminary tests |
 | OPENSHIFT_PUBLIC_HOST | host where we can locate the prov app |

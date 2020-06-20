@@ -12,6 +12,7 @@ ext {
 
     spockVersion = "1.3-groovy-2.5"
     gebVersion = '3.4'
+    unirestVersion = "3.7.02"
     seleniumVersion = '3.141.59'
     chromeDriverVersion = '83.0.4103.39'
     geckoDriverVersion = '0.26.0'
@@ -37,6 +38,9 @@ dependencies {
     testCompile "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
     testCompile "org.seleniumhq.selenium:htmlunit-driver:$htmlunitVersion"
     testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+
+    // Utils
+    testCompile "com.konghq:unirest-java:$unirestVersion:standalone"
 
     // Use of git
     compile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"

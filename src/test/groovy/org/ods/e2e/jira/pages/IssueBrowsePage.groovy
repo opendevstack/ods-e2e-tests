@@ -19,7 +19,7 @@ class IssueBrowsePage extends Page {
      */
     String convertToPath(Object[] args) {
         def issue = args[0].toString().toUpperCase()
-        args ? "/$issue/" : ''
+        args ? "/$issue" : ''
     }
 
     static at = { browser.currentUrl.contains('browse') }
