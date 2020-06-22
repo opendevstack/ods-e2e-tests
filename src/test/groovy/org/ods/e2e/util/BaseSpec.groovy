@@ -84,10 +84,10 @@ class BaseSpec extends GebReportingSpec {
     def doJenkinsLoginProcess() {
         to JenkinsLoginPage
         loginButton.click()
-
-        at(new JenkinsLoginSelectorPage())
-        ldapLink.click()
-
+        if (extraLoginPage) {
+            at(new JenkinsLoginSelectorPage())
+            ldapLink.click()
+        }
         at OpenShiftLoginPage
         doLogin()
 
