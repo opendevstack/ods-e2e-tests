@@ -6,7 +6,9 @@ import org.ods.e2e.jenkins.pages.JenkinsLoginPage
 import org.ods.e2e.jenkins.pages.JenkinsLoginSelectorPage
 import org.ods.e2e.openshift.pages.OpenShiftLoginPage
 import org.ods.e2e.util.SpecHelper
+import spock.lang.Ignore
 
+@Ignore
 class JenkinsSpec extends GebReportingSpec {
 
     static Properties applicationProperties = new SpecHelper().getApplicationProperties()
@@ -77,7 +79,7 @@ class JenkinsSpec extends GebReportingSpec {
 
         then: "The component creation jobs exists"
         assert getComponentJobs(projectName, componentName).findAll {
-            it -> it.value.branch == 'master' && (it.value.success|| it.value.notBuild)
+            it -> it.value.branch == 'master' && (it.value.success || it.value.notBuild)
         }
     }
 

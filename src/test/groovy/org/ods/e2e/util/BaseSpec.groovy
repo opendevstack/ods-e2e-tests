@@ -1,5 +1,6 @@
 package org.ods.e2e.util
 
+import geb.Browser
 import geb.spock.GebReportingSpec
 import org.ods.e2e.jenkins.pages.JenkinsConsolePage
 import org.ods.e2e.jenkins.pages.JenkinsLoginPage
@@ -35,6 +36,8 @@ class BaseSpec extends GebReportingSpec {
         baseUrlJenkins = applicationProperties."config.jenkins.url"
         baseUrlOpenshift = applicationProperties."config.openshift.url"
         simulate = applicationProperties."config.simulate".toUpperCase() == 'TRUE'
+
+        baseUrl = baseUrlProvisioningApp
     }
 
     def getApplicationProperties() {
@@ -47,7 +50,7 @@ class BaseSpec extends GebReportingSpec {
      * @return
      */
     def getJenkinsBaseUrl(project) {
-        return "https://jenkins-${project.toLowerCase()}-cd.$openshiftPublichost"
+        return "https://jenkins-$project-cd.$openshiftPublichost".toLowerCase()
     }
 
     /**
@@ -81,5 +84,18 @@ class BaseSpec extends GebReportingSpec {
         doLogin()
 
         at JenkinsConsolePage
+    }
+
+    /**
+     * Cleanup cookies
+     */
+    def cleanupAllCookies(project) {
+        def urls = [baseUrlProvisioningApp,
+                    baseUrlJira,
+                    baseUrlBitbucket,
+                    getJenkinsBaseUrl(project),
+                    baseUrlOpenshift] as String[]
+        println "Cleaning up urls: $urls"
+        browser.clearCookies(urls)
     }
 }

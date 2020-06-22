@@ -6,7 +6,9 @@ import org.ods.e2e.provapp.pages.ProvAppLoginPage
 import org.ods.e2e.provapp.pages.ProvisionPage
 import org.ods.e2e.util.BaseSpec
 import org.ods.e2e.util.SpecHelper
+import spock.lang.Ignore
 
+@Ignore
 class ProvAppSpec extends BaseSpec {
     static Properties applicationProperties = new SpecHelper().getApplicationProperties()
 

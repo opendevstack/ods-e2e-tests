@@ -1,15 +1,22 @@
 package org.ods.e2e
 
+
 import org.ods.e2e.bitbucket.pages.DashboardPage
 import org.ods.e2e.bitbucket.pages.LoginPage
 import org.ods.e2e.bitbucket.pages.ProjectPage
+import org.ods.e2e.bitbucket.pages.RepositoryPage
+import org.ods.e2e.jenkins.pages.JenkinsConsoleParametrizedBuildPage
 import org.ods.e2e.jenkins.pages.JenkinsJobFolderPage
+import org.ods.e2e.openshift.pages.ConsoleDeploymentsPage
 import org.ods.e2e.openshift.pages.ConsoleProjectsPage
 import org.ods.e2e.openshift.pages.PodsPage
 import org.ods.e2e.provapp.pages.HomePage
 import org.ods.e2e.provapp.pages.ProvAppLoginPage
 import org.ods.e2e.provapp.pages.ProvisionPage
 import org.ods.e2e.util.BaseSpec
+import org.ods.e2e.util.GitUtil
+import org.yaml.snakeyaml.DumperOptions
+import org.yaml.snakeyaml.Yaml
 
 class ODSSpec extends BaseSpec {
 
@@ -17,51 +24,63 @@ class ODSSpec extends BaseSpec {
             default: [
                     name        : 'E2E Test Project',
                     description : 'E2E Test Project',
-                    key         : 'E2ET3',
+                    key         : 'E2ET2',
                     type        : 'default',
                     hasJira     : true,
                     hasOpenshift: true,
                     components  : [
-                            [componentId: 'component-vue', quickStarter: ProvisionPage.quickstarters.feVue],
+                            [componentId: 'component-golang', quickStarter: ProvisionPage.quickstarters.beGolangPlain],
                     ]
             ]
     ]
+    def releaseManagerComponent = [componentId: 'release-manager-component', quickStarter: ProvisionPage.quickstarters.releaseManager]
+
+    // MRO Pipeline created previous releases, it will use the repository created for the releaseManagerComponent
+    // in this case project.key-e2e-release-manager
+    def static releaseManagerPipelineJob = "mro-pipeline-master"
+    def static releaseManagerPipelineComponentName = "mro-pipeline"
+
+    def leVADocsTemplates = [
+            'CFTP-1.html.tmpl',
+            'CFTP-3.html.tmpl',
+            'CFTP-4.html.tmpl',
+            'CFTP-5.html.tmpl',
+            'CFTR-1.html.tmpl',
+            'CFTR-3.html.tmpl',
+            'CFTR-4.html.tmpl',
+            'CFTR-5.html.tmpl',
+            'CSD-1.html.tmpl',
+            'CSD-3.html.tmpl',
+            'CSD-4.html.tmpl',
+            'CSD-5.html.tmpl',
+            'DIL.html.tmpl',
+            'DTP.html.tmpl',
+            'DTR.html.tmpl',
+            'footer.inc.html.tmpl',
+            'header.inc.html.tmpl',
+            'IVP.html.tmpl',
+            'IVR.html.tmpl',
+            'Overall-Cover.html.tmpl',
+            'Overall-TIR-Cover.html.tmpl',
+            'RA.html.tmpl',
+            'SSDS-1.html.tmpl',
+            'SSDS-3.html.tmpl',
+            'SSDS-4.html.tmpl',
+            'SSDS-5.html.tmpl',
+            'TCP.html.tmpl',
+            'TCR.html.tmpl',
+            'TIP.html.tmpl',
+            'TIR.html.tmpl',
+            'TRC.html.tmpl',
+    ]
 
     def setup() {
-        baseUrl = baseUrlProvisioningApp
-    }
-
-    def "PLAY"() {
-        given:
-        def project = projects.default
-        project.key = 'e2et3'
-
-        when: 'Visit Openshift'
-        baseUrl = baseUrlOpenshift
-
-        and: 'and login in Openshift'
-        doOpenshiftLoginProcess()
-
-        and: "Visit all project page"
-        to ConsoleProjectsPage
-
-        then:
-        waitFor { projectList }
-        def projects = findProjects(project.key)
-        assert projects
-        assert projects.contains(project.key + '-cd')
-
-        when: 'Visit pods page'
-        to PodsPage, project.key + '-cd'
-
-        and:
-        def pods = getPods()
-
-        then:
-        assert pods.find { pod -> pod.name.startsWith('jenkins') && pod.status == 'Running' }
+        // We will start with the provisioning app as the base url
+        println 'Tests setup'
     }
 
     /**
+     * Test Objective:
      * The purpose of this test case is to present a level of evidences that the use of Provisioning Application,
      * in combination with Boilerplates and infrastructure elements like Jenkins, SonarQube and Nexus answer
      * the following specifications:
@@ -74,11 +93,17 @@ class ODSSpec extends BaseSpec {
      * - to present evidences that Provisioning Application creates the Atlassian and Openshift components based on
      * boilerplate
      * - to present evidences the data of provision components are stored on the filesystem
+     *
+     * Prerequisites:
+     * Be logged in as Provisioning Application administrator, have an OpenShift project, have access to the
+     * console/terminal logs of Jenkins, Nexus and SonarQube and have administrator access to the Bitbucket repositories.
      */
     def "FT_01_001"() {
         // STEP 1: Login to provisioning application with administrator privileges
         given: 'We are logged in the provissioning app'
         def project = projects.default
+        baseUrl = baseUrlProvisioningApp
+
         to ProvAppLoginPage
         doLoginProcess()
 
@@ -240,7 +265,7 @@ class ODSSpec extends BaseSpec {
         assert $("#job_${project.key.toLowerCase()}-cd")
 
         when: 'Visit the jobs'
-        to JenkinsJobFolderPage, "${project.key}-cd"
+        to JenkinsJobFolderPage, project.key
 
         and:
         project.components.each { component ->
@@ -265,6 +290,322 @@ class ODSSpec extends BaseSpec {
                 }
         }
         report("step 12 - build job of the component")
+    }
+
+    /**
+     * Test Objective:
+     * The purpose of this test case is to demonstrate the functionality to orchestrate multiple repositories with the
+     * deployment, and      * to automatically produce LeVA documentation. This test will use the Provisioning
+     * Application to create the necessary components in Atlassian and Openshift in a way it can demonstrate the entire
+     * test to answer the required functionalities:
+     * - to present evidences that ODS MRO orchestrates multiples repositories.
+     * - to present evidence that ODS MRO provide services to automate LeVA documentation generation.
+     *
+     * Prerrequisites
+     * Be logged in as Provisioning Application administrator, have a OpenShift project, have access to the console/terminal logs
+     * of Jenkins, Nexus and SonarQube and have administrator access to the Bitbucket repositories. FT_01_001 executed
+     * successfully.
+     *
+     *  STEP 1:	Login to provisioning app – pick the created project and provision a new component based on the
+     *          release-manager quickstarter.
+     *
+     *          Result: With your bitbucket project a new repository with the release manager is available
+     *
+     *          Notes:
+     *                We first need to check that the Jenkins jobs had finalized properly to provision the release manager
+     *                before continuing with the steps of the test
+     *
+     *  STEP 2:	Checkout / git clone the release manager repository and open metadata.yml
+     *
+     *           Result: Repository cloned, metadata.yml is available
+     *
+     *  STEP 3:	Add a new repository section into metadata.yml pointing to the component repository created earlier
+     *          (see perreq.) – commit and push.
+     *
+     *          Result: New build of release manager in Jenkins visible, including a new build & deployment of your
+     *                  component.
+     *
+     *          Notes:
+     *               By default the Release Manager does not have a Webhook to jenkins, so we need to trigger manually the build process
+     *
+     *          3.1 Modify the repository section and push it
+     *          3.2 Trigger Jenkins build of the release manager.
+     *          3.3 Check jenkins status for jobs of Release Manager and component
+     *          3.4 When both jobs finalized, check in openshift that there's a deployment of the component
+     *
+     *  STEP 4:	Go to bitbucket opendevstack project and locate ods-document-generation-templates
+     *
+     *          Result: Repository is available and within document templates for LeVa can be found.
+     *
+     *  STEP 5:	Go to openshift – locate your project’s cd project (name-cd) and check for a running instance of Document generation service
+     *
+     *          Result: Document Generation service pod is available.
+     */
+    def "FT_01_003"() {
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 1:	Login to provisioning app – pick the created project and provision a new component based on the
+        //          release-manager quickstarter
+        //          Result: With your bitbucket project a new repository with the release manager is available
+        // -------------------------------------------------------------------------------------------------------------
+        given: 'We login in the provision app'
+        def project = projects.default
+        project.components.add(releaseManagerComponent)
+
+        and:
+        baseUrl = baseUrlProvisioningApp
+
+        and:
+        to ProvAppLoginPage
+        doLoginProcess()
+
+        expect: 'We are logged in the provisioning app'
+        at HomePage
+
+        when: 'Click Provision link'
+        provisionLink.click()
+
+        then: 'We visit the provisioning page'
+        at ProvisionPage
+
+        when:
+        provisionOptionChooser.doSelectModifyProject()
+        projectModifyForm.doSelectProject(project.key)
+
+        and:
+        projectModifyForm.doAddQuickStarter(releaseManagerComponent.quickStarter, releaseManagerComponent.componentId)
+        report('step 1: Quick starter to add')
+
+        projectModifyForm.addQuickStarterButton.click()
+
+        and:
+        if (!simulate) {
+            projectModifyForm.doStartProvision()
+            sleep(5000)
+            waitFor('extremelySlow') {
+                $(".modal-dialog").css("display") != "hidden"
+                $("#resProject.alert-success")
+                $("#resButton").text() == "Close"
+            }
+        }
+
+        then: 'Quickstarter was added'
+        simulate ? true : $("#resProject.alert-success")
+        report('step 1: Quick starter added')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // We first need to check that the Jenkins jobs had finalized properly for the release manager
+        // Before continuing with the steps of the test
+        // -------------------------------------------------------------------------------------------------------------
+        when: 'visit Jenkins'
+        baseUrl = getJenkinsBaseUrl(project.key)
+        doJenkinsLoginProcess()
+
+        and: 'Retrieve the jobs related with the Release Manager deploy'
+        to JenkinsJobFolderPage, project.key
+        def jobs = getComponentJobs(project.key, releaseManagerComponent.componentId)
+        def releaseManagerDeployJob = jobs.find { job -> job.value.odsStartupComponentJob }
+
+        then: 'There must be a job to create the Release Manager Component'
+        assert releaseManagerDeployJob
+
+        when: 'Wait if the job is still running'
+        if (releaseManagerDeployJob?.value?.running) {
+            waitForJobTermination(releaseManagerDeployJob.value.id)
+        }
+        // Get jobs again after job ends working to get its status.
+        jobs = getComponentJobs(project.key, releaseManagerComponent.componentId)
+        releaseManagerDeployJob = jobs.find { job -> job.value.odsStartupComponentJob }
+
+        then:
+        releaseManagerDeployJob.value.success
+        // -------------------------------------------------------------------------------------------------------------
+        // End checking jenkins status
+        // -------------------------------------------------------------------------------------------------------------
+
+        when: 'Visit Bitbucket'
+        baseUrl = baseUrlBitbucket
+        to LoginPage
+
+        and: 'we do login'
+        doLogin()
+
+        then: 'we are at the Dashboard'
+        at DashboardPage
+
+        when: 'Visit project'
+        to ProjectPage, project.key
+
+        then: 'We are in the project page'
+        currentUrl.endsWith("projects/${project.key}/")
+        report("step 1 - project in bitbucket")
+
+        when: 'We visit one repository'
+        def repositories = getRepositoriesInfo()
+
+        then: 'The repositories exits for the release manager'
+        assert repositories.findAll { repository ->
+            repository.name.toLowerCase() == (project.key + '-' + releaseManagerComponent.componentId).toLowerCase()
+        }.size() == 1
+
+        report("step 1 - release manager repository in bitbucket")
+
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 2:	Checkout / git clone the release manager repository and open metadata.yml
+        //          Result: Repository cloned, metadata.yml is available
+        // -------------------------------------------------------------------------------------------------------------
+        when:
+        def repositoryFolder = GitUtil.cloneRepository(projects.default.key, releaseManagerComponent.componentId)
+
+        and:
+        DumperOptions options = new DumperOptions()
+        options.setPrettyFlow(true)
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK)
+        Yaml parser = new Yaml(options)
+
+        def metadataYml = parser.load(("$repositoryFolder/metadata.yml" as File).text)
+
+        then:
+        assert metadataYml
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 3:	Add a new repository section into metadata.yml pointing to the component repository created earlier
+        //          (see perreq.) – commit and push
+        //
+        //          Result: New build of release manager in Jenkins visible, including a new build & deployment of your
+        //          component.
+        //
+        //          3.1 Modify the repository section and push it
+        //          3.2 Trigger Jenkins build of the release manager.
+        //          3.3 Check jenkins status for jobs of Release Manager and component
+        //          3.4 When both jobs finalized, check in openshift that there's a deployment of the component
+        // -------------------------------------------------------------------------------------------------------------
+
+
+        // -------------------------------------------------------------------------------------------------------------
+        //      3.1 Modify the repository section and push it
+        // -------------------------------------------------------------------------------------------------------------
+        when: 'Edit metadata.yml'
+        def metadataRepositories = metadataYml.getAt('repositories')
+        if (metadataRepositories == null) {
+            metadataYml.putAt('repositories', [])
+            metadataRepositories = metadataYml.getAt('repositories')
+        }
+        def component = project.components.first()
+        metadataRepositories.putAt(metadataRepositories.size, [
+                id  : component.componentId.toLowerCase(),
+                name: "$project.key-$component.componentId".toLowerCase(), type: 'ods'])
+
+        and: 'Save metada.yml'
+        parser.dump(metadataYml, new FileWriter("$repositoryFolder/metadata.yml"))
+
+        and: 'Commit the file'
+        GitUtil.commitAddAll('New component added')
+
+        and: 'Push it to the repository'
+        GitUtil.push('origin')
+
+        // -------------------------------------------------------------------------------------------------------------
+        //       3.2 Trigger Jenkins build of the release manager.
+        // -------------------------------------------------------------------------------------------------------------
+        and:
+        baseUrl = getJenkinsBaseUrl(project.key)
+
+        def parameters = [environment: 'dev', version: 'WIP',]
+        to JenkinsConsoleParametrizedBuildPage, project.key, releaseManagerPipelineJob
+        fillData(parameters)
+        report('step 3.2 - trigger build')
+
+        submitButton.click()
+
+        // -------------------------------------------------------------------------------------------------------------
+        //       3.3 Check jenkins status for Release Manager
+        // -------------------------------------------------------------------------------------------------------------
+        and:
+        to JenkinsJobFolderPage, project.key
+        jobs = [releaseManagerPipelineComponentName]
+
+        then: 'Wait both to start and finalize'
+        waitJobsStart(jobs)
+        waitJobsFinalize(jobs)
+
+        then: 'And finalize succesfully'
+        getComponentJobs(project.key, releaseManagerPipelineComponentName).every {
+            job -> job.value.success
+        }
+        report('step 3.3 - jobs executed')
+
+        // -------------------------------------------------------------------------------------------------------------
+        //       3.4 When both jobs finalized, check in openshift that there's a deployment of the component
+        // -------------------------------------------------------------------------------------------------------------
+        when: 'Visit Openshift'
+        baseUrl = baseUrlOpenshift
+
+        and: 'and login in Openshift'
+        doOpenshiftLoginProcess()
+
+        and: 'Visit deployment page'
+        to ConsoleDeploymentsPage, project.key.toLowerCase() + '-dev'
+        sleep(5000)
+
+        and: 'We get the deployments'
+        def deployments = getDeployments()
+
+        then: 'There is a deployment for the component'
+        assert deployments.find { deployment ->
+            deployment.name == component.componentId
+        }
+        report('step 3.4 - exists component deployment')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 4:	Go to bitbucket opendevstack project and locate ods-document-generation-templates
+        //          Result: Repository is available and within document templates for LeVa can be found.
+        // -------------------------------------------------------------------------------------------------------------
+        when: 'Visit project OPENDEVSTACK'
+        baseUrl = baseUrlBitbucket
+        to ProjectPage, 'OPENDEVSTACK'
+
+        then: 'We are in the project page'
+        currentUrl.endsWith("projects/OPENDEVSTACK/")
+
+        when: 'Get repositories'
+        def odsRepositories = getRepositoriesInfo()
+
+        then: 'Then ods-document-generation-templates exists'
+        assert odsRepositories.findAll {
+            repository -> repository.name.toLowerCase() == 'ods-document-generation-templates'
+        }.size() == 1
+
+        when:
+        to RepositoryPage, 'OPENDEVSTACK', 'ods-document-generation-templates', 'templates', [at: 'release/v1.0']
+
+        and: 'Get the existing files'
+        def templates = getFiles()
+
+        then: 'exists all the files needed for the LeVADocs templates'
+        leVADocsTemplates.each {
+            leVAtemplate -> templates.contains(leVAtemplate)
+        }
+        report("step 4 - Repository is available and within document templates for LeVa can be found.")
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 5:	Go to openshift – locate your project’s cd project (name-cd) and check for a running instance of
+        //          Document generation service
+        //          Result: Document Generation service pod is available
+        // -------------------------------------------------------------------------------------------------------------
+        when: 'Visit Openshift'
+        baseUrl = baseUrlOpenshift
+
+        and: 'Visit pods page'
+        to PodsPage, project.key.toLowerCase() + '-cd'
+        sleep(5000)
+
+        and:
+        def pods = getPods()
+
+        then:
+        assert pods.find { pod -> pod.name.startsWith('docgen') && pod.status == 'Running' }
+        report("step 5 - Document Generation service pod is available")
     }
 
     /**
@@ -311,6 +652,10 @@ class ODSSpec extends BaseSpec {
 
         then: 'The ODS should display a message indicating this actions is not acceptable'
         assert $('#projectName ~ div.with-errors').text()
+    }
 
+    def cleanup() {
+        println 'Cleanup method cookies'
+        cleanupAllCookies(projects.default.key)
     }
 }

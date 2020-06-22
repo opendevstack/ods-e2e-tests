@@ -9,7 +9,9 @@ import org.ods.e2e.util.SpecHelper
 import org.openqa.selenium.Dimension
 import org.openqa.selenium.JavascriptExecutor
 import org.openqa.selenium.Point
+import spock.lang.Ignore
 
+@Ignore
 class BitbucketSpec extends GebReportingSpec {
     static Properties applicationProperties = new SpecHelper().getApplicationProperties()
     static JavascriptExecutor js

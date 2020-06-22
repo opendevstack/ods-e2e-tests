@@ -3,18 +3,13 @@ package org.ods.e2e
 import org.ods.e2e.bitbucket.pages.DashboardPage
 import org.ods.e2e.bitbucket.pages.LoginPage
 import org.ods.e2e.bitbucket.pages.ProjectPage
-import org.ods.e2e.jenkins.pages.JenkinsConsolePage
-import org.ods.e2e.jenkins.pages.JenkinsLoginPage
-import org.ods.e2e.jenkins.pages.JenkinsLoginSelectorPage
 import org.ods.e2e.jira.pages.ComponentPage
-import org.ods.e2e.openshift.pages.ConsoleCatalogPage
 import org.ods.e2e.openshift.pages.ConsoleProjectsPage
-import org.ods.e2e.openshift.pages.OpenShiftLoginPage
-import org.ods.e2e.openshift.pages.OpenShiftLoginSelectorPage
 import org.ods.e2e.provapp.pages.HomePage
 import org.ods.e2e.provapp.pages.ProvAppLoginPage
 import org.ods.e2e.provapp.pages.ProvisionPage
 import org.ods.e2e.util.BaseSpec
+import spock.lang.Ignore
 
 /**
  * It is intend to do an E2E test of ODS.
@@ -29,6 +24,7 @@ import org.ods.e2e.util.BaseSpec
  *
  *   The needed resources will be specific for the different project types and components.
  */
+@Ignore
 class E2ETestsSpec extends BaseSpec {
 
     def projects = [

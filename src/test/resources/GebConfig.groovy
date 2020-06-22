@@ -16,7 +16,13 @@ waiting {
 	timeout = 25
 	retryInterval = 0.5
 	includeCauseInMessage = true
+	atCheckWaiting = true
+
 	presets {
+		extremelySlow {
+			timeout =  3600
+			retryInterval = 2
+		}
 		slow {
 			timeout = 50
 			retryInterval = 1
@@ -29,15 +35,13 @@ waiting {
 
 environments {
 	// TODO Add the proxy to all the drivers
-	// run via “./gradlew chromeTest”
 	// See: http://code.google.com/p/selenium/wiki/ChromeDriver
 	def env = System.getenv()
-	//ystem.setProperty("webdriver.chrome.driver", "c:\\opt\\chromedriver\\chromedriver.exe");
 
 	if (env.HTTP_PROXY) {
-		Proxy proxy = new Proxy();
-		URL url = new URL(env.HTTP_PROXY);
-		proxy.setHttpProxy("${url.getHost()}:${url.getPort()}");
+		Proxy proxy = new Proxy()
+		URL url = new URL(env.HTTP_PROXY)
+		proxy.setHttpProxy("${url.getHost()}:${url.getPort()}")
 		proxy.setHttpProxy()
 		proxy.setNoProxy(env.NO_PROXY)
 	}

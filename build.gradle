@@ -41,6 +41,12 @@ dependencies {
 
     // Utils
     testCompile "com.konghq:unirest-java:$unirestVersion:standalone"
+
+    // Use of git
+    compile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+    testCompile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+    testCompile "org.yaml:snakeyaml:1.26"
+
 }
 
 webdriverBinaries {
