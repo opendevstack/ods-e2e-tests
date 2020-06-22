@@ -5,7 +5,7 @@ import org.ods.e2e.jira.modules.LoginModule
 
 class DashboardPage extends Page {
     static url = "/"
-    static at = { title.startsWith("System Dashboard") }
+    static at = { browser.currentUrl.endsWith('Dashboard.jspa') }
 
     static content = {
         loginForm(wait: true) { module LoginModule }

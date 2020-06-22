@@ -1,6 +1,6 @@
 package org.ods.e2e.util
 
-import geb.Browser
+
 import geb.spock.GebReportingSpec
 import org.ods.e2e.jenkins.pages.JenkinsConsolePage
 import org.ods.e2e.jenkins.pages.JenkinsLoginPage
@@ -23,6 +23,7 @@ class BaseSpec extends GebReportingSpec {
     def baseUrlOpenshift
     def openshiftPublichost
     def simulate
+    def extraLoginPage
 
     def setup() {
         driver.manage().window().setSize(new Dimension(1600, 1024))
@@ -38,6 +39,9 @@ class BaseSpec extends GebReportingSpec {
         simulate = applicationProperties."config.simulate".toUpperCase() == 'TRUE'
 
         baseUrl = baseUrlProvisioningApp
+
+        extraLoginPage = System.getenv("OCP_LOGIN_SELECTOR_PAGE")?.toUpperCase() == 'TRUE' ?
+                true : false
     }
 
     def getApplicationProperties() {
@@ -57,13 +61,17 @@ class BaseSpec extends GebReportingSpec {
      * Login in Openshift
      */
     def doOpenshiftLoginProcess() {
-        to OpenShiftLoginSelectorPage
-        waitFor {
-            title == 'Login - OpenShift Container Platform'
-            ldapLink
+        if (extraLoginPage) {
+            to OpenShiftLoginSelectorPage
+            waitFor {
+                ldapLink
+            }
+            ldapLink.click()
+        } else {
+            via OpenShiftLoginPage
+            println 'moving to openshift login page'
+            sleep(1000)
         }
-        ldapLink.click()
-
         at OpenShiftLoginPage
         doLogin()
 
