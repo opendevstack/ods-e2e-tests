@@ -1,17 +1,17 @@
 package org.ods.e2e.jira.pages
 
+import org.ods.e2e.util.SpecHelper
+
 class CreateTechnicalSpecificationTaskIssuePage extends CreateIssuePage {
-    static systemDesignSpecificationId = 'customfield_11912'
-    static softwareDesignSpecificationId = 'customfield_11913'
 
     static at = { browser.currentUrl.contains('CreateIssue') && $("#issue-create-issue-type").text() == 'Technical Specification Task' }
 
     static content = {
-        systemDesignSpecification(wait: true, required: true) { $("#$systemDesignSpecificationId-wiki-edit > textarea") }
-        systemDesignSpecificationTextLink(wait: true, required: true) { $("div.jira-wikifield", "field-id":systemDesignSpecificationId) }
+        systemDesignSpecification(wait: true, required: true) { $("#" + SpecHelper.getFieldId(fields, "Technical Specification Task", "System Design Specification") + "-wiki-edit > textarea") }
+        systemDesignSpecificationTextLink(wait: true, required: true) { $("div.jira-wikifield", "field-id":SpecHelper.getFieldId(fields, "Technical Specification Task", "System Design Specification")) }
 
-        softwareDesignSpecification(wait: true, required: true) { $("#$softwareDesignSpecificationId-wiki-edit > textarea") }
-        softwareDesignSpecificationTextLink(wait: true, required: true) { $("div.jira-wikifield", "field-id":softwareDesignSpecificationId) }
+        softwareDesignSpecification(wait: true, required: true) { $("#" + new SpecHelper().getFieldId(fields, "Technical Specification Task", "Software Design Specification") + "-wiki-edit > textarea") }
+        softwareDesignSpecificationTextLink(wait: true, required: true) { $("div.jira-wikifield", "field-id":SpecHelper.getFieldId(fields, "Technical Specification Task", "Software Design Specification")) }
     }
 
     def createIssue(techSpecification, spec) {

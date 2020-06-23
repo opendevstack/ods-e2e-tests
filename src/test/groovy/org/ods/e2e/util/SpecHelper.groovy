@@ -70,7 +70,7 @@ class SpecHelper {
         }
     }
 
-    public String getFieldId(List fields, String issueType, String fieldName) {
+    public static String getFieldId(List fields, String issueType, String fieldName) {
         Map issue = fields.find { it.issueType == issueType }
         Map field = issue.fields.find { it.name == fieldName }
 
@@ -108,7 +108,7 @@ class SpecHelper {
         }
     }
 
-    public String getTransitionId(List transitions, String name) {
+    public static String getTransitionId(List transitions, String name) {
         Map transition = transitions.find { it.name == name }
 
         return "action_id_" + transition.id

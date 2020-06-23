@@ -4,7 +4,7 @@ import geb.Page
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.modules.IssueMenuModule
 
-class IssuesPage extends Page {
+class IssuesPage extends BasePage {
 
     static url = "/issues"
 

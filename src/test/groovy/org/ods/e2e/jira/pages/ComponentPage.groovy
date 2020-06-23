@@ -2,7 +2,7 @@ package org.ods.e2e.jira.pages
 
 import geb.Page
 
-class ComponentPage extends Page {
+class ComponentPage extends BasePage {
 
     static url = "/projects"
 
