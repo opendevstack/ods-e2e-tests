@@ -95,8 +95,6 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
-
-
     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
     // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
     // amend the Documentation chapter issues and check the issue workflows.

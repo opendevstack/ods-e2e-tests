@@ -9,6 +9,7 @@ import org.ods.e2e.util.SpecHelper
 
 class IssueBrowsePage extends BasePage {
     static url = '/browse'
+    def selectedIssue = ''
 
     /**
      * Adapt the url to get to the issue page
@@ -17,6 +18,7 @@ class IssueBrowsePage extends BasePage {
      */
     String convertToPath(Object[] args) {
         def issue = args[0].toString().toUpperCase()
+        selectedIssue = issue
         args ? "/$issue" : ''
     }
 
@@ -24,7 +26,7 @@ class IssueBrowsePage extends BasePage {
 
     static content = {
         navigationBar { module(NavigationBarModule) }
-        issueMenu { module(new IssueMenuModule(driver: driver)) }
+        issueMenu { module(new IssueMenuModule(driver: driver, issue: selectedIssue)) }
         createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver)) }
         createLinkDialog(wait: true) { module CreateLinkDialogModule }
         subsTaskView(required: true, wait: true) { $('#view-subtasks') }

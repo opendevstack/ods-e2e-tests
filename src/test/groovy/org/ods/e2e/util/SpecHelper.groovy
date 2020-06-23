@@ -108,9 +108,13 @@ class SpecHelper {
         }
     }
 
-    public static String getTransitionId(List transitions, String name) {
+    public String getTransitionId(List transitions, String name) {
         Map transition = transitions.find { it.name == name }
 
         return "action_id_" + transition.id
+    }
+
+    public String getTransitionId(String issueKey, String name) {
+        return getTransitionId(getJiraTransitionsMetadata(issueKey), name)
     }
 }
