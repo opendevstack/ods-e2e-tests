@@ -1,6 +1,5 @@
 package org.ods.e2e.jira.pages
 
-import geb.Page
 import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.modules.IssueMenuModule
@@ -27,7 +26,7 @@ class IssueBrowsePage extends BasePage {
     static content = {
         navigationBar { module(NavigationBarModule) }
         issueMenu { module(new IssueMenuModule(driver: driver, issue: selectedIssue)) }
-        createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver)) }
+        createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver, fields: fields)) }
         createLinkDialog(wait: true) { module CreateLinkDialogModule }
         subsTaskView(required: true, wait: true) { $('#view-subtasks') }
         subsTaskTable(required: true, wait: true) { subsTaskView.$('#issuetable') }

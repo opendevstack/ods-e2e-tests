@@ -16,7 +16,7 @@ class IssuesPage extends BasePage {
         searchTextArea(required: true, wait: true) { $('#advanced-search') }
         searchButton(required: true, wait: true) { $('div.search-options-container > button') }
         issueMenu { module(new IssueMenuModule(driver: driver)) }
-        createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver)) }
+        createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver, fields: fields)) }
         subsTaskView(required: true, wait: true) { $('#view-subtasks') }
         subsTaskTable(required: true, wait: true) { subsTaskView.$('#issuetable') }
         subsTaskIssues(required: true, wait: true) { subsTaskTable.$('tr') }
