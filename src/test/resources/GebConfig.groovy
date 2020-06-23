@@ -7,8 +7,8 @@ import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.openqa.selenium.firefox.FirefoxProfile
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
-import org.openqa.selenium.remote.DesiredCapabilities
 import org.openqa.selenium.remote.CapabilityType
+import org.openqa.selenium.remote.DesiredCapabilities
 
 def properties = new SpecHelper().getApplicationProperties()
 
@@ -23,6 +23,10 @@ waiting {
         extremelySlow {
             timeout = 3600
             retryInterval = 2
+        }
+        verySlow {
+            timeout = 600
+            retryInterval = 5
         }
         slow {
             timeout = 50

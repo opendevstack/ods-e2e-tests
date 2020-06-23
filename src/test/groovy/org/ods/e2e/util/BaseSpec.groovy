@@ -69,7 +69,6 @@ class BaseSpec extends GebReportingSpec {
             ldapLink.click()
         } else {
             via OpenShiftLoginPage
-            println 'moving to openshift login page'
             sleep(1000)
         }
         at OpenShiftLoginPage
@@ -82,7 +81,7 @@ class BaseSpec extends GebReportingSpec {
      * The login in Jenkins has an special behavior as we have to go across openshift.
      */
     def doJenkinsLoginProcess() {
-        to JenkinsLoginPage
+        via JenkinsLoginPage
         loginButton.click()
         if (extraLoginPage) {
             at(new JenkinsLoginSelectorPage())
@@ -90,7 +89,9 @@ class BaseSpec extends GebReportingSpec {
         }
         at OpenShiftLoginPage
         doLogin()
-
+        if ($('input', name: 'approve')) {
+            $('input', name: 'approve').click()
+        }
         at JenkinsConsolePage
     }
 

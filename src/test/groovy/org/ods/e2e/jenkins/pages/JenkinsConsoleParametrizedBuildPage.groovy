@@ -36,7 +36,7 @@ class JenkinsConsoleParametrizedBuildPage extends Page {
             $('input', value: 'configItem').siblings('input.setting-input').first()
         }
 
-        submitButton { $("#yui-gen1-button") }
+        submitButton { $("table.parameters button") }
     }
 
     /**

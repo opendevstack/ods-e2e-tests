@@ -1,29 +1,26 @@
 package org.ods.e2e.provapp
 
-
 import org.ods.e2e.provapp.pages.HomePage
 import org.ods.e2e.provapp.pages.ProvAppLoginPage
 import org.ods.e2e.provapp.pages.ProvisionPage
 import org.ods.e2e.util.BaseSpec
 import org.ods.e2e.util.SpecHelper
-import spock.lang.Ignore
 
 class ProvAppSpec extends BaseSpec {
     static Properties applicationProperties = new SpecHelper().getApplicationProperties()
 
-    def project
-    def component
+    def static project
+    def static component
 
-    def projects = [
+    def static projects = [
             default: [
                     name        : 'E2E Test Project',
                     description : 'E2E Test Project',
-                    key         : 'E2ET3',
                     type        : 'default',
                     hasJira     : true,
                     hasOpenshift: true,
                     components  : [
-                            [componentId: 'component-vue', quickStarter: ProvisionPage.quickstarters.feVue],
+                            [componentId: 'component-golang', quickStarter: ProvisionPage.quickstarters.beGolangPlain],
                     ]
             ]
     ]
@@ -77,7 +74,13 @@ class ProvAppSpec extends BaseSpec {
         assert provisionOptionChooser.optionModifyProject
         assert provisionOptionChooser.optionCreateNewProject
 
-        when: "Select to create project"
+        when: 'Select to modify project'
+        provisionOptionChooser.doSelectModifyProject()
+
+        and: 'Get the project list'
+        def nextId = getNextId('E2ECT')
+
+        and: "Select to create project"
         provisionOptionChooser.doSelectCreateNewProject()
         report()
 
@@ -85,8 +88,7 @@ class ProvAppSpec extends BaseSpec {
         assert projectCreateForm
 
         when: "Fill the Project Form"
-        projectCreateForm.projectName = project.name
-        projectCreateForm.projectKey = project.key
+        projectCreateForm.projectName = String.format("$project.name - %02d", nextId)
         projectCreateForm.projectDescription = project.description
         projectCreateForm.projectType = project.type
 
@@ -96,8 +98,16 @@ class ProvAppSpec extends BaseSpec {
         and: "Choose to create a Openshift Project"
         projectCreateForm.platformRuntime = project.hasOpenshift
 
+        and: 'set generated key'
+        waitFor { !projectCreateForm.projectKey.value().isEmpty() }
+        project.key = String.format('E2ECT%02d', nextId)
+        projects.default.key = project.key
+        projectCreateForm.projectKey = project.key
+
         and: "Click on provision"
-        if (!simulate) projectCreateForm.startCreationButton.click()
+        if (!simulate) {
+            projectCreateForm.doStartProvision()
+        }
 
         and:
         if (!simulate) {
@@ -164,7 +174,9 @@ class ProvAppSpec extends BaseSpec {
         report()
 
         and: "Provision the QS"
-        if (!simulate) projectModifyForm.doStartProvision()
+        if (!simulate) {
+            projectModifyForm.doStartProvision()
+        }
 
         and: "Wait until the provissioning process is running"
         if (!simulate) {
@@ -182,7 +194,9 @@ class ProvAppSpec extends BaseSpec {
         }
 
         then: "Component is added"
-        if (!simulate) $("#resProject.alert-success")
+        if (!simulate) {
+            $("#resProject.alert-success").size() == 1
+        }
         report()
     }
 

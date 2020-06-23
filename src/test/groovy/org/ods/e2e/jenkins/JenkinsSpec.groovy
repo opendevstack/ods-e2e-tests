@@ -18,7 +18,7 @@ class JenkinsSpec extends BaseSpec {
     def setup() {
         projectName = applicationProperties."config.project.key"
         baseUrl = getJenkinsBaseUrl(projectName)
-        componentName = 'demo-app-user'
+        componentName = 'golang-component'
     }
 
     def "can login to Jenkins"() {
