@@ -6,7 +6,7 @@ import org.ods.e2e.jira.pages.DashboardPage
 import org.ods.e2e.jira.pages.ProjectPage
 import spock.lang.Ignore
 
-@Ignore
+
 class JiraSpec extends JiraBaseSpec {
 
     def "can login to Jira"() {

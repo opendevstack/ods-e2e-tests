@@ -1,16 +1,14 @@
 package org.ods.e2e.jira.pages
 
-import geb.Page
 import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.modules.IssueMenuModule
 import org.ods.e2e.jira.modules.NavigationBarModule
+import org.ods.e2e.util.SpecHelper
 
-class IssueBrowsePage extends Page {
+class IssueBrowsePage extends BasePage {
     static url = '/browse'
-    static edpContentEditorId = 'customfield_12025-val'
-    static edpHeadingNumberId = 'customfield_12024'
-    static edpContentId = 'customfield_12025'
+    def selectedIssue = ''
 
     /**
      * Adapt the url to get to the issue page
@@ -19,6 +17,7 @@ class IssueBrowsePage extends Page {
      */
     String convertToPath(Object[] args) {
         def issue = args[0].toString().toUpperCase()
+        selectedIssue = issue
         args ? "/$issue" : ''
     }
 
@@ -26,8 +25,8 @@ class IssueBrowsePage extends Page {
 
     static content = {
         navigationBar { module(NavigationBarModule) }
-        issueMenu { module(new IssueMenuModule(driver: driver)) }
-        createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver)) }
+        issueMenu { module(new IssueMenuModule(driver: driver, issue: selectedIssue)) }
+        createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver, fields: fields)) }
         createLinkDialog(wait: true) { module CreateLinkDialogModule }
         subsTaskView(required: true, wait: true) { $('#view-subtasks') }
         subsTaskTable(required: true, wait: true) { subsTaskView.$('#issuetable') }
@@ -43,10 +42,10 @@ class IssueBrowsePage extends Page {
             }
         }
         statusVal(required: true, wait: true) { $('#status-val > span') }
-        edpContentEditor(wait: true, required: true) { $("#$edpContentEditorId") }
-        edpHeadingNumber(wait: true, required: true) { $("#$edpHeadingNumberId-val") }
-        edpContent(wait: true, required: true) { $("#$edpContentId-wiki-edit > textarea") }
-        edpContentSubmitButton { $("#customfield_12025-form button.submit") }
+        edpContentEditor(wait: true, required: true) { $("#" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Content") + "-val") }
+        edpHeadingNumber(wait: true, required: true) { $("#" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Heading Number") + "-val") }
+        edpContent(wait: true, required: true) { $("#" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Content") + "-wiki-edit > textarea") }
+        edpContentSubmitButton { $("#" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Content") + "-form button.submit") }
     }
 
     def addLinkToIssue(linkType, issueLinked) {
@@ -56,6 +55,5 @@ class IssueBrowsePage extends Page {
         createLinkDialog.linkButton.click()
         sleep(2000)
     }
-
 
 }

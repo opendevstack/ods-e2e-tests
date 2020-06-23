@@ -290,9 +290,14 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
             edpContentEditor.click()
             sleep(2000)
             waitFor { $("li", 'data-mode': 'source') }.click()
+            // WORKAROUND: Append "" before to value method
+            waitFor { edpContent } << ""
             waitFor { edpContent }.value(documentChapters.CSD[edpHeadingNumber.text()].edpContent)
             waitFor { edpContentSubmitButton }.click()
             sleep(4000)
+            if (issueMenu.transitionButtonsReopenDocumentChapter.size() != 0) {
+                issueMenu.transitionButtonsReopenDocumentChapter.click()
+            }
             waitFor { issueMenu.transitionButtonDocument }.click()
             sleep(4000)
             waitFor { issueMenu.transitionButtonDefine }.click()
@@ -302,8 +307,6 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
 
         then: "All finished"
         true
-
-
     }
 
     // Helpers to make more understandable the tests.

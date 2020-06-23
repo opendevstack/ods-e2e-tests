@@ -2,7 +2,7 @@ package org.ods.e2e.jira.pages
 
 import geb.Page
 
-class RiskAssementReportPage extends Page {
+class RiskAssementReportPage extends BasePage {
 
     static at = { browser.getCurrentUrl().contains('risk-assessment-report')}
     static content = {

@@ -75,7 +75,7 @@ class SpecHelper {
         }
     }
 
-    public String getFieldId(List fields, String issueType, String fieldName) {
+    public static String getFieldId(List fields, String issueType, String fieldName) {
         Map issue = fields.find { it.issueType == issueType }
         Map field = issue.fields.find { it.name == fieldName }
 
@@ -117,5 +117,9 @@ class SpecHelper {
         Map transition = transitions.find { it.name == name }
 
         return "action_id_" + transition.id
+    }
+
+    public String getTransitionId(String issueKey, String name) {
+        return getTransitionId(getJiraTransitionsMetadata(issueKey), name)
     }
 }

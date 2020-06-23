@@ -1,16 +1,9 @@
 package org.ods.e2e.jira.pages
 
-import geb.Page
 import org.ods.e2e.jira.modules.NavigationBarModule
+import org.ods.e2e.util.SpecHelper
 
 class CreateStoryIssuePage extends CreateIssuePage {
-    static gampTopicFieldId = 'customfield_11903'
-    static reqAcceptanceCriteriaFieldId = 'customfield_12026'
-    static funcSpecSummaryFieldId = 'customfield_11905'
-    static funcSpecSummaryDescriptionFieldId = 'customfield_11906'
-    static funcSpecAcceptanceCriteriaFieldId = 'customfield_11907'
-    static configSpecSummaryFieldId = 'customfield_11908'
-    static configSpecDescriptionFieldId = 'customfield_11909'
 
     static gampTopics = [
             notSelected             : 'Not selected',
@@ -35,19 +28,20 @@ class CreateStoryIssuePage extends CreateIssuePage {
 
     static content = {
         navigationBar { module(NavigationBarModule) }
-        gampTopicSelect { $("#$gampTopicFieldId") }
-        reqAcceptanceCriteria { $("#$reqAcceptanceCriteriaFieldId") }
-        funcSpecSummary { $("#$funcSpecSummaryFieldId") }
-        funcSpecSummaryDescription { $("#$funcSpecSummaryDescriptionFieldId") }
-        funcSpecAcceptanceCriteria { $("#$funcSpecAcceptanceCriteriaFieldId") }
-        configSpecSummary { $("#$configSpecSummaryFieldId") }
-        configSpecDescription { $("#$configSpecDescriptionFieldId") }
+        gampTopicSelect { $("#" + SpecHelper.getFieldId(fields, "Story", "Gamp Topic")) }
+        reqAcceptanceCriteria { $("#" +  SpecHelper.getFieldId(fields, "Story", "Req Acceptance Criteria")) }
+        funcSpecSummary { $("#" + SpecHelper.getFieldId(fields, "Story", "FuncSpec Summary")) }
+        funcSpecSummaryDescription { $("#" + SpecHelper.getFieldId(fields, "Story", "FuncSpec Description")) }
+        funcSpecAcceptanceCriteria { $("#" +  SpecHelper.getFieldId(fields, "Story", "FuncSpec Acceptance Criteria")) }
+        configSpecSummary { $("#" + SpecHelper.getFieldId(fields, "Story", "ConfigSpec Summary")) }
+        configSpecDescription { $("#" + SpecHelper.getFieldId(fields, "Story", "FuncSpec Acceptance Criteria")) }
     }
-
 
     def createIssue(story, spec) {
         summary = story.summary?:""
-        descriptionTextLink.click()
+        //descriptionTextLink.click()
+        // WORKAROUND: the Text link selector doesn't work regarding template downloads
+        $('li', 'data-mode':'source').$('a')*.click()
         description = story.description?:""
         componentsTextArea = story.component?:""
         spec.report('Fill data 1')
