@@ -39,7 +39,7 @@ class JenkinsConsolePage extends Page {
                     [it.@id - "job_$projectKey-cd-",
                      [
                              id                    : (it.@id - "job_$projectKey-cd-") - 'ods-qs-',
-                             branch                : ((it.@id - "job_$projectKey-cd-$projectKey-") - 'ods-qs-') - "$component-",
+                             branch                : ((it.@id - "job_$projectKey-cd-") - 'ods-qs-') - "$component-",
                              success               : it.hasClass('job-status-blue'),
                              notBuild              : it.hasClass('job-status-nobuilt'),
                              odsStartupComponentJob: it.@id.contains('-ods-qs-'),
