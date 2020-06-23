@@ -17,6 +17,7 @@ class IssueMenuModule extends Module {
     def defineButtonId = 'action_id_221'
     def tstImplementButtonId = 'action_id_121'
     def tstConformDoDId = 'action_id_111'
+    def reopenButtonDocumentChapterId = 'action_id_211'
 
     static content = {
         moreMenu(wait: true, required: true) { $("#opsbar-operations_more") }
@@ -31,6 +32,7 @@ class IssueMenuModule extends Module {
         transitionButtonDefine(wait: true, required: true) { transitionButtons.$("#$defineButtonId") }
         transitionButtonTstImplement(wait: true, required: true) { transitionButtons.$("#$tstImplementButtonId") }
         transitionButtonsTstConfirmDoD(wait: true, required: true) { transitionButtons.$("#$tstConformDoDId") }
+        transitionButtonsReopenDocumentChapter(wait: true, required: true) { transitionButtons.$("#$reopenButtonDocumentChapterId") }
     }
 
     /**
