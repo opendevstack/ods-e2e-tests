@@ -15,6 +15,7 @@ class SpecHelper {
             properties.load(it)
         }
 
+        def raiseError = false
         properties.each { key, value ->
             def matcher = value =~ /\$\{(.*?)\}/
             if (matcher.find()) {
@@ -23,12 +24,16 @@ class SpecHelper {
                     def valueToReplace = env[match[1]]
                     if (!valueToReplace) {
                         println "ERROR: Missing properties in configuration $match[0]"
-                        throw IllegalStateException("ERROR: Missing properties in configuration $match[0]")
+                        raiseError = true
+                    } else {
+                        value = value.replaceAll(Pattern.quote(nameToReplace), valueToReplace)
+                        properties[key] = value
                     }
-                    value = value.replaceAll(Pattern.quote(nameToReplace), valueToReplace)
-                    properties[key] = value
                 }
             }
+        }
+        if (raiseError) {
+            throw IllegalStateException("ERROR: Missing properties in configuration $match[0]")
         }
 
         return properties
@@ -102,7 +107,7 @@ class SpecHelper {
 
         return new JsonSlurperClassic().parseText(response.getBody()).transitions.collect { transition ->
             [
-                    id: transition.id,
+                    id  : transition.id,
                     name: transition.name
             ]
         }

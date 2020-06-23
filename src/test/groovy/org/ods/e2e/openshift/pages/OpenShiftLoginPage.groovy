@@ -7,7 +7,7 @@ class OpenShiftLoginPage extends Page {
     static Properties applicationProperties = new SpecHelper().getApplicationProperties()
 
     static url = "/login"
-    static at = { title == 'Login - OpenShift Container Platform' }
+    static at = { browser.currentUrl.contains('/login?') }
     static content = {
         username { $("input", name: "username") }
         password { $("input", name: "password") }
