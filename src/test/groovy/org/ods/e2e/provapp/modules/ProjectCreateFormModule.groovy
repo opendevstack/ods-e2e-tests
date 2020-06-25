@@ -1,8 +1,11 @@
 package org.ods.e2e.provapp.modules
 
 import geb.Module
+import org.openqa.selenium.By
+import org.openqa.selenium.JavascriptExecutor
 
 class ProjectCreateFormModule extends Module {
+    def driver
 
     static projectTypes = [default: 'default',
                            kanban : 'kanban',
@@ -22,7 +25,7 @@ class ProjectCreateFormModule extends Module {
         bugtrackerSpace(wait:true, required: true) { $("#bugtrackerSpace") }
         platformRuntime(wait:true, required: true) { $("#platformRuntime") }
 
-        startCreationButton(wait: true) { createForm.$("#createProject > fieldset > button") }
+        startCreationButton(wait: true, required: false) { createForm.$('#createProject > fieldset > button') }
     }
 
     def doSelectProject(id) {
@@ -35,6 +38,10 @@ class ProjectCreateFormModule extends Module {
     }
 
     def doStartProvision() {
-        startCreationButton.click()
+        def css = '#createProject > fieldset > button'
+        def element = driver.findElement(By.cssSelector(css))
+        (driver as JavascriptExecutor).executeScript("arguments[0].scrollIntoView();", element)
+        waitFor { !startCreationButton.hasClass('disabled') }
+        element.click()
     }
 }
