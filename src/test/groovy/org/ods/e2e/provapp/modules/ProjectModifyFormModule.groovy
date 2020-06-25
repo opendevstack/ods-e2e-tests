@@ -68,7 +68,7 @@ class ProjectModifyFormModule extends Module {
     def getNextId(key) {
         def max = projectSelectControl.$("option").findResults {
             project ->
-                project.value() && project?.value()?.startsWith(key) && (project.value() - key).isInteger() ?
+                project?.value() && project?.value()?.startsWith(key) && (project.value() - key).isInteger() ?
                         (project.value() - key).toInteger() :
                         null
         }.max()
