@@ -5,6 +5,8 @@ import org.openqa.selenium.By
 import org.openqa.selenium.interactions.Actions
 
 class IssueTypeSelectorModule extends Module {
+    def driver
+    
     static issueType = [
             releaseStatus             : 'release-status',
             technicalSpecificationTask: 'technical-specification-task',

@@ -2,11 +2,13 @@ package org.ods.e2e.jira.pages
 
 import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
+import org.ods.e2e.jira.modules.DocumentChapterDialogModule
 import org.ods.e2e.jira.modules.IssueMenuModule
 import org.ods.e2e.jira.modules.NavigationBarModule
+
 import org.ods.e2e.util.SpecHelper
 
-class IssueBrowsePage extends BasePage {
+class IssueBrowsePage extends IssueCreationDialogBasePage {
     static url = '/browse'
     def selectedIssue = ''
 
@@ -25,6 +27,7 @@ class IssueBrowsePage extends BasePage {
 
     static content = {
         navigationBar { module(NavigationBarModule) }
+        editIssueButton { $('#edit-issue') }
         issueMenu { module(new IssueMenuModule(driver: driver, issue: selectedIssue)) }
         createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver, fields: fields)) }
         createLinkDialog(wait: true) { module CreateLinkDialogModule }
@@ -42,10 +45,7 @@ class IssueBrowsePage extends BasePage {
             }
         }
         statusVal(required: true, wait: true) { $('#status-val > span') }
-        edpContentEditor(wait: true, required: true) { $("#" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Content") + "-val") }
-        edpHeadingNumber(wait: true, required: true) { $("#" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Heading Number") + "-val") }
-        edpContent(wait: true, required: true) { $("#" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Content") + "-wiki-edit > textarea") }
-        edpContentSubmitButton { $("#" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Content") + "-form button.submit") }
+        documentChapterDialogModule(wait: true, required: true) { module(new DocumentChapterDialogModule(fields: fields, driver: driver))}
     }
 
     def addLinkToIssue(linkType, issueLinked) {

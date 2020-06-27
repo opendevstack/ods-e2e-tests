@@ -143,7 +143,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         when:
         issues.story1.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
-        println "???????????? $issues.story2.key"
+        println "???????????? $issues.story1.key"
 
         and:
         to IssueBrowsePage, issues.story1.key
@@ -166,53 +166,60 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and:
         issueCreationDialog.storyCreationFormModule.createIssue(issues.story2, this)
-        waitfor { $('a.issue-created-key.issue-link') }
+        waitFor { $('a.issue-created-key.issue-link') }
         issues.story2.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
         println "???????????? $issues.story2.key"
 
-        then: "The story has been created and we are in the IssuePage"
+        and:
+        to IssueBrowsePage, issues.story2.key
+
+        then:
         at IssueBrowsePage
         report('Step 4 - Story 2 created')
 
         when: "Click on create"
         navigationBar.createLink.click()
-        then:
-        at IssueCreationSelectorPage
+        waitFor {
+            issueCreationDialog
+        }
 
-        when: "Select to create a Story"
+        and: "Select to create a Story"
         issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.story)
         report('Step 4 - Start Creating a Story 3')
-        nextButton.click()
 
-        then: "We are in the issue creation of type Story"
-        at CreateStoryIssuePage
-
-        when:
+        and:
         issueCreationDialog.storyCreationFormModule.createIssue(issues.story3, this)
-        issues.story3.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        waitFor { $('a.issue-created-key.issue-link') }
+        issues.story3.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "???????????? $issues.story3.key"
 
-        then: "The story has been created and we are in the IssuePage"
+        and:
+        to IssueBrowsePage, issues.story3.key
+
+        then:
         at IssueBrowsePage
         report('Step 4 - Story 3 created')
 
         when: "Click on create"
         navigationBar.createLink.click()
-        then:
-        at IssueCreationSelectorPage
+        waitFor {
+            issueCreationDialog
+        }
 
-        when: "Select to create a Story"
+        and: "Select to create a Story"
         issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.story)
         report('Step 4 - Start Creating a Story 4')
-        nextButton.click()
 
-        then: "We are in the issue creation of type Story"
-        at CreateStoryIssuePage
-
-        when:
+        and:
         issueCreationDialog.storyCreationFormModule.createIssue(issues.story4, this)
-        issues.story4.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        waitFor { $('a.issue-created-key.issue-link') }
+        issues.story4.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "???????????? $issues.story4.key"
 
-        then: "The story has been created and we are in the IssuePage"
+        and:
+        to IssueBrowsePage, issues.story4.key
+
+        then:
         at IssueBrowsePage
         report('Step 4 - Story 4 created')
 
@@ -225,6 +232,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and: "Search for that issue in status Done"
         to IssuesPage
+        sleep(10000)
         findIssue(projectName: projectName, issueId: issues.story1.key, status: 'Done')
         sleep(2000)
 
@@ -296,19 +304,20 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             println it
             sleep(1000)
             report()
-            edpContentEditor.click()
-            sleep(2000)
-            waitFor { $("li", 'data-mode': 'source') }.click()
-            // WORKAROUND: Append "" before to value method
-            waitFor { edpContent } << ""
-            waitFor { edpContent }.value(documentChapters.CSD[edpHeadingNumber.text()].edpContent)
-            waitFor { edpContentSubmitButton }.click()
-            sleep(4000)
+            editIssueButton.click()
+            waitFor { documentChapterDialogModule }
+            sleep(1000)
+            waitFor { $("li", 'data-mode': 'source') }*.click()
+            waitFor { documentChapterDialogModule.edpContent }.value(
+                documentChapters.CSD[documentChapterDialogModule.edpHeadingNumber.value()].edpContent)
+            waitFor { documentChapterDialogModule.submitButton }.click()
+            sleep(1000)
             if (issueMenu.transitionButtonsReopenDocumentChapter.size() != 0) {
                 issueMenu.transitionButtonsReopenDocumentChapter.click()
             }
+            sleep(1000)
             waitFor { issueMenu.transitionButtonDocument }.click()
-            sleep(4000)
+            sleep(1000)
             waitFor { issueMenu.transitionButtonDefine }.click()
 
             report()
@@ -326,8 +335,20 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     private void moveStoryToDone(key) {
         to IssueBrowsePage, key
         issueMenu.transitionButtonsConfirmDoR().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()   
+        }
         issueMenu.transitionButtonsImplement().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()   
+        }
         issueMenu.transitionButtonsIConfirmDoD().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()   
+        }
     }
 
     /**
@@ -344,7 +365,15 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     private void moveStoryToInProgress(key) {
         to IssueBrowsePage, key
         issueMenu.transitionButtonsConfirmDoR.click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()   
+        }        
         issueMenu.transitionButtonsImplement.click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()   
+        }        
     }
 
     // TEST CASES TEST GROUP 02
