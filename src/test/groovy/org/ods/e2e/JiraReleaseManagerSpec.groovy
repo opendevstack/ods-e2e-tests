@@ -1,11 +1,13 @@
 package org.ods.e2e
 
 import org.ods.e2e.jira.JiraBaseSpec
+import org.ods.e2e.jira.helpers.GampTopics
+import org.ods.e2e.jira.helpers.IssueSelectorHelper
 import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.pages.*
 
-class  JiraReleaseManagerSpec extends JiraBaseSpec {
+class JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
     def currentStoryKey
     def projectSummary
@@ -14,7 +16,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
                     summary                   : "Story 1: Test Creating Story 1",
                     description               : "As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
                     component                 : "Technology-demo-app-front-end",
-                    gampTopic                 : CreateStoryIssuePage.gampTopics.functionalRequirements,
+                    gampTopic                 : GampTopics.functionalRequirements,
                     funcSpecSummary           : "Standard functionality",
                     funcSpecSummaryDescription: "Standard functionality of Jira supported by configuration of issue type in the ODS project template to suport the creation of the C-CSD document (Combined Specification Document).",
                     configSpecSummary         : "Configuration Jira",
@@ -24,7 +26,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
                     summary                   : "Story 2: Test Creating Story 2",
                     description               : "Story 2 description:As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
                     component                 : "Technology-demo-app-front-end",
-                    gampTopic                 : CreateStoryIssuePage.gampTopics.dataRequirements,
+                    gampTopic                 : GampTopics.dataRequirements,
                     funcSpecSummary           : "Story 2: funcSpecSummary",
                     funcSpecSummaryDescription: "Story 2: funcSpecSummaryDescription - Standard functionallity of Jira supported by configuration of issue type in the ODS project template to suport the creation of the C-CSD document (Combined Specification Document).",
                     configSpecSummary         : "Story 2 configSpecSummary: Configuration Jira",
@@ -34,7 +36,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
                     summary                   : "Story 3: Test Creating Story 3",
                     description               : "Story 3 description:As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
                     component                 : "Technology-demo-app-front-end",
-                    gampTopic                 : CreateStoryIssuePage.gampTopics.interfaceRequirements,
+                    gampTopic                 : GampTopics.interfaceRequirements,
                     funcSpecSummary           : "Story 3: funcSpecSummary",
                     funcSpecSummaryDescription: "Story 3: funcSpecSummaryDescription - Standard functionallity of Jira supported by configuration of issue type in the ODS project template to suport the creation of the C-CSD document (Combined Specification Document).",
                     configSpecSummary         : "Story 3 configSpecSummary: Configuration Jira",
@@ -44,7 +46,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
                     summary                   : "Story 4: Test Creating Story 4",
                     description               : "Story 4 description:As user, I want this template to provide issues for requirements creation, in order to store contentn and track the progress of USR documents.",
                     component                 : "Technology-demo-app-front-end",
-                    gampTopic                 : CreateStoryIssuePage.gampTopics.interfaceRequirements,
+                    gampTopic                 : GampTopics.interfaceRequirements,
                     funcSpecSummary           : "Story 4: funcSpecSummary",
                     funcSpecSummaryDescription: "Story 4: funcSpecSummaryDescription - Standard functionallity of Jira supported by configuration of issue type in the ODS project template to suport the creation of the C-CSD document (Combined Specification Document).",
                     configSpecSummary         : "Story 4 configSpecSummary: Configuration Jira",
@@ -119,26 +121,34 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
         // STEP 2 Click on “Create” and choose a Jira issue type Story.
         when: "Click on create"
         navigationBar.createLink.click()
-        then:
-        at IssueCreationSelectorPage
+        waitFor {
+            issueCreationDialog
+        }
 
-        when: "Select to create a Story"
-        selectIssueOfType(IssueCreationSelectorPage.issueType.story)
-        report('Step 2 - Start Creating a Story ')
-        nextButton.click()
+        and: "Select to create a Story"
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.story)
 
         then: "We are in the issue creation of type Story"
-        at CreateStoryIssuePage
+        report('Step 2 - Start Creating a Story ')
 
         // STEP 3 Add all required information.
         //        Add a component to the Story.
         //        Add a GAMP topic.
         //        Click on “Create”.
         when:
-        createIssue(issues.story1, this)
-        issues.story1.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        issueCreationDialog.storyCreationFormModule.createIssue(issues.story1, this)
 
         then: "The story has been created and we are in the IssuePage"
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        when:
+        issues.story1.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "???????????? $issues.story2.key"
+
+        and:
+        to IssueBrowsePage, issues.story1.key
+
+        then:
         at IssueBrowsePage
         report('Step 3 - Story 1 created')
 
@@ -146,20 +156,19 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
         //        For each Story choose a different GAMP topic.
         when: "Click on create"
         navigationBar.createLink.click()
-        then:
-        at IssueCreationSelectorPage
+        waitFor {
+            issueCreationDialog
+        }
 
-        when: "Select to create a Story"
-        selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        and: "Select to create a Story"
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.story)
         report('Step 4 - Start Creating a Story 2')
-        nextButton.click()
 
-        then: "We are in the issue creation of type Story"
-        at CreateStoryIssuePage
-
-        when:
-        createIssue(issues.story2, this)
-        issues.story2.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        and:
+        issueCreationDialog.storyCreationFormModule.createIssue(issues.story2, this)
+        waitfor { $('a.issue-created-key.issue-link') }
+        issues.story2.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "???????????? $issues.story2.key"
 
         then: "The story has been created and we are in the IssuePage"
         at IssueBrowsePage
@@ -171,7 +180,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
         at IssueCreationSelectorPage
 
         when: "Select to create a Story"
-        selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.story)
         report('Step 4 - Start Creating a Story 3')
         nextButton.click()
 
@@ -179,7 +188,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
         at CreateStoryIssuePage
 
         when:
-        createIssue(issues.story3, this)
+        issueCreationDialog.storyCreationFormModule.createIssue(issues.story3, this)
         issues.story3.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 
         then: "The story has been created and we are in the IssuePage"
@@ -192,7 +201,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
         at IssueCreationSelectorPage
 
         when: "Select to create a Story"
-        selectIssueOfType(IssueCreationSelectorPage.issueType.story)
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.story)
         report('Step 4 - Start Creating a Story 4')
         nextButton.click()
 
@@ -200,7 +209,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
         at CreateStoryIssuePage
 
         when:
-        createIssue(issues.story4, this)
+        issueCreationDialog.storyCreationFormModule.createIssue(issues.story4, this)
         issues.story4.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 
         then: "The story has been created and we are in the IssuePage"
@@ -592,7 +601,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
         at IssueCreationSelectorPage
 
         when: "Select to create a Technical Specification"
-        selectIssueOfType(IssueCreationSelectorPage.issueType.technicalSpecificationTask)
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.technicalSpecificationTask)
         report('Step 2 - Start Creating a Technical Specification')
         nextButton.click()
 
@@ -608,7 +617,7 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
         //       Specification
         // Click on “Create”.
         when: "We create the Technical Specification Task 1"
-        createIssue(technicalSpecifications.tst1, this)
+        issueCreationDialog.storyCreationFormModule.createIssue(technicalSpecifications.tst1, this)
         technicalSpecifications.tst1.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 
         then: "The issue is created"
@@ -634,13 +643,13 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and: "Select to create a Technical Specification"
         at IssueCreationSelectorPage
-        selectIssueOfType(IssueCreationSelectorPage.issueType.technicalSpecificationTask)
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.technicalSpecificationTask)
         report('Step 5 - Start Creating a Technical Specification 2')
         nextButton.click()
 
         and: "We create the Technical Specification Task 2"
         at CreateTechnicalSpecificationTaskIssuePage
-        createIssue(technicalSpecifications.tst2, this)
+        issueCreationDialog.storyCreationFormModule.createIssue(technicalSpecifications.tst2, this)
         technicalSpecifications.tst2.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 
         then: "The issue is created"
@@ -659,13 +668,13 @@ class  JiraReleaseManagerSpec extends JiraBaseSpec {
 
         and: "Select to create a Technical Specification"
         at IssueCreationSelectorPage
-        selectIssueOfType(IssueCreationSelectorPage.issueType.technicalSpecificationTask)
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.technicalSpecificationTask)
         report('Step 5 - Start Creating a Technical Specification 4')
         nextButton.click()
 
         and: "We create the Technical Specification Task 2"
         at CreateTechnicalSpecificationTaskIssuePage
-        createIssue(technicalSpecifications.tst4, this)
+        issueCreationDialog.storyCreationFormModule.createIssue(technicalSpecifications.tst4, this)
         technicalSpecifications.tst4.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
 
         then: "The issue is created"
