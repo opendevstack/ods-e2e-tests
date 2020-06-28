@@ -1,11 +1,11 @@
 package org.ods.e2e
 
-
 import org.ods.e2e.bitbucket.pages.DashboardPage
 import org.ods.e2e.bitbucket.pages.LoginPage
 import org.ods.e2e.bitbucket.pages.ProjectPage
 import org.ods.e2e.bitbucket.pages.RepositoryPage
 import org.ods.e2e.jenkins.pages.JenkinsJobFolderPage
+import org.ods.e2e.openshift.client.OpenShiftClient
 import org.ods.e2e.openshift.pages.ConsoleProjectsPage
 import org.ods.e2e.openshift.pages.ConsoleResourcesConfigMaps
 import org.ods.e2e.openshift.pages.PodsPage
@@ -22,6 +22,7 @@ class ODSSpec extends BaseSpec {
     def static OPENDEVSTACK = 'OPENDEVSTACK'
     def static E2E_TEST_BRANCH = 'e2e-test-branch'
     def static E2E_TEST_FILE = 'e2e-tests.txt'
+    def static E2E_TEST_QUICKSTARTER = 'E2ET3'
 
     def projects = [
             default: [
@@ -301,6 +302,8 @@ class ODSSpec extends BaseSpec {
         //         Result: Project and repository available
         given:
         baseUrl = baseUrlBitbucket
+        def openshiftProject = 'prov-test'
+        def openshiftApp = 'prov-app'
 
         when:
         to LoginPage
@@ -321,6 +324,7 @@ class ODSSpec extends BaseSpec {
         // STEP 2: Pick one quickstarter repository and create a branch from master – add, and commit a file into /files
         //         Result: Repository with master branch found, branch modified and committed/pushed
         when: 'Checkout project'
+        def quickstarter = 'fe-angular'
         def gitRepository = GitUtil.cloneRepository(OPENDEVSTACK, 'ods-quickstarters', false)
 
         and: 'Create a branch'
@@ -328,21 +332,17 @@ class ODSSpec extends BaseSpec {
 
         and: 'Add a file into /files'
         def directory = gitRepository.repository.getWorkTree()
-        new File("$directory/fe-angular/files/$E2E_TEST_FILE").text = 'Testing file for FT_01_002'
+        def filesPath = "$quickstarter/files".toString()
+        def testFilePath = "$filesPath/$E2E_TEST_FILE"
+        new File("$directory/$testFilePath").text = 'Test file for FT_01_002'
 
         and: 'Commit and push file'
-        GitUtil.add(gitRepository, "fe-angular/files/$E2E_TEST_FILE")
+        GitUtil.add(gitRepository, testFilePath)
         GitUtil.commitAddAll(gitRepository, 'Added test file')
         GitUtil.push(gitRepository)
 
-        and: 'Visit bitbucket to grab evidences of adding files'
-        to RepositoryPage, OPENDEVSTACK, 'ods-quickstarters', 'fe-angular/files', [at: E2E_TEST_BRANCH]
-
-        and: 'Get the existing files'
-        def files = getFiles()
-
-        then: 'exists all the files needed for the LeVADocs templates'
-        files.find { file -> file.name == E2E_TEST_FILE }
+        then: 'Push successful if no exception'
+        true
         report("step 2 - Repository with master branch found, branch modified and committed/pushed.")
 
         // STEP 3: Go to Openshift prov-test project and open available config maps
@@ -354,31 +354,131 @@ class ODSSpec extends BaseSpec {
         doOpenshiftLoginProcess()
 
         and: 'Visit the config maps of the provisioning application'
-        to ConsoleResourcesConfigMaps, 'prov-test'
+        to ConsoleResourcesConfigMaps, openshiftProject
 
         and: 'Retrieve the configMaps'
         def configMaps = getConfigMaps()
 
         then:
         configMaps.findAll { configMap -> configMap.name == 'application.properties' }.size() == 1
-
+        report("step 3 - Configuration maps available – namely application.properties")
 
         // STEP 4: In the application.properties config map copy the configuration lines from the quickstarter
         //         you pick from the step 2
         //         Result: Existing Quickstarter / boilerplace configuration available
 
+        when: 'Read configMap'
+        def client = OpenShiftClient.connect(openshiftProject)
+        def configMap = client.getConfigMap('application.properties')
+        def configMapData = configMap.getData()
+
+        and: 'Read the properties'
+        def propertyFile = configMapData.properties
+        def propertyBackup = propertyFile
+        def properties = new Properties()
+        properties.load(new StringReader(propertyFile))
+
+        and: 'Obtain existing properties'
+        def tmpProps = properties.findAll {
+            key, value ->
+                key.startsWith("jenkinspipeline.quickstarter.$quickstarter.")
+        }
+
+        then:
+        !tmpProps.isEmpty()
+        report("step 4 - Existing Quickstarter / boilerplace configuration available")
+
         // STEP 5: Replace the key with a name of your choice and add the branch identifier and Jenkins file path as
         //         documented in the application.properties – click save
         //         Result: Config map can be saved
 
+        when: 'Add quickstarter properties'
+        tmpProps = tmpProps.collectEntries {
+            key, value ->
+                def concreteProperty = key.substring("jenkinspipeline.quickstarter.$quickstarter.".length())
+                def newKey = "jenkinspipeline.quickstarter.${E2E_TEST_QUICKSTARTER}.${concreteProperty}".toString()
+                [(newKey): value]
+        }
+        properties.putAll(tmpProps)
+        properties.setProperty("jenkinspipeline.quickstarter.${E2E_TEST_QUICKSTARTER}.branch".toString(), E2E_TEST_BRANCH)
+        properties.setProperty("jenkinspipeline.quickstarter.${E2E_TEST_QUICKSTARTER}.jenkinsfile".toString(),
+                "$E2E_TEST_QUICKSTARTER/Jenkinsfile".toString())
+
+        and: 'Update config map'
+        def sw = new StringWriter()
+        properties.store(sw, null)
+        propertyFile = sw.toString()
+        configMapData.properties = propertyFile
+        client.modifyConfigMap(configMap, configMapData)
+
+        and: 'Save modified config map'
+        configMap = client.update(configMap)
+
+        and: 'Retrieve the config map again'
+        configMapData = configMap.getData()
+        def newContent = configMapData.get('properties')
+
+        then: 'We correctly retrieve the updated data'
+        newContent == propertyFile
+        report("step 5 - Config map can be saved")
+
         // STEP 6: From the console or thru OC cli - redeploy the provision application in prov-test
         //         Result: New deployment of provision app shown in console and new pod available
 
-        // STEP 7: Login and pick modifiy existing project / and locate the new quickstarter
+        when: 'Get deployments'
+        def lastVersion = client.getLastDeploymentVersion(openshiftApp)
+
+        and: 'Redeploy the provisioning app'
+        client.deploy(openshiftApp)
+
+        and: 'Wait for deployment'
+        def newVersion = client.waitForDeployment(openshiftApp, lastVersion)
+
+        then: 'New deployment exists'
+        newVersion > lastVersion
+        report("step 6 - New deployment of provision app shown in console and new pod available.")
+
+        // STEP 7: Login and pick modify existing project / and locate the new quickstarter
         //         Result: New quickstarter available in the list in provision application
+
+        when: 'We are logged in the provissioning app'
+        baseUrl = baseUrlProvisioningApp
+        to ProvAppLoginPage
+        doLoginProcess()
+
+        and: 'We are in the provisioning page'
+        def project = projects.default
+        to ProvisionPage
+
+        and: 'We have selected modify project'
+        provisionOptionChooser.doSelectModifyProject()
+
+        then: 'The new quickstarter available in the list'
+        projectModifyForm.getProjects().find {
+            entry -> entry.key == project.key
+        }
+        report("step 7 - New quickstarter available in the list in provision application.")
+
 
         // STEP 8: Go to bitbucket, locate the new repository and locate the file added in step 2
         //         Result: Repository and file available
+
+        when: 'Visit bitbucket to grab evidences of adding files'
+        baseUrl = baseUrlBitbucket
+        to RepositoryPage, OPENDEVSTACK, 'ods-quickstarters', filesPath, [at: E2E_TEST_BRANCH]
+
+        and: 'Get the existing files'
+        def files = getFiles()
+
+        then: 'Test file exists'
+        files.find { file -> file.name == E2E_TEST_FILE }
+        report("step 8 - Repository and file available.")
+
+        cleanup: 'Restore original contents of the config map'
+        configMapData.put('properties', propertyBackup)
+        client.modifyConfigMap(configMap, configMapData)
+        client.update(configMap)
+
     }
 
     /**

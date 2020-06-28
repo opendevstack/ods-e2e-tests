@@ -16,6 +16,7 @@ ext {
     chromeDriverVersion = '83.0.4103.39'
     geckoDriverVersion = '0.26.0'
     htmlunitVersion = "2.36.0"
+    openshiftClientVersion = '9.0.0.Final'
 }
 
 repositories {
@@ -42,6 +43,9 @@ dependencies {
     compile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
     testCompile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
     testCompile "org.yaml:snakeyaml:1.26"
+
+    // Openshift client
+    implementation "com.openshift:openshift-restclient-java:$openshiftClientVersion"
 
 }
 
