@@ -6,6 +6,7 @@ import org.ods.e2e.jira.helpers.IssueSelectorHelper
 import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.pages.*
+import spock.lang.Ignore
 
 class JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
@@ -97,6 +98,40 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
+    @Ignore
+    def "PLAY" () {
+        // STEP 1 Log in as team member who has rights to the project.
+        given: "Log in as team member who has rights to the project"
+        to DashboardPage
+        loginForm.doLoginProcess()
+
+        expect: "We can login in Jira"
+        at DashboardPage
+
+        when: "visit project page"
+        to ProjectPage, projectName
+        projectSummary = (title - ~/- Jira/).trim()
+
+        then: "Login in the project is successful."
+        at ProjectPage
+        report('Step_1_login')
+
+        // STEP 2 Click on “Create” and choose a Jira issue type Story.
+        when: "Click on create"
+        navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
+
+        and: "Select to create a Story"
+        waitFor {issueCreationDialog}
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.story)
+
+        then: "We are in the issue creation of type Story"
+        report('Step 2 - Start Creating a Story ')
+    }
+
+
     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
     // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
     // amend the Documentation chapter issues and check the issue workflows.
@@ -112,7 +147,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         when: "visit project page"
         to ProjectPage, projectName
-        projectSummary = $("div.project-summary-section.project-description > p").text()
+        projectSummary = (title - ~/- Jira/).trim()
 
         then: "Login in the project is successful."
         at ProjectPage
@@ -138,12 +173,12 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         when:
         issueCreationDialog.storyCreationFormModule.createIssue(issues.story1, this)
 
-        then: "The story has been created and we are in the IssuePage"
+        then: "The story has been created"
         waitFor { $('a.issue-created-key.issue-link') }
 
         when:
         issues.story1.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
-        println "???????????? $issues.story1.key"
+        println "issues.story1.key $issues.story1.key"
 
         and:
         to IssueBrowsePage, issues.story1.key
@@ -168,7 +203,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         issueCreationDialog.storyCreationFormModule.createIssue(issues.story2, this)
         waitFor { $('a.issue-created-key.issue-link') }
         issues.story2.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
-        println "???????????? $issues.story2.key"
+        println "issues.story2.key $issues.story2.key"
 
         and:
         to IssueBrowsePage, issues.story2.key
@@ -191,7 +226,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         issueCreationDialog.storyCreationFormModule.createIssue(issues.story3, this)
         waitFor { $('a.issue-created-key.issue-link') }
         issues.story3.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
-        println "???????????? $issues.story3.key"
+        println "issues.story3.key $issues.story3.key"
 
         and:
         to IssueBrowsePage, issues.story3.key
@@ -214,7 +249,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         issueCreationDialog.storyCreationFormModule.createIssue(issues.story4, this)
         waitFor { $('a.issue-created-key.issue-link') }
         issues.story4.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
-        println "???????????? $issues.story4.key"
+        println "issues.story4.key $issues.story4.key"
 
         and:
         to IssueBrowsePage, issues.story4.key
@@ -301,7 +336,6 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         documentChaptersIssues.each {
             to IssueBrowsePage, it.key
-            println it
             sleep(1000)
             report()
             editIssueButton.click()
@@ -389,7 +423,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         when: "visit project page"
         to ProjectPage, projectName
-        projectSummary = $("div.project-summary-section.project-description > p").text()
+        projectSummary = (title - ~/- Jira/).trim()
 
         then: "Login in the project is successful."
         at ProjectPage
@@ -617,7 +651,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         when: "visit project page"
         to ProjectPage, projectName
-        projectSummary = $("div.project-summary-section.project-description > p").text()
+        projectSummary = (title - ~/- Jira/).trim()
 
         then: "Login in the project is successful."
         at ProjectPage
@@ -626,16 +660,15 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // STEP 2 Click on “Create” and choose a Jira issue type Technical Specification.
         when: "Click on create"
         navigationBar.createLink.click()
-        then:
-        at IssueCreationSelectorPage
+        waitFor {
+            issueCreationDialog
+        }
 
-        when: "Select to create a Technical Specification"
+        and: "Select to create a Technical Specification"
         issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.technicalSpecificationTask)
-        report('Step 2 - Start Creating a Technical Specification')
-        nextButton.click()
 
-        then: "We are in the issue creation of type Technical Specification Task"
-        at CreateTechnicalSpecificationTaskIssuePage
+        then:
+        report('Step 2 - Start Creating a Technical Specification')
 
         // STEP 3 Add all required information:
         //       Summary: TST1
@@ -646,15 +679,23 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //       Specification
         // Click on “Create”.
         when: "We create the Technical Specification Task 1"
-        issueCreationDialog.storyCreationFormModule.createIssue(technicalSpecifications.tst1, this)
-        technicalSpecifications.tst1.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        issueCreationDialog.technicalSpecificationFormModule.createIssue(technicalSpecifications.tst1, this)
 
-        then: "The issue is created"
-        at IssueBrowsePage
+        then: "The Technical Specification has been created"
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        when:
+        technicalSpecifications.tst1.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "technicalSpecifications.tst1.key $technicalSpecifications.tst1.key"
+
+        then:
+        assert technicalSpecifications.tst1.key != null
         report("TST1 Created")
 
         // STEP 4 Link the Story1 to the Technical Specification Task.
         when: "We add a link to the story 1"
+        to IssueBrowsePage, technicalSpecifications.tst1.key
+
         addLinkToIssue(CreateLinkDialogModule.linkType.specifies, issues.story1.key)
         report("Added link to TST1")
 
@@ -669,22 +710,29 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // Creation and link of TST2
         when: "Click on create"
         navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
 
         and: "Select to create a Technical Specification"
-        at IssueCreationSelectorPage
         issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.technicalSpecificationTask)
         report('Step 5 - Start Creating a Technical Specification 2')
-        nextButton.click()
 
         and: "We create the Technical Specification Task 2"
-        at CreateTechnicalSpecificationTaskIssuePage
-        issueCreationDialog.storyCreationFormModule.createIssue(technicalSpecifications.tst2, this)
-        technicalSpecifications.tst2.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        issueCreationDialog.technicalSpecificationFormModule.createIssue(technicalSpecifications.tst2, this)
+
+        then:
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        when:
+        technicalSpecifications.tst2.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "technicalSpecifications.tst2.key $technicalSpecifications.tst2.key"
 
         then: "The issue is created"
-        at IssueBrowsePage
+        assert technicalSpecifications.tst2.key != null
 
         when: "We add a link to the story 2"
+        to IssueBrowsePage, technicalSpecifications.tst2.key
         addLinkToIssue(CreateLinkDialogModule.linkType.specifies, issues.story2.key)
         report("Added link to TST2")
 
@@ -694,22 +742,28 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // Creation and link of TST4
         when: "Click on create"
         navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
 
         and: "Select to create a Technical Specification"
-        at IssueCreationSelectorPage
         issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.technicalSpecificationTask)
         report('Step 5 - Start Creating a Technical Specification 4')
-        nextButton.click()
 
-        and: "We create the Technical Specification Task 2"
-        at CreateTechnicalSpecificationTaskIssuePage
-        issueCreationDialog.storyCreationFormModule.createIssue(technicalSpecifications.tst4, this)
-        technicalSpecifications.tst4.key = currentUrl.substring(currentUrl.lastIndexOf('/') + 1)
+        and: "We create the Technical Specification Task 4"
+        issueCreationDialog.technicalSpecificationFormModule.createIssue(technicalSpecifications.tst4, this)
+        then:
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        when:
+        technicalSpecifications.tst4.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "technicalSpecifications.tst4.key $technicalSpecifications.tst4.key"
 
         then: "The issue is created"
-        at IssueBrowsePage
+        assert technicalSpecifications.tst2.key != null
 
-        when: "We add a link to the story 2"
+        when: "We add a link to the story 4"
+        to IssueBrowsePage, technicalSpecifications.tst4.key
         addLinkToIssue(CreateLinkDialogModule.linkType.specifies, issues.story4.key)
         report("Added link to TST4")
 
@@ -718,7 +772,6 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         when: 'Move to status Done'
         technicalSpecifications.each {
-            println it
             to IssueBrowsePage, it.value.key
             sleep(1000)
             report()

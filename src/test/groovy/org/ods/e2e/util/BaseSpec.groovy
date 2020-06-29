@@ -33,8 +33,6 @@ class BaseSpec extends GebReportingSpec {
         openshiftPublichost = removeLastSlash(applicationProperties."config.openshift.publichost")
         baseUrlProvisioningApp = removeLastSlash(applicationProperties."config.provisioning.url")
         baseUrlJira = removeLastSlash(applicationProperties."config.atlassian.jira.url")
-        print applicationProperties."config.atlassian.jira.url"
-        print baseUrlJira
         baseUrlBitbucket = removeLastSlash(applicationProperties."config.atlassian.bitbucket.url")
         baseUrlJenkins = removeLastSlash(applicationProperties."config.jenkins.url")
         baseUrlOpenshift = removeLastSlash(applicationProperties."config.openshift.url")

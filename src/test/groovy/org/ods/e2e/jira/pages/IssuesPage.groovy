@@ -43,7 +43,7 @@ class IssuesPage extends BasePage {
         queryString += args.status ? " and status = $args.status" : ''
 
         searchTextArea = queryString
-        println "?????? findIssue: $queryString"
+        println "findIssue: $queryString"
         searchButton.click()
     }
 
@@ -57,7 +57,7 @@ class IssuesPage extends BasePage {
                 "AND labels = Doc:$args.document " +
                 "ORDER BY 'EDP Heading Number' ASC"
         searchTextArea = queryString
-        println "?????? findDocumentChapters: $queryString"
+        println "findDocumentChapters: $queryString"
         searchButton.click()
     }
 

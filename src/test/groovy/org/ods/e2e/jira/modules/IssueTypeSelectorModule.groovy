@@ -2,11 +2,15 @@ package org.ods.e2e.jira.modules
 
 import geb.Module
 import org.openqa.selenium.By
+import org.openqa.selenium.Keys
+import org.openqa.selenium.WebDriver
+import org.openqa.selenium.WebElement
 import org.openqa.selenium.interactions.Actions
 
 class IssueTypeSelectorModule extends Module {
-    def driver
-    
+    WebDriver driver
+
+
     static issueType = [
             releaseStatus             : 'release-status',
             technicalSpecificationTask: 'technical-specification-task',
@@ -24,11 +28,15 @@ class IssueTypeSelectorModule extends Module {
     }
 
     def selectIssueOfType(type) {
+        def selector = '#summary'
+        waitFor { $(selector) }
+        WebElement element = driver.findElement(By.cssSelector(selector))
+        element.sendKeys(Keys.UP)
         waitFor { $("#issuetype-single-select > .icon") }
-        issueTypeSelector.click()
-        def selector = $("li.aui-list-item-li-$type")
+        issueTypeSelector.click().click().click()
+        selector = $("li.aui-list-item-li-$type")
         if (selector.size()) {
-            Actions builder = new Actions(driver);
+            Actions builder = new Actions(driver)
             builder.moveToElement(selector.firstElement()).perform()
             driver.findElement(By.cssSelector("li.aui-list-item-li-$type")).click()
         } else {
