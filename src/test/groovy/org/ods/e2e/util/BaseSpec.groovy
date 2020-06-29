@@ -30,18 +30,27 @@ class BaseSpec extends GebReportingSpec {
         driver.manage().window().setPosition(new Point(0, 0))
 
         js = (JavascriptExecutor) driver
-        openshiftPublichost = applicationProperties."config.openshift.publichost"
-        baseUrlProvisioningApp = applicationProperties."config.provisioning.url"
-        baseUrlJira = applicationProperties."config.atlassian.jira.url"
-        baseUrlBitbucket = applicationProperties."config.atlassian.bitbucket.url"
-        baseUrlJenkins = applicationProperties."config.jenkins.url"
-        baseUrlOpenshift = applicationProperties."config.openshift.url"
+        openshiftPublichost = removeLastSlash(applicationProperties."config.openshift.publichost")
+        baseUrlProvisioningApp = removeLastSlash(applicationProperties."config.provisioning.url")
+        baseUrlJira = removeLastSlash(applicationProperties."config.atlassian.jira.url")
+        print applicationProperties."config.atlassian.jira.url"
+        print baseUrlJira
+        baseUrlBitbucket = removeLastSlash(applicationProperties."config.atlassian.bitbucket.url")
+        baseUrlJenkins = removeLastSlash(applicationProperties."config.jenkins.url")
+        baseUrlOpenshift = removeLastSlash(applicationProperties."config.openshift.url")
         simulate = applicationProperties."config.simulate".toUpperCase() == 'TRUE'
 
         baseUrl = baseUrlProvisioningApp
 
         extraLoginPage = System.getenv("OCP_LOGIN_SELECTOR_PAGE")?.toUpperCase() == 'TRUE' ?
                 true : false
+    }
+
+    def removeLastSlash(String str) {
+        if (str != null && str.length() > 0 && str.charAt(str.length() - 1) == '/') {
+            return str.substring(0, str.length() - 1)
+        }
+        return str
     }
 
     def getApplicationProperties() {

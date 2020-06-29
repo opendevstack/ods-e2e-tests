@@ -309,7 +309,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             sleep(1000)
             waitFor { $("li", 'data-mode': 'source') }*.click()
             waitFor { documentChapterDialogModule.edpContent }.value(
-                documentChapters.CSD[documentChapterDialogModule.edpHeadingNumber.value()].edpContent)
+                    documentChapters.CSD[documentChapterDialogModule.edpHeadingNumber.value()].edpContent)
             waitFor { documentChapterDialogModule.submitButton }.click()
             sleep(1000)
             if (issueMenu.transitionButtonsReopenDocumentChapter.size() != 0) {
@@ -337,17 +337,17 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         issueMenu.transitionButtonsConfirmDoR().click()
         sleep(1000)
         if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()   
+            $('#issue-workflow-transition-submit').click()
         }
         issueMenu.transitionButtonsImplement().click()
         sleep(1000)
         if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()   
+            $('#issue-workflow-transition-submit').click()
         }
         issueMenu.transitionButtonsIConfirmDoD().click()
         sleep(1000)
         if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()   
+            $('#issue-workflow-transition-submit').click()
         }
     }
 
@@ -367,13 +367,13 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         issueMenu.transitionButtonsConfirmDoR.click()
         sleep(1000)
         if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()   
-        }        
+            $('#issue-workflow-transition-submit').click()
+        }
         issueMenu.transitionButtonsImplement.click()
         sleep(1000)
         if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()   
-        }        
+            $('#issue-workflow-transition-submit').click()
+        }
     }
 
     // TEST CASES TEST GROUP 02

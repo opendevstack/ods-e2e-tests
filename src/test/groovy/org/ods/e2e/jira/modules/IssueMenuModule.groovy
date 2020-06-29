@@ -21,11 +21,12 @@ class IssueMenuModule extends Module {
         transitionButtonsConfirmDoR(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "confirm DoR")) }
         transitionButtonsImplement(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "implement")) }
         transitionButtonsIConfirmDoD(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "confirm DoD")) }
-        transitionButtonDocument(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "document")) }
-        transitionButtonDefine(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "define")) }
         transitionButtonTstImplement(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "implement")) }
         transitionButtonsTstConfirmDoD(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "confirm DoD")) }
-        transitionButtonsReopenDocumentChapter(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "reopen")) }
+        // Document chapter flow
+        transitionButtonDocument(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "document")) }
+        transitionButtonDefine(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "define")) }
+        transitionButtonsReopenDocumentChapter(wait: 2, required: false) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "reopen")) }
     }
 
     /**

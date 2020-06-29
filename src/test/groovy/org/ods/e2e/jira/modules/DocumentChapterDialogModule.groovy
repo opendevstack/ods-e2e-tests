@@ -10,7 +10,7 @@ class DocumentChapterDialogModule extends Module {
     static content = {
         dialog(required: true, wait:true) { $('#edit-issue-dialog') }
         edpContentEditor(wait: true, required: true) { $("#edit-issue-dialog #" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Content")) }
-        edpHeadingNumber(wait: true, required: true) { $("#edit-issue-dialog #" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Heading Number")) }
+        edpHeadingNumber(wait: true, required: true) { $("#edit-issue-dialog input", name : SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Heading Number")) }
         edpContent(wait: true, required: true) { $("#edit-issue-dialog #" + SpecHelper.getFieldId(fields, "Documentation Chapter", "EDP Content") + "-wiki-edit > textarea") }
         submitButton { $("#edit-issue-dialog #edit-issue-submit") }
     }
