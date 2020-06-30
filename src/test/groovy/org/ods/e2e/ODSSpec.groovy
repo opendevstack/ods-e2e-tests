@@ -735,7 +735,8 @@ class ODSSpec extends BaseSpec {
         //          Result: Repository cloned, metadata.yml is available
         // -------------------------------------------------------------------------------------------------------------
         when:
-        def repositoryFolder = GitUtil.cloneRepository(projects.default.key, releaseManagerComponent.componentId)
+        def gitRepository = GitUtil.cloneRepository(projects.default.key, releaseManagerComponent.componentId)
+        def repositoryFolder = gitRepository.repository.getWorkTree()
 
         and:
         DumperOptions options = new DumperOptions()
@@ -780,10 +781,10 @@ class ODSSpec extends BaseSpec {
         parser.dump(metadataYml, new FileWriter("$repositoryFolder/metadata.yml"))
 
         and: 'Commit the file'
-        GitUtil.commitAddAll('New component added')
+        GitUtil.commitAddAll(gitRepository,'New component added')
 
         and: 'Push it to the repository'
-        GitUtil.push('origin')
+        GitUtil.push(gitRepository,'origin')
 
         // -------------------------------------------------------------------------------------------------------------
         //       3.2 Trigger Jenkins build of the release manager.
