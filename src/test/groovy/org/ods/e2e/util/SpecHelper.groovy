@@ -114,9 +114,9 @@ class SpecHelper {
     }
 
     public String getTransitionId(List transitions, String name) {
-        Map transition = transitions.find { it.name == name }
+        Map transition = transitions.find { it.name.toLowerCase() == name.toLowerCase() }
 
-        return "action_id_" + transition.id
+        return "action_id_" + transition?.id
     }
 
     public String getTransitionId(String issueKey, String name) {

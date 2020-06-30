@@ -3,7 +3,7 @@ package org.ods.e2e.jira.pages
 import geb.Page
 import org.ods.e2e.jira.modules.NavigationBarModule
 
-class ProjectPage extends BasePage {
+class ProjectPage extends IssueCreationDialogBasePage {
 
     static url = "/projects"
 
@@ -14,7 +14,7 @@ class ProjectPage extends BasePage {
      */
     String convertToPath(Object[] args) {
         def project = args[0].toString().toUpperCase()
-        args ? "/$project/summary/" : ""
+        args ? "/$project/summary" : ""
     }
     static at = { browser.currentUrl.contains('summary')  }
 
