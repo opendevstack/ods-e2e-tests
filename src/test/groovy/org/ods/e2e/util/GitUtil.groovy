@@ -74,6 +74,7 @@ class GitUtil {
      * @param message The commit message
      */
     static commitAddAll(gitRepository, message = 'new commit') {
+        println "GitUil: Commit $message"
         gitRepository.commit().setMessage(message).setAll(true).call()
     }
 

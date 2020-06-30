@@ -4,7 +4,7 @@ import geb.Page
 import org.openqa.selenium.By
 import org.openqa.selenium.interactions.Actions
 
-class IssueCreationSelectorPage extends Page {
+class IssueCreationSelectorPage extends BasePage {
 
     static issueType = [
             releaseStatus             : 'release-status',

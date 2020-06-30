@@ -4,6 +4,8 @@ package org.ods.e2e.jira
 import org.ods.e2e.jira.pages.ComponentPage
 import org.ods.e2e.jira.pages.DashboardPage
 import org.ods.e2e.jira.pages.ProjectPage
+import spock.lang.Ignore
+
 
 class JiraSpec extends JiraBaseSpec {
 

@@ -29,8 +29,13 @@ class PodsPage extends Page {
         }
         podsTr.collect { tr ->
             [
-                    name  : tr.$("td", 'data-title': 'Name').$("a").text(),
-                    status: tr.$("td > div.status > span").text()
+                    name             : tr.$("td", 'data-title': 'Name').$("a").text() - ~/-\d+-\w+$/,
+                    status           : tr.$("td > div.status > span").text(),
+                    containersReady  : tr.$("td", 'data-title': 'Ready').text(),
+                    containerRestarts: tr.$("td", 'data-title': 'Restarts').text(),
+                    age              : tr.$("td > span", 'am-time-ago': 'pod.metadata.creationTimestamp').text(),
+                    isBuildPod       : tr.$("td", 'data-title': 'Name').$("a").text().endsWith('-build'),
+                    isDeployPod      : tr.$("td", 'data-title': 'Name').$("a").text().endsWith('-deploy')
             ]
         }
     }

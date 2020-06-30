@@ -33,8 +33,8 @@ class ProvisionPage extends Page {
 
     static content = {
         provisionOptionChooser { module ProvisionOptionChooser }
-        projectModifyForm { module ProjectModifyFormModule }
-        projectCreateForm(required: false) { module ProjectCreateFormModule }
+        projectModifyForm { module (new ProjectModifyFormModule(driver: driver)) }
+        projectCreateForm(required: false) { module(new ProjectCreateFormModule(driver: driver)) }
     }
 
     /**
@@ -109,5 +109,16 @@ class ProvisionPage extends Page {
                 $("#resButton").text() == "Close"
             }
         }
+    }
+
+
+    /**
+     * Having a pattern of project key, it return the next numeric id to be use.
+     * @param key The pattern to be use f.e. 'E2ET'
+     * @return The Id number
+     */
+    def getNextId(key) {
+        provisionOptionChooser.doSelectModifyProject()
+        projectModifyForm.getNextId(key)
     }
 }

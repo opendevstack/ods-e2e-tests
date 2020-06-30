@@ -1,5 +1,6 @@
 package org.ods.e2e.util
 
+
 import geb.spock.GebReportingSpec
 import org.ods.e2e.jenkins.pages.JenkinsConsolePage
 import org.ods.e2e.jenkins.pages.JenkinsLoginPage
@@ -22,6 +23,7 @@ class BaseSpec extends GebReportingSpec {
     def baseUrlOpenshift
     def openshiftPublichost
     def simulate
+    def extraLoginPage
 
     def setup() {
         driver.manage().window().setSize(new Dimension(1600, 1024))
@@ -35,6 +37,11 @@ class BaseSpec extends GebReportingSpec {
         baseUrlJenkins = applicationProperties."config.jenkins.url"
         baseUrlOpenshift = applicationProperties."config.openshift.url"
         simulate = applicationProperties."config.simulate".toUpperCase() == 'TRUE'
+
+        baseUrl = baseUrlProvisioningApp
+
+        extraLoginPage = System.getenv("OCP_LOGIN_SELECTOR_PAGE")?.toUpperCase() == 'TRUE' ?
+                true : false
     }
 
     def getApplicationProperties() {
@@ -47,20 +54,23 @@ class BaseSpec extends GebReportingSpec {
      * @return
      */
     def getJenkinsBaseUrl(project) {
-        return "https://jenkins-${project.toLowerCase()}-cd.$openshiftPublichost"
+        return "https://jenkins-$project-cd.$openshiftPublichost".toLowerCase()
     }
 
     /**
      * Login in Openshift
      */
     def doOpenshiftLoginProcess() {
-        to OpenShiftLoginSelectorPage
-        waitFor {
-            title == 'Login - OpenShift Container Platform'
-            ldapLink
+        if (extraLoginPage) {
+            to OpenShiftLoginSelectorPage
+            waitFor {
+                ldapLink
+            }
+            ldapLink.click()
+        } else {
+            via OpenShiftLoginPage
+            sleep(1000)
         }
-        ldapLink.click()
-
         at OpenShiftLoginPage
         doLogin()
 
@@ -71,15 +81,30 @@ class BaseSpec extends GebReportingSpec {
      * The login in Jenkins has an special behavior as we have to go across openshift.
      */
     def doJenkinsLoginProcess() {
-        to JenkinsLoginPage
+        via JenkinsLoginPage
         loginButton.click()
-
-        at(new JenkinsLoginSelectorPage())
-        ldapLink.click()
-
+        if (extraLoginPage) {
+            at(new JenkinsLoginSelectorPage())
+            ldapLink.click()
+        }
         at OpenShiftLoginPage
         doLogin()
-
+        if ($('input', name: 'approve')) {
+            $('input', name: 'approve').click()
+        }
         at JenkinsConsolePage
+    }
+
+    /**
+     * Cleanup cookies
+     */
+    def cleanupAllCookies(project) {
+        def urls = [baseUrlProvisioningApp,
+                    baseUrlJira,
+                    baseUrlBitbucket,
+                    getJenkinsBaseUrl(project),
+                    baseUrlOpenshift] as String[]
+        println "Cleaning up urls: $urls"
+        browser.clearCookies(urls)
     }
 }

@@ -3,7 +3,7 @@ package org.ods.e2e.jira.pages
 import geb.Page
 import org.ods.e2e.jira.modules.NavigationBarModule
 
-class ProjectPage extends Page {
+class ProjectPage extends BasePage {
 
     static url = "/projects"
 

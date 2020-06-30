@@ -2,11 +2,14 @@ package org.ods.e2e.jira.modules
 
 import geb.Module
 import org.ods.e2e.jira.JiraBaseSpec
+import org.ods.e2e.util.SpecHelper
 import org.openqa.selenium.By
 
 class CreateSubtaskDialogModule extends Module {
 
     def driver
+    def fields = []
+
     static groupPosition = [GxPRelevanceGroup           : 4,
                             SeverityOfImpactGroup       : 5,
                             ProbabilityOfDetectionGroup : 6,
@@ -46,7 +49,7 @@ class CreateSubtaskDialogModule extends Module {
         summaryInput(wait: true) { createSubtaskDialogForm.$("#summary") }
         descriptionEditor(wait: true) { createSubtaskDialogForm.$("#description-wiki-edit > textarea") }
         descriptionTextLink(wait: true) { createSubtaskDialogForm.$("li", 'data-mode': 'source') }
-        riskComment(wait: true) { createSubtaskDialogForm.$("textarea#customfield_12022") }
+        riskComment(wait: true) { createSubtaskDialogForm.$("textarea#" + SpecHelper.getFieldId(fields, "Risk Assessment", "Risk Comment")) }
         gxPRelevanceGroup(wait: true) {
             createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.GxPRelevanceGroup)")
         }

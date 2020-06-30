@@ -1,8 +1,12 @@
 package org.ods.e2e.provapp.modules
 
 import geb.Module
+import org.openqa.selenium.By
+import org.openqa.selenium.JavascriptExecutor
 
 class ProjectModifyFormModule extends Module {
+
+    def driver
 
     static content = {
         modifyForm(wait: true, required: true) { $("#modifyProject") }
@@ -10,7 +14,7 @@ class ProjectModifyFormModule extends Module {
         quickStarterTable(wait: true, required: true) { $("#quickstartTable") }
         quickStarterAddGroup(wait: true, required: true) { $(".form-group.quickstartergroup") }
         addQuickStarterButton(wait: true, required: true) { $("button.btn-add") }
-        startProvisionButton(wait: true, required: false) { $("#modifySubmit") }
+        startProvisionButton(wait: true, required: true) { $("#modifySubmit") }
     }
 
     /**
@@ -39,7 +43,11 @@ class ProjectModifyFormModule extends Module {
      * Start provisioning the quick starters
      */
     def doStartProvision() {
-        startProvisionButton.click()
+        def css = '#modifySubmit'
+        def element = driver.findElement(By.cssSelector(css))
+        (driver as JavascriptExecutor).executeScript("arguments[0].scrollIntoView();", element)
+        waitFor { !startProvisionButton.hasClass('disabled') }
+        element.click()
     }
 
     /**
@@ -48,7 +56,24 @@ class ProjectModifyFormModule extends Module {
      */
     def getProjects() {
         projectSelectControl.$("option").findResults { project ->
-            project.value() ? [key : project.value(), name: project.text()] : null
+            project.value() ? [key: project.value(), name: project.text()] : null
         }
+    }
+
+    /**
+     * Having a pattern of project key, it return the next numeric id to be use.
+     * @param key The pattern to be use f.e. 'E2ET'
+     * @return The Id number
+     */
+    def getNextId(key) {
+        def max = projectSelectControl.$("option").findResults {
+            project ->
+                project?.value() && project?.value()?.startsWith(key) && (project.value() - key).isInteger() ?
+                        (project.value() - key).toInteger() :
+                        null
+        }.max()
+
+        max ? max + 1 : 1
+
     }
 }

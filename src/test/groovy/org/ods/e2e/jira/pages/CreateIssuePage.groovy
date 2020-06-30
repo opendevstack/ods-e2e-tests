@@ -2,7 +2,8 @@ package org.ods.e2e.jira.pages
 
 import geb.Page
 
-class CreateIssuePage extends Page {
+class CreateIssuePage extends BasePage {
+
     static at = { browser.currentUrl.contains('CreateIssue') }
 
     static content = {
