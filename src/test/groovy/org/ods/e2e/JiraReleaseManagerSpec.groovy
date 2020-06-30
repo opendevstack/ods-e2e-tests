@@ -5,8 +5,8 @@ import org.ods.e2e.jira.helpers.GampTopics
 import org.ods.e2e.jira.helpers.IssueSelectorHelper
 import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
+import org.ods.e2e.jira.modules.TestCreationFormModule
 import org.ods.e2e.jira.pages.*
-import spock.lang.Ignore
 
 class JiraReleaseManagerSpec extends JiraBaseSpec {
     def currentStory
@@ -98,12 +98,13 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
-    @Ignore
-    def "PLAY" () {
+    def "PLAY"() {
         // STEP 1 Log in as team member who has rights to the project.
         given: "Log in as team member who has rights to the project"
         to DashboardPage
         loginForm.doLoginProcess()
+        def testData1 = [:]
+        testData1.key = 'EDPP-223'
 
         expect: "We can login in Jira"
         at DashboardPage
@@ -116,21 +117,14 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         at ProjectPage
         report('Step_1_login')
 
-        // STEP 2 Click on “Create” and choose a Jira issue type Story.
-        when: "Click on create"
-        navigationBar.createLink.click()
-        waitFor {
-            issueCreationDialog
-        }
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 8: Set the status of the “Test_Acceptance1” to “Done”.
+        //          Result: The test ‘Test_ Acceptance1’ has status “Done”.
+        // -------------------------------------------------------------------------------------------------------------
+        moveTestToDone(testData1.key)
 
-        and: "Select to create a Story"
-        waitFor {issueCreationDialog}
-        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.story)
 
-        then: "We are in the issue creation of type Story"
-        report('Step 2 - Start Creating a Story ')
     }
-
 
     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
     // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
@@ -364,7 +358,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     // Helpers to make more understandable the tests.
 
     /**
-     * Move a issue to status 'Cancel'
+     * Move a issue to status 'Done'
      */
     private void moveStoryToDone(key) {
         to IssueBrowsePage, key
@@ -410,6 +404,28 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         }
     }
 
+    /**
+     * Move a test to status 'Done'
+     */
+    private void moveTestToDone(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsConfirmDoR().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+        issueMenu.transitionButtonsImplement().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+        issueMenu.transitionButtonsIConfirmDoD().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+    }
+
     // TEST CASES TEST GROUP 02
     // CHECK THE CORRECTNESS OF CALCULATION – RISK ASSESSMENT WITHOUT PROBABILITY OF OCCURRENCE
     def "RT_02_001"() {
@@ -434,14 +450,11 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         to IssuesPage
         sleep(1000)
         switchLayoutToDetail()
-//        if (!searchTextArea) {
-//            activateAdvancedSearchLink.click()
-//        }
 
         then:
         assert searchTextArea
 
-        when: "Search fo the Story with summary 'Story 1'"
+        when: "Search fo the 'Story 1'"
         findIssue(projectName: projectName, issueId: issues.story1.key)
         switchLayoutToDetail()
 
@@ -632,6 +645,343 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData3.probabilityOfDetection].toLowerCase() == ra3.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
 
         report('Step_14_Risk_Assesment')
+
+    }
+
+    /**
+     * Test Objective:
+     * Risk assessment with Probability of Occurrence: Create several Risk Assessments with different
+     * occurrence-severity-detectability combinations and risk priority. Link them to URS-items/issues and to
+     * mitigations and tests.
+     *
+     * Prerequisites:
+     * The project where the Risk Assessments have the field probability of occurrence shall be used. A project in Dev
+     * with the same name as the project in Q is available.The project has already created stories from Test Case
+     * RT_04_001.
+     */
+    def "RT_05_001"() {
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 1: Log in to Jira as team member who has rights to the project.
+        //          Result: Login works, within a provisioning and history links
+        // -------------------------------------------------------------------------------------------------------------
+        given: "Log in as team member who has rights to the project"
+        // ********************* BORRAMEEEE
+        issues.story1.key = 'EDPP-204'
+        // ********************* BORRAMEEEE
+
+        to DashboardPage
+        loginForm.doLoginProcess()
+
+        expect: "We can login in Jira"
+        at DashboardPage
+
+        when: "visit project page"
+        to ProjectPage, projectName
+        projectSummary = (title - ~/- Jira/).trim()
+
+        then: "Login in the project is successful."
+        at ProjectPage
+        report('Step_1_login')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 2: Create a Jira sub-task type Risk Assessment “Risk_High1” to Story1:
+        // Therefore open Story1 → select under “More” the button “Create subtask”.
+        //          Result: A window with information to specify opens.
+        // -------------------------------------------------------------------------------------------------------------
+        when:
+        to IssueBrowsePage, issues.story1.key
+
+        and:
+        issueMenu.clickCreateSubtask()
+
+        then: "the create subtask dialog is displayed"
+        assert createSubtaskDialog
+        report('Step_2_window with information to specify')
+
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 3: Add following information:
+        // - Risk description
+        // - GxP relevance :None (Default value), Relevant, Not relevant/EQUAL, Not relevant/LESS, Not relevant/ZERO →
+        //   choose Relevant
+        // - Probability of occurrence Low, Medium, High (= 1,2,3) →choose High Severity of Impact: Low, Medium, High →
+        //   choose High
+        // - Probability of Detection : Immediate, Before Impact, After Impact → choose After Impact
+        // - Add a comment.
+        //          Result: It is possible to add all information defined in the instruction.
+        // -------------------------------------------------------------------------------------------------------------
+        when: "Fill the data"
+        def raData1 = [storyKey               : issues.story1.key,
+                       summaryInput           : 'Risk_High1',
+                       descriptionEditor      : 'Risk_High1',
+                       riskComment            : 'Story 1 comment: Must be tested',
+                       gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.Relevant,
+                       severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.High,
+                       probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.AfterImpact,
+                       probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.High,]
+
+        createSubtaskDialog.fillRiskSubtask(raData1, 'RT_05_001_Step3_Story1')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 4: Click on "create"
+        //         Result: New Risk Assessment with all required information has been created successfully. It is
+        //         related to the Story 1.
+        // -------------------------------------------------------------------------------------------------------------
+        and: "Click on create"
+        createSubtaskDialog.createSubmitButton.click()
+        sleep(1000)
+        report('Step_4_Subtask_Created_for_Story_1')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 5: Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
+        //         Result: RPN = GxP * Po * Pd * Si = 2*3*3*3 =  54
+        //                 Risk Priority is 'High' (equal to value 1)
+        // -------------------------------------------------------------------------------------------------------------
+        and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
+        raData1.key = subsTaskIssues.last().getAttribute("data-issuekey")
+        to IssueBrowsePage, raData1.key
+
+        then: "Risk priority number must be 18 and risk priority HIGH"
+        assert riskprioritynumber.text() == '54'
+        assert riskpriority.text() == 'HIGH'
+        report('Step_5_Story_1_risk_priority_number and risk_priority')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 6: Create a Jira issue type test Test_Acceptance1.
+        //          Result: A window with information to specify opens.
+        // -------------------------------------------------------------------------------------------------------------
+        when: "Click on create"
+        navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
+
+        and: "Select to create a Test"
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.test)
+
+        then: "We are in the issue creation of type Test"
+        report('Step 6 - Start Creating a Test ')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 7: Add following information:
+        //         - Description (Given-When- Then)
+        //         - Test Execution Type. Automated, Manual → Choose Automated
+        //         - Test Level: Choose Acceptance
+        //         - Test steps
+        //         Link the test to the “Risk_High1”.
+        //          Result: The test Test_Acceptance1 is successfully created and it is linked to the Risk Assessment
+        //                  “Risk_High1”.
+        // -------------------------------------------------------------------------------------------------------------
+        when:
+        def testData1 = [
+                summary          : 'Test_Acceptance_1',
+                description      : 'Given - When - Then',
+                testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                testLevel        : TestCreationFormModule.TestLevels.Acceptance,
+                steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                    2: [step: 'do something', data: '', result: 'got it'],
+                                    3: [step: 'do', data: '', result: 'have it']]
+        ]
+
+        issueCreationDialog.testCreationFormModule.createIssue(testData1, this)
+
+        then: "The test has been created"
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        when:
+        testData1.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "testData1.key $testData1.key"
+
+        and: 'Navigate to the Risk Assesment'
+        to IssueBrowsePage, raData1.key
+
+        then: 'We are in the Risk Assesment page'
+        at IssueBrowsePage
+
+        when: 'Link the RA to he Test'
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, testData1.key)
+
+
+        then:
+
+        report('Step 7 - Test 1 created')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 8: Set the status of the “Test_Acceptance1” to “Done”.
+        //          Result: The test ‘Test_ Acceptance1’ has status “Done”.
+        // -------------------------------------------------------------------------------------------------------------
+        moveTestToDone(testData1.key)
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 9: Check that no mitigation, but one test is linked to the risk.
+        //         Select the menu point “reports” → Click on the button “Risk Assessment” → Select the current project
+        //         and click on “next”.
+        //         Result: The result that no mitigation, but one test is linked to the risk can be looked up under
+        //                  reports. Thus, the risk remains uncovered.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 10: Create a Jira issue type mitigation “Mitigation_High1”.
+        //          Result: A window with information to specify opens.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 11: Add the following information:
+        //          - Summary: Mitigation_High1
+        //          - Description Link the mitigation to the “Risk_High1”.
+        //          Result: The mitigation is successfully created and it is linked to the risk “Risk_High1”.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 12: Check that one mitigation and one test are linked to the Risk Assessment.
+        //          Select the menu point “reports” → Click on the button “Risk Assessment” → Select the current project
+        //          and click on “next”.
+        //          Result: The result that one mitigation and one test are linked to the Risk Assessment can be looked
+        //                  up under reports. Thus, we have a successful report on the completeness of risk mitigations.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 13: Reevaluate the “Risk_High1”.
+        //          Result: The calculation of Risk Priority Number (RPN) and Risk Priority is automatically amended.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 14: Move the Risk Assessment “Risk_High1” to the next status “done” (click on “approve”).
+        //          Result: The Risk Assessment has the status done.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 15: Create a Jira sub-task type Risk Assessment “Risk_Medium2” to Story2.
+        //          Result: A window with information to specify opens.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 16: Add following information:
+        //          - Risk description
+        //          - GxP relevance : Notrelevant/LESS
+        //          - Probability of occurrence: Medium
+        //          - Severity of Impact:Medium
+        //          - Probability of Detection: Before Impact
+        //          Leave the field comment empty.
+        //          Result: It is possible to add all information defined in the instruction.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 17: Click on “Create”.
+        //          Result: New Risk Assessment with all required information has been created successfully. It is
+        //                  related to the Story2.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 18: Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
+        //          Result: RPN = 8
+        //                  Risk Priority is “Medium” (equal to value 2).
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 19: Create a Jira issue type mitigation “Mitigation_Medium2”.
+        //          Result: A window with information to specify opens.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 20: Add the following information:
+        //          - Summary: Mitigation_Medium2
+        //          - Description Link the mitigation to the “Risk_Medium2”.
+        //          Result: The mitigation is successfully created and it is linked to the Risk Assessment
+        //                  “Risk_Medium2”.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 21: Reevaluate the “Risk_Medium2”.
+        //          Result: The calculation of Risk Priority Number (RPN) and Risk Priority is automatically amended.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 22: Move the Risk Assessment “Risk_Medium2” to the next status “done” (click on ‘approve’).
+        //          Result: The Risk Assessment has the status done.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 23: Create a Jira sub-task type Risk Assessment “Risk_Low4” to Story4.
+        //          Result: A window with information to specify opens.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 24: Add following information: - Risk description
+        //          - GxP relevance : Not relevant/LESS
+        //          - Probability of occurrence_ Low (equal to value 1)
+        //          - Severity of Impact: Low
+        //          - Probability of Detection: Before Impact
+        //            Add a comment to the risk.
+        //          Result: It is possible to add all information defined in the instruction.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 25: Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
+        //          Result: RPN = 2.
+        //          Risk Priority is “Low” (equal to value 3).
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 26: Click on “Create”.
+        //          Result: New Risk Assessment with all required information has been created successfully. It is
+        // related to Story4.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 27: Create a Jira issue type test “Test_Integration4”.
+        //          Result: A window with information to specify opens.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 28: Add following information:
+        //          - Description (Given-When-Then)
+        //          - Test Execution Type. Automated, Manual → Choose Automated
+        //          - Test Level: Choose Integration
+        //          - Test steps Link the test to the “Risk_Low4”.
+        //          Result: The test ‘Test_Integration4” is successfully created and it’s linked to the Risk Assessment
+        //                  “Risk_Low4”.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 29: Set to status of the “Test_Integration4” to “Done”.
+        //          Result: The test ‘Test_Integration4’ has status “Done”.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 30: Reevaluate the “Risk_Low4”.
+        //          Result: The calculation of Risk Priority Number (RPN) and Risk Priority is automatically amended.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 31: Move the Risk Assessment “Risk_Low4” to the next status “done” (click on ‘approve’).
+        //          Result: The Risk Assessment has the status done.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 32: - Create a “Test_Acceptance2” (Test level “Acceptance”) linked to the “Risk_Medium2”.
+        //          - Create a “Test_Unit1” (Test level “Unit”) linked to the “Risk_High1”.
+        //          - Create a “Test_Unit2” (Test level “Unit”) linked to the “Risk_Medium2”.
+        //          - Create a “Test_Acceptance4” linked directly to Story4.
+        //          - Create “Test_Integration2” linked to the “Risk_Medium2”.
+        //          - Create “Test_Integration4” linked to the “Risk_Low4”.
+        //          - Create “Test_Installation1” linked to the “Risk_High1”.
+        //          Result: New tests have been created and are linked to the correct issues.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 33: Log in to Bitbucket.
+        //          Link all created Test issues with the code.
+        //          Result: Test issues are linked with the code.
+        // -------------------------------------------------------------------------------------------------------------
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 34: Go back to Jira. Filter only Test issues. Move the status of Test Unit 1 to “In Progress”
+        //          Move the status of the other test issues to “Done”.
+        //          Result: All test issues except Test Unit 1 are in status “Done”.
+        //                   Test Unit 1 is in status “In Progress”.
+        // -------------------------------------------------------------------------------------------------------------
+
 
     }
 

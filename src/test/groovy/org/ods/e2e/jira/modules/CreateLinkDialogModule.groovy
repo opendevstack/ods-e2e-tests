@@ -6,10 +6,15 @@ import geb.Module
  * Support class to create a link in a issue
  */
 class CreateLinkDialogModule extends Module {
-    // TODO: Has to change depending the language
+    // Based in english language
     // TODO: Add as we need other link types
     def static linkType = [
-            specifies: 'specifies',
+            specifies    : 'specifies',
+            isSpecifiedBy: 'is Specified By',
+            isTestedBy   : 'is tested by',
+            tests        : 'tests',
+            mitigates    : 'mitigates',
+            isMitigatedBy: 'is Mitigated By'
     ]
 
     static content = {

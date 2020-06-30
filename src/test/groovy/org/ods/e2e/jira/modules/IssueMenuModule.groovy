@@ -15,15 +15,18 @@ class IssueMenuModule extends Module {
     static content = {
         moreMenu(wait: true, required: true) { $("#opsbar-operations_more") }
         moreMenuCreateSubtask(wait: true, required: true) { $("#create-subtask > a") }
+        moreMenuCreateZephyrTest(wait: true, required: true) { $("#zephyr-create-test > a") }
         moreMenuLink(wait: true, required: true) { $("#link-issue > a") }
         transitionButtons(wait: true, required: true) { $("#opsbar-opsbar-transitions") }
         transitionButtonsCancel(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "cancel")) }
         transitionButtonsConfirmDoR(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "confirm DoR")) }
         transitionButtonsImplement(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "implement")) }
         transitionButtonsIConfirmDoD(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "confirm DoD")) }
+
         // Technical Specifications transitions
         transitionButtonTstImplement(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "implement")) }
         transitionButtonsTstConfirmDoD(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "confirm DoD")) }
+
         // Document Chapter transitions
         transitionButtonDocument(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "document")) }
         transitionButtonDefine(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "define")) }
@@ -54,6 +57,12 @@ class IssueMenuModule extends Module {
     def clickLink() {
         selectMoreMenuItem("#link-issue > a") {
             moreMenuLink.click()
+        }
+    }
+
+    def clickCreateZephyrTest() {
+        selectMoreMenuItem("#zephyr-create-test > a") {
+            moreMenuCreateZephyrTest.click()
         }
     }
 }
