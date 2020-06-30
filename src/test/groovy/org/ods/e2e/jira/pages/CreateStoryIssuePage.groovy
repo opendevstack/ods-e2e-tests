@@ -5,25 +5,6 @@ import org.ods.e2e.util.SpecHelper
 
 class CreateStoryIssuePage extends CreateIssuePage {
 
-    static gampTopics = [
-            notSelected             : 'Not selected',
-            operationalRequirements : 'operational requirements',
-            functionalRequirements  : 'functional requirements',
-            dataRequirements        : 'data requirements',
-            technicalRequirements   : 'technical requirements',
-            interfaceRequirements   : 'interface requirements',
-            environmentRequirements : 'environment requirements',
-            performanceRequirements : 'performance requirements',
-            availabilityRequirements: 'availability requirements',
-            securityRequirements    : 'security requirements',
-            maintenanceRequirements : 'maintenance requirements',
-            regulatoryRequirements  : 'regulatory requirements',
-            roles                   : 'roles',
-            compatibility           : 'compatibility',
-            proceduralConstraints   : 'procedural constraints',
-            overarchingRequirements : 'overarching requirements',
-    ]
-
     static at = { browser.currentUrl.contains('CreateIssue') && $("#issue-create-issue-type").text() == 'Story' }
 
     static content = {

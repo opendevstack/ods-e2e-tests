@@ -6,17 +6,6 @@ import org.openqa.selenium.interactions.Actions
 
 class IssueCreationSelectorPage extends BasePage {
 
-    static issueType = [
-            releaseStatus             : 'release-status',
-            technicalSpecificationTask: 'technical-specification-task',
-            documentationChapter      : 'documentation-chapter',
-            epic                      : 'epic',
-            story                     : 'story',
-            bug                       : 'bug',
-            documentation             : 'documentation',
-            test                      : 'test',
-    ]
-
     static at = { browser.currentUrl.contains('CreateIssue!default.jspa') }
 
     static content = {
