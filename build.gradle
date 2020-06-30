@@ -49,7 +49,7 @@ dependencies {
     testCompile "org.yaml:snakeyaml:1.26"
 
     // Openshift client
-    implementation "com.openshift:openshift-restclient-java:$openshiftClientVersion"
+    testImplementation "com.openshift:openshift-restclient-java:$openshiftClientVersion"
 
 }
 
