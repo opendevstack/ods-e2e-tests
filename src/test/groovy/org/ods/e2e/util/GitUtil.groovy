@@ -54,7 +54,8 @@ class GitUtil {
         def gitRepository = Git.cloneRepository()
                 .setDirectory(localPath)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
-                .setURI(repositoryUrl).call()
+                .setURI(repositoryUrl)
+                .setBranch(branch).call()
         gitRepository.close()
         return gitRepository
     }
