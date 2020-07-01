@@ -391,8 +391,6 @@ class ODSSpec extends BaseSpec {
         //         Result: Project and repository available
         given:
         baseUrl = baseUrlBitbucket
-        def openshiftProject = 'prov-test'
-        def openshiftApp = 'prov-app'
 
         when:
         to LoginPage
@@ -443,7 +441,7 @@ class ODSSpec extends BaseSpec {
         doOpenshiftLoginProcess()
 
         and: 'Visit the config maps of the provisioning application'
-        to ConsoleResourcesConfigMaps, openshiftProject
+        to ConsoleResourcesConfigMaps, provisioningAppProject
 
         and: 'Retrieve the configMaps'
         def configMaps = getConfigMaps()
@@ -457,7 +455,7 @@ class ODSSpec extends BaseSpec {
         //         Result: Existing Quickstarter / boilerplace configuration available
 
         when: 'Read configMap'
-        def client = OpenShiftClient.connect(openshiftProject)
+        def client = OpenShiftClient.connect(provisioningAppProject)
         def configMap = client.getConfigMap('application.properties')
         def configMapData = configMap.getData()
 
@@ -515,13 +513,13 @@ class ODSSpec extends BaseSpec {
         //         Result: New deployment of provision app shown in console and new pod available
 
         when: 'Get deployments'
-        def lastVersion = client.getLastDeploymentVersion(openshiftApp)
+        def lastVersion = client.getLastDeploymentVersion(provisioningAppName)
 
         and: 'Redeploy the provisioning app'
-        client.deploy(openshiftApp)
+        client.deploy(provisioningAppName)
 
         and: 'Wait for deployment'
-        def newVersion = client.waitForDeployment(openshiftApp, lastVersion)
+        def newVersion = client.waitForDeployment(provisioningAppName, lastVersion)
 
         then: 'New deployment exists'
         newVersion > lastVersion
