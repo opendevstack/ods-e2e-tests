@@ -19,6 +19,7 @@ class BaseSpec extends GebReportingSpec {
     def baseUrlProvisioningApp
     def baseUrlJira
     def baseUrlBitbucket
+    def baseBranchBitbucket
     def baseUrlJenkins
     def baseUrlOpenshift
     def openshiftPublichost
@@ -34,6 +35,10 @@ class BaseSpec extends GebReportingSpec {
         baseUrlProvisioningApp = removeLastSlash(applicationProperties."config.provisioning.url")
         baseUrlJira = removeLastSlash(applicationProperties."config.atlassian.jira.url")
         baseUrlBitbucket = removeLastSlash(applicationProperties."config.atlassian.bitbucket.url")
+        baseBranchBitbucket = applicationProperties."config.atlassian.bitbucket.branch"
+        if(!baseBranchBitbucket) {
+            baseBranchBitbucket = null
+        }
         baseUrlJenkins = removeLastSlash(applicationProperties."config.jenkins.url")
         baseUrlOpenshift = removeLastSlash(applicationProperties."config.openshift.url")
         simulate = applicationProperties."config.simulate".toUpperCase() == 'TRUE'
