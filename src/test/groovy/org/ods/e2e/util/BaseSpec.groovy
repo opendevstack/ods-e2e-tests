@@ -18,7 +18,7 @@ class BaseSpec extends GebReportingSpec {
 
     def baseUrlProvisioningApp
     def provisioningAppProject
-    def provisioningAppName
+    def provisioningAppDeployCfg
     def baseUrlJira
     def baseUrlBitbucket
     def baseBranchBitbucket
@@ -35,7 +35,7 @@ class BaseSpec extends GebReportingSpec {
         js = (JavascriptExecutor) driver
         openshiftPublichost = removeLastSlash(applicationProperties."config.openshift.publichost")
         baseUrlProvisioningApp = removeLastSlash(applicationProperties."config.provisioning.url")
-        provisioningAppName = applicationProperties."config.provisioning-app.name"
+        provisioningAppDeployCfg = applicationProperties."config.provisioning-app.deployCfg"
         provisioningAppProject = applicationProperties."config.provisioning-app.project"
         baseUrlJira = removeLastSlash(applicationProperties."config.atlassian.jira.url")
         baseUrlBitbucket = removeLastSlash(applicationProperties."config.atlassian.bitbucket.url")

@@ -513,13 +513,13 @@ class ODSSpec extends BaseSpec {
         //         Result: New deployment of provision app shown in console and new pod available
 
         when: 'Get deployments'
-        def lastVersion = client.getLastDeploymentVersion(provisioningAppName)
+        def lastVersion = client.getLastDeploymentVersion(provisioningAppDeployCfg)
 
         and: 'Redeploy the provisioning app'
-        client.deploy(provisioningAppName)
+        client.deploy(provisioningAppDeployCfg)
 
         and: 'Wait for deployment'
-        def newVersion = client.waitForDeployment(provisioningAppName, lastVersion)
+        def newVersion = client.waitForDeployment(provisioningAppDeployCfg, lastVersion)
 
         then: 'New deployment exists'
         newVersion > lastVersion
