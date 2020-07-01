@@ -51,20 +51,11 @@ class GitUtil {
         }
 
         File localPath = Files.createTempDirectory("${repository}-").toFile()
-
-        def gitRepository = Git.init().setDirectory(localPath).call()
-        def config = gitRepository.getRepository().getConfig()
-        config.setBoolean("http", null, "sslVerify", false)
-        config.save()
-        gitRepository.remoteAdd().setName('origin').setUri(new URIish(repositoryUrl)).call()
-
-        gitRepository.pull()
+        def gitRepository = Git.cloneRepository()
+                .setDirectory(localPath)
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
-                .setRemote('origin')
-                .setRemoteBranchName('master')
-                .call()
-
-
+                .setURI(new URIish(repositoryUrl)).call()
+        gitRepository.close()
         return gitRepository
     }
 
