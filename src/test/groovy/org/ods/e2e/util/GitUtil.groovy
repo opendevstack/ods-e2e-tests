@@ -41,7 +41,7 @@ class GitUtil {
      * @param repository the repository
      * @return the repository
      */
-    static cloneRepository(project, repository, isODSComponentRepo = true) {
+    static cloneRepository(project, repository, branch = null, isODSComponentRepo = true) {
         def gitUrl = baseUrlBitbucket.endsWith('/') ? baseUrlBitbucket : baseUrlBitbucket + '/'
         def repositoryUrl
         if (isODSComponentRepo) {

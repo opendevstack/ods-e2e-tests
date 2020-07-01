@@ -414,7 +414,7 @@ class ODSSpec extends BaseSpec {
         //         Result: Repository with master branch found, branch modified and committed/pushed
         when: 'Checkout project'
         def quickstarter = 'fe-angular'
-        def gitRepository = GitUtil.cloneRepository(OPENDEVSTACK, 'ods-quickstarters', false)
+        def gitRepository = GitUtil.cloneRepository(OPENDEVSTACK, 'ods-quickstarters', 'feature/ods-devenv', false)
 
         and: 'Create a branch'
         GitUtil.checkout(gitRepository, E2E_TEST_BRANCH, true)
