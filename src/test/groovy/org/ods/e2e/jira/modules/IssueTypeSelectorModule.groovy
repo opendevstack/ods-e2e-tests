@@ -2,6 +2,7 @@ package org.ods.e2e.jira.modules
 
 import geb.Module
 import org.openqa.selenium.By
+import org.openqa.selenium.JavascriptExecutor
 import org.openqa.selenium.Keys
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
@@ -31,7 +32,7 @@ class IssueTypeSelectorModule extends Module {
         def selector = '#summary'
         waitFor { $(selector) }
         WebElement element = driver.findElement(By.cssSelector(selector))
-        element.sendKeys(Keys.UP)
+        element.sendKeys(Keys.PAGE_UP)
         waitFor { $("#issuetype-single-select > .icon") }
         issueTypeSelector.click().click().click()
         selector = $("li.aui-list-item-li-$type")

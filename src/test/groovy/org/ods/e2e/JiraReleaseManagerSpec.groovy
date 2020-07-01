@@ -98,35 +98,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
-    def "PLAY"() {
-        // STEP 1 Log in as team member who has rights to the project.
-        given: "Log in as team member who has rights to the project"
-        to DashboardPage
-        loginForm.doLoginProcess()
-        def testData1 = [:]
-        testData1.key = 'EDPP-223'
-
-        expect: "We can login in Jira"
-        at DashboardPage
-
-        when: "visit project page"
-        to ProjectPage, projectName
-        projectSummary = (title - ~/- Jira/).trim()
-
-        then: "Login in the project is successful."
-        at ProjectPage
-        report('Step_1_login')
-
-        // -------------------------------------------------------------------------------------------------------------
-        // STEP 8: Set the status of the “Test_Acceptance1” to “Done”.
-        //          Result: The test ‘Test_ Acceptance1’ has status “Done”.
-        // -------------------------------------------------------------------------------------------------------------
-        moveTestToDone(testData1.key)
-
-
-    }
-
-    // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
+     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
     // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
     // amend the Documentation chapter issues and check the issue workflows.
     def "RT_04_001"() {
@@ -665,11 +637,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Result: Login works, within a provisioning and history links
         // -------------------------------------------------------------------------------------------------------------
         given: "Log in as team member who has rights to the project"
-        // ********************* BORRAMEEEE
-        issues.story1.key = 'EDPP-204'
-        // ********************* BORRAMEEEE
-
-        to DashboardPage
+         to DashboardPage
         loginForm.doLoginProcess()
 
         expect: "We can login in Jira"
@@ -803,7 +771,6 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
 
         then:
-
         report('Step 7 - Test 1 created')
 
         // -------------------------------------------------------------------------------------------------------------
@@ -819,18 +786,77 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //         Result: The result that no mitigation, but one test is linked to the risk can be looked up under
         //                  reports. Thus, the risk remains uncovered.
         // -------------------------------------------------------------------------------------------------------------
+        when: "Visit the Report Selector Page"
+        to ReportSelectorPage, projectName
+        report('Report select page')
+        riskAssesmentLink.click()
+
+        and: "Select the current project"
+        $("form").projectId = projectSummary
+        $("#next_submit").click()
+
+        then: "In the report page"
+        at RiskAssementReportPage
+
+        when: 'Retrieve information from the risk assesment'
+        Map rar = getRiskAssesmentReport()
+
+        then:
+        assert rar.containsKey(raData1.key)
+
+        and:
+        rar.get(raData1.key).mitigationTests.size() == 1
+        rar.get(raData1.key).mitigationTests[0].key == testData1.key
+        report('Step 9 - Check risk assement report')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 10: Create a Jira issue type mitigation “Mitigation_High1”.
         //          Result: A window with information to specify opens.
         // -------------------------------------------------------------------------------------------------------------
+        when: "Click on create"
+        to IssueBrowsePage, raData1.key
+        navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
 
+        and: "Select to create a Mitigation"
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.mitigation)
+
+        then: "We are in the issue creation of type Test"
+        report('Step 10 - Start Creating a Mitigation ')
         // -------------------------------------------------------------------------------------------------------------
         // STEP 11: Add the following information:
         //          - Summary: Mitigation_High1
         //          - Description Link the mitigation to the “Risk_High1”.
         //          Result: The mitigation is successfully created and it is linked to the risk “Risk_High1”.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        def mitigationData1 = [
+                summary    : 'Mitigation High 1',
+                description: 'Mitigation for Risk Hight 1',
+        ]
+
+        issueCreationDialog.mitigationCreationFormModule.createIssue(mitigationData1, this)
+
+        then: "The mitigatoin has been created"
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        when:
+        mitigationData1.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "mitigationData1.key $mitigationData1.key"
+
+        and: 'Navigate to the Migitation'
+        to IssueBrowsePage, mitigationData1.key
+
+        then: 'We are in the Migitation page'
+        at IssueBrowsePage
+
+        when: 'Link the RA to he Test'
+        addLinkToIssue(CreateLinkDialogModule.linkType.mitigates, raData1.key)
+
+        then:
+        report('Step 11 - Mitigation created')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 12: Check that one mitigation and one test are linked to the Risk Assessment.
@@ -839,11 +865,58 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Result: The result that one mitigation and one test are linked to the Risk Assessment can be looked
         //                  up under reports. Thus, we have a successful report on the completeness of risk mitigations.
         // -------------------------------------------------------------------------------------------------------------
+        when: "Visit the Report Selector Page"
+        to ReportSelectorPage, projectName
+        report('Report select page')
+        riskAssesmentLink.click()
+
+        and: "Select the current project"
+        $("form").projectId = projectSummary
+        $("#next_submit").click()
+
+        then: "In the report page"
+        at RiskAssementReportPage
+
+        when: 'Retrieve information from the risk assesment'
+        rar = getRiskAssesmentReport()
+        then:
+        assert rar.containsKey(raData1.key)
+
+        and:
+        rar.get(raData1.key).mitigationTests.size() == 2
+        rar.get(raData1.key).mitigationTests.findAll {
+            it.key == testData1.key || it.key == mitigationData1.key
+        }.size() == 2
+
+        report('Step 12 - Check risk assement report')
+
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 13: Reevaluate the “Risk_High1”.
         //          Result: The calculation of Risk Priority Number (RPN) and Risk Priority is automatically amended.
         // -------------------------------------------------------------------------------------------------------------
+        when: 'change the risk assesment'
+        to IssueBrowsePage, raData1.key
+        editIssueButton.click()
+        waitFor { createSubtaskDialog }
+        sleep(1000)
+        createSubtaskDialog.updateRiskSubtask(
+                [probabilityOfDetection: CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact],
+                'RT_05_001_Step3_Story1'
+        )
+        and: "Click on update"
+        createSubtaskDialog.createSubmitButton.click()
+        sleep(1000)
+        report('Step_4_Subtask_Created_for_Story_1')
+
+        and: 'Reload page to check that it has been updated'
+        to IssueBrowsePage, raData1.key
+
+        then:
+        then: "Risk priority number must be 18 and risk priority HIGH"
+        assert riskprioritynumber.text() == '36'
+        assert riskpriority.text() == 'HIGH'
+        report('Step_13_Story_1_risk_priority_number_recalculated')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 14: Move the Risk Assessment “Risk_High1” to the next status “done” (click on “approve”).

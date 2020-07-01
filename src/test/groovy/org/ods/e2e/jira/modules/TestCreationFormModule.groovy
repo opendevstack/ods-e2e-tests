@@ -30,7 +30,6 @@ class TestCreationFormModule extends IssueCreationFormModule {
 
 
     def createIssue(test, spec) {
-        println test
         summary = test.summary ?: ""
         descriptionTextLink.click()
         description = test.description ?: ""

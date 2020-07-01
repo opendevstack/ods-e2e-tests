@@ -4,9 +4,6 @@ import org.ods.e2e.jira.modules.CreateLinkDialogModule
 import org.ods.e2e.jira.modules.CreateSubtaskDialogModule
 import org.ods.e2e.jira.modules.DocumentChapterDialogModule
 import org.ods.e2e.jira.modules.IssueMenuModule
-import org.ods.e2e.jira.modules.NavigationBarModule
-
-import org.ods.e2e.util.SpecHelper
 
 class IssueBrowsePage extends IssueCreationDialogBasePage {
     static url = '/browse'
@@ -26,7 +23,6 @@ class IssueBrowsePage extends IssueCreationDialogBasePage {
     static at = { browser.currentUrl.contains('browse') }
 
     static content = {
-        navigationBar { module(NavigationBarModule) }
         editIssueButton { $('#edit-issue') }
         issueMenu { module(new IssueMenuModule(driver: driver, issue: selectedIssue)) }
         createSubtaskDialog(wait: true) { module(new CreateSubtaskDialogModule(driver: driver, fields: fields)) }

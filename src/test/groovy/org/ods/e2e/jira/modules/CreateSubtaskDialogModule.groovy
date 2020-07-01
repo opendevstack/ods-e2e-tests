@@ -45,24 +45,24 @@ class CreateSubtaskDialogModule extends Module {
     static ProbabilityOfOccurrenceTypesStrings = ProbabilityOfOccurrenceTypes.collectEntries { e -> [(e.value): e.key] }
 
     static content = {
-        createSubtaskDialogForm { $("#create-subtask-dialog") }
-        summaryInput(wait: true) { createSubtaskDialogForm.$("#summary") }
-        descriptionEditor(wait: true) { createSubtaskDialogForm.$("#description-wiki-edit > textarea") }
-        descriptionTextLink(wait: true) { createSubtaskDialogForm.$("li", 'data-mode': 'source') }
-        riskComment(wait: true) { createSubtaskDialogForm.$("textarea#" + SpecHelper.getFieldId(fields, "Risk Assessment", "Risk Comment")) }
+        subtaskDialogForm(wait: true, required: true) { $("div", id: contains(~/edit-issue-dialog|create-subtask-dialog/)) }
+        summaryInput(wait: true) { subtaskDialogForm.$("#summary") }
+        descriptionEditor(wait: true) { subtaskDialogForm.$("#description-wiki-edit > textarea") }
+        descriptionTextLink(wait: true) { subtaskDialogForm.$("li", 'data-mode': 'source') }
+        riskComment(wait: true) { subtaskDialogForm.$("textarea#" + SpecHelper.getFieldId(fields, "Risk Assessment", "Risk Comment")) }
         gxPRelevanceGroup(wait: true) {
-            createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.GxPRelevanceGroup)")
+            subtaskDialogForm.$("fieldset:nth-child($groupPosition.GxPRelevanceGroup)")
         }
         severityOfImpactGroup(wait: true) {
-            createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.SeverityOfImpactGroup)")
+            subtaskDialogForm.$("fieldset:nth-child($groupPosition.SeverityOfImpactGroup)")
         }
         probabilityOfDetectionGroup(wait: true) {
-            createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.ProbabilityOfDetectionGroup)")
+            subtaskDialogForm.$("fieldset:nth-child($groupPosition.ProbabilityOfDetectionGroup)")
         }
         probabilityOfOccurrenceGroup(wait: true) {
-            createSubtaskDialogForm.$("fieldset:nth-child($groupPosition.ProbabilityOfOccurrenceGroup)")
+            subtaskDialogForm.$("fieldset:nth-child($groupPosition.ProbabilityOfOccurrenceGroup)")
         }
-        createSubmitButton(wait: true) { createSubtaskDialogForm.$("#create-issue-submit") }
+        createSubmitButton(wait: true) { subtaskDialogForm.$("input", id: contains(~/create-issue-submit|edit-issue-submit/)) }
     }
 
     def selectRadioButtonsGroup(group, radioButton) {
@@ -88,6 +88,11 @@ class CreateSubtaskDialogModule extends Module {
         selectRadioButtonsGroup(groupPosition.ProbabilityOfOccurrenceGroup, probability)
     }
 
+    /**
+     * Fill the risk assesment
+     * @param data
+     * @param prefix To prefix the screenshot
+     */
     def fillRiskSubtask(data, prefix = '') {
         summaryInput = data.summaryInput
         descriptionTextLink.click()
@@ -97,7 +102,29 @@ class CreateSubtaskDialogModule extends Module {
         selectGxPRelevanceForRisk(data.gxPRelevance)
         selectSeverityOfImpact(data.severityOfImpact)
         selectProbabilityOfDetection(data.probabilityOfDetection)
-        if (probabilityOfOccurrenceGroup.size()) selectProbabilityOfOccurrence(data.probabilityOfOccurrence)
+        if (probabilityOfOccurrenceGroup?.size()) selectProbabilityOfOccurrence(data.probabilityOfOccurrence)
         browser.report(prefix + 'fill_data_2')
+    }
+
+    /**
+     * update the risk assement
+     * @param data
+     * @param prefix To prefix the screenshot
+     */
+    def updateRiskSubtask(data, prefix = '') {
+        if (data.summaryInput) summaryInput = data.summaryInput
+        if (data.descriptionEditor) {
+            descriptionTextLink.click()
+            descriptionEditor = data.descriptionEditor
+        }
+        if (data.riskComment) riskComment = data.riskComment
+        browser.report(prefix + 'update_data_1')
+        if (data.gxPRelevance) selectGxPRelevanceForRisk(data.gxPRelevance)
+        if (data.severityOfImpact) selectSeverityOfImpact(data.severityOfImpact)
+        if (data.probabilityOfDetection) selectProbabilityOfDetection(data.probabilityOfDetection)
+        if (data.probabilityOfOccurrence && probabilityOfOccurrenceGroup?.size()) {
+            selectProbabilityOfOccurrence(data.probabilityOfOccurrence)
+        }
+        browser.report(prefix + 'update_data_2')
     }
 }

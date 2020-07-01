@@ -1,8 +1,5 @@
 package org.ods.e2e.jira.pages
 
-import geb.Page
-import org.ods.e2e.jira.modules.NavigationBarModule
-
 class ProjectPage extends IssueCreationDialogBasePage {
 
     static url = "/projects"
@@ -19,7 +16,6 @@ class ProjectPage extends IssueCreationDialogBasePage {
     static at = { browser.currentUrl.contains('summary')  }
 
     static content = {
-        navigationBar(wait: true, required: false) { module(NavigationBarModule) }
         loginForm(wait: true, required: false) { module LoginModule }
     }
 }

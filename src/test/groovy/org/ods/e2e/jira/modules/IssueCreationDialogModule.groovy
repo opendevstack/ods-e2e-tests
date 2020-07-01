@@ -12,5 +12,6 @@ class IssueCreationDialogModule extends Module {
         storyCreationFormModule(required: false, wait: true) { module(new StoryCreationFormModule(fields: fields)) }
         technicalSpecificationFormModule(required: false, wait: true) { module(new TechnicalSpecificationFormModule(fields: fields)) }
         testCreationFormModule(required: false, wait: true) { module(new TestCreationFormModule(fields: fields)) }
+        mitigationCreationFormModule(required: false, wait: true) { module(new MitigationCreationFormModule(fields: fields)) }
     }
 }

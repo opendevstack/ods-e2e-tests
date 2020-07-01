@@ -1,6 +1,5 @@
 package org.ods.e2e.jira.pages
 
-import org.ods.e2e.jira.modules.NavigationBarModule
 import org.ods.e2e.util.SpecHelper
 
 class CreateStoryIssuePage extends CreateIssuePage {
@@ -8,7 +7,6 @@ class CreateStoryIssuePage extends CreateIssuePage {
     static at = { browser.currentUrl.contains('CreateIssue') && $("#issue-create-issue-type").text() == 'Story' }
 
     static content = {
-        navigationBar { module(NavigationBarModule) }
         gampTopicSelect { $("#" + SpecHelper.getFieldId(fields, "Story", "Gamp Topic")) }
         reqAcceptanceCriteria { $("#" +  SpecHelper.getFieldId(fields, "Story", "Req Acceptance Criteria")) }
         funcSpecSummary { $("#" + SpecHelper.getFieldId(fields, "Story", "FuncSpec Summary")) }

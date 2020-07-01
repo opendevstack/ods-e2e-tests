@@ -1,10 +1,8 @@
 package org.ods.e2e.jira.pages
 
-import geb.Page
+class RiskAssementReportPage extends IssueCreationDialogBasePage {
 
-class RiskAssementReportPage extends BasePage {
-
-    static at = { browser.getCurrentUrl().contains('risk-assessment-report')}
+    static at = { browser.getCurrentUrl().contains('risk-assessment-report') }
     static content = {
         risksLines { $("#content > div.aui-page-panel > div > section > table > tbody > tr") }
     }
@@ -25,6 +23,12 @@ class RiskAssementReportPage extends BasePage {
               severityOfImpact      : it.$("td:nth-child(5)").text(),
               probabilityOfDetection: it.$("td:nth-child(6)").text(),
               riskPriority          : it.$("td:nth-child(7)").text(),
+              mitigationTests       : it.$("td:nth-child(9) > a").collect { item ->
+                  [title: item.text(),
+                   key  : item.getAttribute('href').substring(url.lastIndexOf('/') + 1),
+                   url  : item.getAttribute('href'),
+                  ]
+              },
              ]
             ]
         }

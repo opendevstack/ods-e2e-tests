@@ -10,5 +10,6 @@ class IssueSelectorHelper {
             bug                       : 'bug',
             documentation             : 'documentation',
             test                      : 'test',
+            mitigation                : 'mitigation',
     ]
 }
