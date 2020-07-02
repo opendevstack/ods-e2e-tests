@@ -39,8 +39,8 @@ class CreateSubtaskDialogModule extends Module {
 
     static ProbabilityOfOccurrenceTypes = [None  : 3,
                                            High  : 4,
-                                           Low   : 5,
-                                           Medium: 6,
+                                           Medium: 5,
+                                           Low   : 6,
     ]
     static ProbabilityOfOccurrenceTypesStrings = ProbabilityOfOccurrenceTypes.collectEntries { e -> [(e.value): e.key] }
 

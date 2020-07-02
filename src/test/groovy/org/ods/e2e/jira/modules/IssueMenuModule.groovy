@@ -31,6 +31,9 @@ class IssueMenuModule extends Module {
         transitionButtonDocument(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "document")) }
         transitionButtonDefine(wait: true, required: true) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "define")) }
         transitionButtonsReopenDocumentChapter(wait: 2, required: false) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "reopen")) }
+
+        // Risk Assesment
+        transitionButtonsApproveRiskAssesmet(wait: 2, required: false) { transitionButtons.$("#" + new SpecHelper().getTransitionId(issue, "approve")) }
     }
 
     /**

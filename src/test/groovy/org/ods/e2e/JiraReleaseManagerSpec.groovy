@@ -1,5 +1,6 @@
 package org.ods.e2e
 
+
 import org.ods.e2e.jira.JiraBaseSpec
 import org.ods.e2e.jira.helpers.GampTopics
 import org.ods.e2e.jira.helpers.IssueSelectorHelper
@@ -98,7 +99,139 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
             ],
     ]
 
-     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
+    def static tests = [
+            testAcceptance1  : [
+                    summary          : 'Test_Acceptance_1',
+                    description      : 'Given - When - Then',
+                    testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                    testLevel        : TestCreationFormModule.TestLevels.Acceptance,
+                    steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                        2: [step: 'do something', data: '', result: 'got it'],
+                                        3: [step: 'do', data: '', result: 'have it']]
+            ],
+            testAcceptance2  : [
+                    summary          : 'Test_Acceptance_2',
+                    description      : 'Given - When - Then',
+                    testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                    testLevel        : TestCreationFormModule.TestLevels.Acceptance,
+                    steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                        2: [step: 'do something', data: '', result: 'got it'],
+                                        3: [step: 'do', data: '', result: 'have it']]
+            ],
+            testAcceptance4  : [
+                    summary          : 'Test_Acceptance_4',
+                    description      : 'Given - When - Then',
+                    testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                    testLevel        : TestCreationFormModule.TestLevels.Acceptance,
+                    steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                        2: [step: 'do something', data: '', result: 'got it'],
+                                        3: [step: 'do', data: '', result: 'have it']]
+            ],
+            testUnit1        : [
+                    summary          : 'Test_Unit_1',
+                    description      : 'Given - When - Then',
+                    testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                    testLevel        : TestCreationFormModule.TestLevels.Unit,
+                    steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                        2: [step: 'do something', data: '', result: 'got it'],
+                                        3: [step: 'do', data: '', result: 'have it']]
+            ],
+            testUnit2        : [
+                    summary          : 'Test_Unit_2',
+                    description      : 'Given - When - Then',
+                    testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                    testLevel        : TestCreationFormModule.TestLevels.Unit,
+                    steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                        2: [step: 'do something', data: '', result: 'got it'],
+                                        3: [step: 'do', data: '', result: 'have it']]
+            ],
+            testIntegration2 : [
+                    summary          : 'Test_Integration2',
+                    description      : 'Given - When - Then',
+                    testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                    testLevel        : TestCreationFormModule.TestLevels.Integration,
+                    steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                        2: [step: 'do something', data: '', result: 'got it'],
+                                        3: [step: 'do', data: '', result: 'have it']]
+            ],
+            testIntegration4 : [
+                    summary          : 'Test_Integration4',
+                    description      : 'Given - When - Then',
+                    testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                    testLevel        : TestCreationFormModule.TestLevels.Integration,
+                    steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                        2: [step: 'do something', data: '', result: 'got it'],
+                                        3: [step: 'do', data: '', result: 'have it']]
+            ],
+            testInstallation1: [
+                    summary          : 'Test_Installation1',
+                    description      : 'Given - When - Then',
+                    testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
+                    testLevel        : TestCreationFormModule.TestLevels.Installation,
+                    steps            : [1: [step: 'do something', data: '', result: 'get it'],
+                                        2: [step: 'do something', data: '', result: 'got it'],
+                                        3: [step: 'do', data: '', result: 'have it']]
+            ],
+    ]
+
+    def static riskAssesments = [
+            riskHighWOPoO  : [storyKey               : issues.story1.key,
+                              summaryInput           : 'Risk_High_wo_PoO',
+                              descriptionEditor      : 'Risk_High_wo_PoO',
+                              riskComment            : 'Must be tested',
+                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.Relevant,
+                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.High,
+                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.AfterImpact,
+                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,],
+
+            riskMediumWOPoO: [storyKey               : issues.story2.key,
+                              summaryInput           : 'Risk_Medium_wo_PoO',
+                              descriptionEditor      : 'Risk_Medium_wo_PoO',
+                              riskComment            : 'Story 2 comment: Must be tested',
+                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
+                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Medium,
+                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact,
+                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,],
+
+            riskLowWOPoO   : [storyKey               : issues.story3.key,
+                              summaryInput           : 'Risk_Low_wo_PoO',
+                              descriptionEditor      : 'Risk_Low_wo_PoO',
+                              riskComment            : 'Story 3 comment: Could be tested',
+                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
+                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Low,
+                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.Immediate,
+                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,],
+
+            riskHigh1      : [storyKey               : issues.story1.key,
+                              summaryInput           : 'Risk_High1',
+                              descriptionEditor      : 'Risk_High1',
+                              riskComment            : 'Risk High for story 1 comment: Must be tested',
+                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.Relevant,
+                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.High,
+                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.AfterImpact,
+                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.High,],
+
+            riskMedium2    : [storyKey               : issues.story2.key,
+                              summaryInput           : 'Risk Medium2',
+                              descriptionEditor      : 'Risk Medium2',
+                              riskComment            : 'Risk Medium for story 2 comment: Must be tested',
+                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
+                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Medium,
+                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact,
+                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.Medium,],
+
+            riskLow4       : [storyKey               : issues.story4.key,
+                              summaryInput           : 'Risk_Low4',
+                              descriptionEditor      : 'Risk_Low4',
+                              riskComment            : 'Risk_Low for story 4 comment: Must be tested',
+                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
+                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Low,
+                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact,
+                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.Low,]
+    ]
+
+
+    // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
     // Test if a C-CSD document can be created. Start creating an application, use Stories in Jira,
     // amend the Documentation chapter issues and check the issue workflows.
     def "RT_04_001"() {
@@ -398,6 +531,19 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         }
     }
 
+    /**
+     * Move a risk assement to status 'Done'
+     * @param key
+     */
+    private void moveRiskAssesmentToDone(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsApproveRiskAssesmet().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+    }
+
     // TEST CASES TEST GROUP 02
     // CHECK THE CORRECTNESS OF CALCULATION – RISK ASSESSMENT WITHOUT PROBABILITY OF OCCURRENCE
     def "RT_02_001"() {
@@ -444,6 +590,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         assert createSubtaskDialog
         report('Step_2_window with information to specify')
 
+        //--------------------------------------------------------------------------------------------------------------
         // STEP 3:
         // Add following information:
         // - Risk description
@@ -451,18 +598,9 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // - Severity of Impact: Low, Medium, High → choose High
         // - Probability of Detection: Immediate, Before, Impact, After Impact → choose After Impact
         // Add a comment to the risk.
+        //--------------------------------------------------------------------------------------------------------------
         when: "Fill the data"
-        def raData1 = [storyKey               : currentStoryKey,
-                       summaryInput           : 'Risk_High_wo_PoO',
-                       descriptionEditor      : 'Risk_High_wo_PoO',
-                       riskComment            : 'Must be tested',
-                       gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.Relevant,
-                       severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.High,
-                       probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.AfterImpact,
-                       probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,]
-
-
-        createSubtaskDialog.fillRiskSubtask(raData1, 'RT_02_001_Step3_Story1')
+        createSubtaskDialog.fillRiskSubtask(riskAssesments.riskHighWOPoO, 'RT_02_001_Step3_Story1')
 
         // STEP 4
         and: "Click on create"
@@ -472,8 +610,8 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         // STEP 5
         and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
-        raData1.key = subsTaskIssues.last().getAttribute("data-issuekey")
-        to IssueBrowsePage, raData1.key
+        riskAssesments.riskHighWOPoO.key = subsTaskIssues.last().getAttribute("data-issuekey")
+        to IssueBrowsePage, riskAssesments.riskHighWOPoO.key
 
         then: "Risk priority number must be 18 and risk priority HIGH"
         assert riskprioritynumber.text() == '18'
@@ -504,16 +642,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         // STEP 7
         when: "Fill the data"
-        def raData2 = [storyKey               : currentStoryKey,
-                       summaryInput           : 'Risk_Medium_wo_PoO',
-                       descriptionEditor      : 'Risk_Medium_wo_PoO',
-                       riskComment            : 'Story 2 comment: Must be tested',
-                       gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
-                       severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Medium,
-                       probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact,
-                       probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,]
-
-        createSubtaskDialog.fillRiskSubtask(raData2, 'RT_02_001_Step7_Story2')
+        createSubtaskDialog.fillRiskSubtask(riskAssesments.riskMediumWOPoO, 'RT_02_001_Step7_Story2')
 
         // STEP 8
         and: "Click create"
@@ -523,8 +652,8 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         // STEP 9 Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
         and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
-        raData2.key = subsTaskIssues.last().getAttribute("data-issuekey")
-        to IssueBrowsePage, raData2.key
+        riskAssesments.riskMediumWOPoO.key = subsTaskIssues.last().getAttribute("data-issuekey")
+        to IssueBrowsePage, riskAssesments.riskMediumWOPoO.key
 
         then: "Risk priority number must be 4 and risk priority MEDIUM"
         assert riskprioritynumber.text() == '4'
@@ -555,16 +684,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         // STEP 11
         when: "Fill the data"
-        def raData3 = [storyKey               : currentStoryKey,
-                       summaryInput           : 'Risk_Low_wo_PoO',
-                       descriptionEditor      : 'Risk_Low_wo_PoO',
-                       riskComment            : 'Story 3 comment: Could be tested',
-                       gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
-                       severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Low,
-                       probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.Immediate,
-                       probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,]
-
-        createSubtaskDialog.fillRiskSubtask(raData3, 'RT_02_001_Step11_Story3')
+        createSubtaskDialog.fillRiskSubtask(riskAssesments.riskLowWOPoO, 'RT_02_001_Step11_Story3')
 
         // STEP 13
         and: "Click create"
@@ -573,9 +693,9 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         // STEP 12 Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
         and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
-        raData3.key = subsTaskIssues.last().getAttribute("data-issuekey")
+        riskAssesments.riskLowWOPoO.key = subsTaskIssues.last().getAttribute("data-issuekey")
 
-        to IssueBrowsePage, raData3.key
+        to IssueBrowsePage, riskAssesments.riskLowWOPoO.key
 
         then: "Risk priority number must be 1 and risk priority LOW"
         assert riskprioritynumber.text() == '1'
@@ -596,25 +716,25 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         then: "In the report page"
         at RiskAssementReportPage
         Map rar = getRiskAssesmentReport()
-        assert rar.containsKey(raData1.key)
-        def ra1 = rar.get(raData1.key)
-        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData1.gxPRelevance].toLowerCase() == ra1.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
-        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData1.severityOfImpact].toLowerCase() == ra1.severityOfImpact.replaceAll("\\s", "").toLowerCase()
-        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData1.probabilityOfDetection].toLowerCase() == ra1.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
+        assert rar.containsKey(riskAssesments.riskHighWOPoO.key)
+        def ra1 = rar.get(riskAssesments.riskHighWOPoO.key)
+        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[riskAssesments.riskHighWOPoO.gxPRelevance].toLowerCase() == ra1.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
+        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[riskAssesments.riskHighWOPoO.severityOfImpact].toLowerCase() == ra1.severityOfImpact.replaceAll("\\s", "").toLowerCase()
+        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[riskAssesments.riskHighWOPoO.probabilityOfDetection].toLowerCase() == ra1.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
 
         and:
-        assert rar.containsKey(raData2.key)
-        def ra2 = rar.get(raData2.key)
-        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData2.gxPRelevance].toLowerCase() == ra2.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
-        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData2.severityOfImpact].toLowerCase() == ra2.severityOfImpact.replaceAll("\\s", "").toLowerCase()
-        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData2.probabilityOfDetection].toLowerCase() == ra2.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
+        assert rar.containsKey(riskAssesments.riskMediumWOPoO.key)
+        def ra2 = rar.get(riskAssesments.riskMediumWOPoO.key)
+        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[riskAssesments.riskMediumWOPoO.gxPRelevance].toLowerCase() == ra2.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
+        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[riskAssesments.riskMediumWOPoO.severityOfImpact].toLowerCase() == ra2.severityOfImpact.replaceAll("\\s", "").toLowerCase()
+        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[riskAssesments.riskMediumWOPoO.probabilityOfDetection].toLowerCase() == ra2.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
 
         and:
-        assert rar.containsKey(raData3.key)
-        def ra3 = rar.get(raData3.key)
-        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[raData3.gxPRelevance].toLowerCase() == ra3.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
-        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[raData3.severityOfImpact].toLowerCase() == ra3.severityOfImpact.replaceAll("\\s", "").toLowerCase()
-        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[raData3.probabilityOfDetection].toLowerCase() == ra3.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
+        assert rar.containsKey(riskAssesments.riskLowWOPoO.key)
+        def ra3 = rar.get(riskAssesments.riskLowWOPoO.key)
+        assert CreateSubtaskDialogModule.GxPRelevanceGroupTypesStrings[riskAssesments.riskLowWOPoO.gxPRelevance].toLowerCase() == ra3.gxPRelevance.replaceAll("\\s", "").replaceAll("/", "").toLowerCase()
+        assert CreateSubtaskDialogModule.SeverityOfImpactTypesStrings[riskAssesments.riskLowWOPoO.severityOfImpact].toLowerCase() == ra3.severityOfImpact.replaceAll("\\s", "").toLowerCase()
+        assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[riskAssesments.riskLowWOPoO.probabilityOfDetection].toLowerCase() == ra3.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
 
         report('Step_14_Risk_Assesment')
 
@@ -637,7 +757,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Result: Login works, within a provisioning and history links
         // -------------------------------------------------------------------------------------------------------------
         given: "Log in as team member who has rights to the project"
-         to DashboardPage
+        to DashboardPage
         loginForm.doLoginProcess()
 
         expect: "We can login in Jira"
@@ -649,7 +769,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         then: "Login in the project is successful."
         at ProjectPage
-        report('Step_1_login')
+        report('Step_01_login')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 2: Create a Jira sub-task type Risk Assessment “Risk_High1” to Story1:
@@ -664,7 +784,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         then: "the create subtask dialog is displayed"
         assert createSubtaskDialog
-        report('Step_2_window with information to specify')
+        report('Step_02_window with information to specify')
 
 
         // -------------------------------------------------------------------------------------------------------------
@@ -679,16 +799,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Result: It is possible to add all information defined in the instruction.
         // -------------------------------------------------------------------------------------------------------------
         when: "Fill the data"
-        def raData1 = [storyKey               : issues.story1.key,
-                       summaryInput           : 'Risk_High1',
-                       descriptionEditor      : 'Risk_High1',
-                       riskComment            : 'Story 1 comment: Must be tested',
-                       gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.Relevant,
-                       severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.High,
-                       probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.AfterImpact,
-                       probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.High,]
-
-        createSubtaskDialog.fillRiskSubtask(raData1, 'RT_05_001_Step3_Story1')
+        createSubtaskDialog.fillRiskSubtask(riskAssesments.riskHigh1, 'RT_05_001_Step_03_Fill_Risk_Data')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 4: Click on "create"
@@ -698,7 +809,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         and: "Click on create"
         createSubtaskDialog.createSubmitButton.click()
         sleep(1000)
-        report('Step_4_Subtask_Created_for_Story_1')
+        report('Step_04_Subtask_Created_for_Story_1')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 5: Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
@@ -706,13 +817,13 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //                 Risk Priority is 'High' (equal to value 1)
         // -------------------------------------------------------------------------------------------------------------
         and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
-        raData1.key = subsTaskIssues.last().getAttribute("data-issuekey")
-        to IssueBrowsePage, raData1.key
+        riskAssesments.riskHigh1.key = subsTaskIssues.last().getAttribute("data-issuekey")
+        to IssueBrowsePage, riskAssesments.riskHigh1.key
 
         then: "Risk priority number must be 18 and risk priority HIGH"
         assert riskprioritynumber.text() == '54'
-        assert riskpriority.text() == 'HIGH'
-        report('Step_5_Story_1_risk_priority_number and risk_priority')
+        assert riskpriority.text().toUpperCase() == 'HIGH'
+        report('Step_05_Story_1_risk_priority_number and risk_priority')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 6: Create a Jira issue type test Test_Acceptance1.
@@ -728,7 +839,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.test)
 
         then: "We are in the issue creation of type Test"
-        report('Step 6 - Start Creating a Test ')
+        report('Step_06_Start_Creating_a_Test ')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 7: Add following information:
@@ -741,43 +852,38 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //                  “Risk_High1”.
         // -------------------------------------------------------------------------------------------------------------
         when:
-        def testData1 = [
-                summary          : 'Test_Acceptance_1',
-                description      : 'Given - When - Then',
-                testExecutionType: TestCreationFormModule.TestExecutionTypes.Automated,
-                testLevel        : TestCreationFormModule.TestLevels.Acceptance,
-                steps            : [1: [step: 'do something', data: '', result: 'get it'],
-                                    2: [step: 'do something', data: '', result: 'got it'],
-                                    3: [step: 'do', data: '', result: 'have it']]
-        ]
-
-        issueCreationDialog.testCreationFormModule.createIssue(testData1, this)
+        issueCreationDialog.testCreationFormModule.createIssue(tests.testAcceptance1, this)
 
         then: "The test has been created"
         waitFor { $('a.issue-created-key.issue-link') }
 
         when:
-        testData1.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
-        println "testData1.key $testData1.key"
+        tests.testAcceptance1.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "tests.testAcceptance1.key $tests.testAcceptance1.key"
 
         and: 'Navigate to the Risk Assesment'
-        to IssueBrowsePage, raData1.key
+        to IssueBrowsePage, riskAssesments.riskHigh1.key
 
         then: 'We are in the Risk Assesment page'
         at IssueBrowsePage
 
         when: 'Link the RA to he Test'
-        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, testData1.key)
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, tests.testAcceptance1.key)
 
 
         then:
-        report('Step 7 - Test 1 created')
+        report('Step_07_Test_1_created')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 8: Set the status of the “Test_Acceptance1” to “Done”.
         //          Result: The test ‘Test_ Acceptance1’ has status “Done”.
         // -------------------------------------------------------------------------------------------------------------
-        moveTestToDone(testData1.key)
+        when:
+        moveTestToDone(tests.testAcceptance1.key)
+
+        then:
+        $("#status-val > span").text().toLowerCase() == 'done'
+        report('Step_08_Test_acceptance1_move_to_done')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 9: Check that no mitigation, but one test is linked to the risk.
@@ -802,19 +908,19 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         Map rar = getRiskAssesmentReport()
 
         then:
-        assert rar.containsKey(raData1.key)
+        assert rar.containsKey(riskAssesments.riskHigh1.key)
 
         and:
-        rar.get(raData1.key).mitigationTests.size() == 1
-        rar.get(raData1.key).mitigationTests[0].key == testData1.key
-        report('Step 9 - Check risk assement report')
+        rar.get(riskAssesments.riskHigh1.key).mitigationTests.size() == 1
+        rar.get(riskAssesments.riskHigh1.key).mitigationTests[0].key == tests.testAcceptance1.key
+        report('Step_09_Check_risk_assement_report')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 10: Create a Jira issue type mitigation “Mitigation_High1”.
         //          Result: A window with information to specify opens.
         // -------------------------------------------------------------------------------------------------------------
         when: "Click on create"
-        to IssueBrowsePage, raData1.key
+        to IssueBrowsePage, riskAssesments.riskHigh1.key
         navigationBar.createLink.click()
         waitFor {
             issueCreationDialog
@@ -824,11 +930,12 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.mitigation)
 
         then: "We are in the issue creation of type Test"
-        report('Step 10 - Start Creating a Mitigation ')
+        report('Step_10_Start_Creating_a_Mitigation ')
         // -------------------------------------------------------------------------------------------------------------
         // STEP 11: Add the following information:
         //          - Summary: Mitigation_High1
-        //          - Description Link the mitigation to the “Risk_High1”.
+        //          - Description
+        //          Link the mitigation to the “Risk_High1”.
         //          Result: The mitigation is successfully created and it is linked to the risk “Risk_High1”.
         // -------------------------------------------------------------------------------------------------------------
         when:
@@ -853,10 +960,10 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         at IssueBrowsePage
 
         when: 'Link the RA to he Test'
-        addLinkToIssue(CreateLinkDialogModule.linkType.mitigates, raData1.key)
+        addLinkToIssue(CreateLinkDialogModule.linkType.mitigates, riskAssesments.riskHigh1.key)
 
         then:
-        report('Step 11 - Mitigation created')
+        report('Step_11_Mitigation_created')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 12: Check that one mitigation and one test are linked to the Risk Assessment.
@@ -880,15 +987,15 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         when: 'Retrieve information from the risk assesment'
         rar = getRiskAssesmentReport()
         then:
-        assert rar.containsKey(raData1.key)
+        assert rar.containsKey(riskAssesments.riskHigh1.key)
 
         and:
-        rar.get(raData1.key).mitigationTests.size() == 2
-        rar.get(raData1.key).mitigationTests.findAll {
-            it.key == testData1.key || it.key == mitigationData1.key
+        rar.get(riskAssesments.riskHigh1.key).mitigationTests.size() == 2
+        rar.get(riskAssesments.riskHigh1.key).mitigationTests.findAll {
+            it.key == tests.testAcceptance1.key || it.key == mitigationData1.key
         }.size() == 2
 
-        report('Step 12 - Check risk assement report')
+        report('Step_12_Check_risk_assement_report')
 
 
         // -------------------------------------------------------------------------------------------------------------
@@ -896,23 +1003,22 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Result: The calculation of Risk Priority Number (RPN) and Risk Priority is automatically amended.
         // -------------------------------------------------------------------------------------------------------------
         when: 'change the risk assesment'
-        to IssueBrowsePage, raData1.key
+        to IssueBrowsePage, riskAssesments.riskHigh1.key
         editIssueButton.click()
         waitFor { createSubtaskDialog }
         sleep(1000)
         createSubtaskDialog.updateRiskSubtask(
                 [probabilityOfDetection: CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact],
-                'RT_05_001_Step3_Story1'
+                'RT_05_001_Step_13_Update_Risk'
         )
         and: "Click on update"
         createSubtaskDialog.createSubmitButton.click()
         sleep(1000)
-        report('Step_4_Subtask_Created_for_Story_1')
+        report('Step_13_Update_Risk')
 
         and: 'Reload page to check that it has been updated'
-        to IssueBrowsePage, raData1.key
+        to IssueBrowsePage, riskAssesments.riskHigh1.key
 
-        then:
         then: "Risk priority number must be 18 and risk priority HIGH"
         assert riskprioritynumber.text() == '36'
         assert riskpriority.text() == 'HIGH'
@@ -922,11 +1028,26 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // STEP 14: Move the Risk Assessment “Risk_High1” to the next status “done” (click on “approve”).
         //          Result: The Risk Assessment has the status done.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        moveRiskAssesmentToDone(riskAssesments.riskHigh1.key)
+
+        then:
+        $("#status-val > span").text().toLowerCase() == 'done'
+        report('Step_1_Story_1_risk_move_to_done')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 15: Create a Jira sub-task type Risk Assessment “Risk_Medium2” to Story2.
         //          Result: A window with information to specify opens.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        to IssueBrowsePage, issues.story2.key
+
+        and:
+        issueMenu.clickCreateSubtask()
+
+        then: "the create subtask dialog is displayed"
+        assert createSubtaskDialog
+        report('Step_15_window with information to specify')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 16: Add following information:
@@ -938,46 +1059,136 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Leave the field comment empty.
         //          Result: It is possible to add all information defined in the instruction.
         // -------------------------------------------------------------------------------------------------------------
+        when: "Fill the data"
+        createSubtaskDialog.fillRiskSubtask(riskAssesments.riskMedium2, 'RT_05_001_Step_16_Fill_Risk_Data')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 17: Click on “Create”.
         //          Result: New Risk Assessment with all required information has been created successfully. It is
         //                  related to the Story2.
         // -------------------------------------------------------------------------------------------------------------
+        and: "Click on create"
+        createSubtaskDialog.createSubmitButton.click()
+        sleep(1000)
+        report('Step_17_Subtask_Created_for_Story_2')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 18: Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
         //          Result: RPN = 8
         //                  Risk Priority is “Medium” (equal to value 2).
         // -------------------------------------------------------------------------------------------------------------
+        and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
+        riskAssesments.riskMedium2.key = subsTaskIssues.last().getAttribute("data-issuekey")
+        to IssueBrowsePage, riskAssesments.riskMedium2.key
+
+        then: "Risk priority number must be 8 and risk priority Medium"
+        assert riskprioritynumber.text() == '8'
+        assert riskpriority.text() == 'MEDIUM'
+        report('Step_18_Story_2_risk_priority_number and risk_priority')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 19: Create a Jira issue type mitigation “Mitigation_Medium2”.
         //          Result: A window with information to specify opens.
         // -------------------------------------------------------------------------------------------------------------
+        when: "Click on create"
+        to IssueBrowsePage, riskAssesments.riskMedium2.key
+        navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
+
+        and: "Select to create a Mitigation"
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.mitigation)
+
+        then: "We are in the issue creation of type Test"
+        report('Step_19_Start_Creating_a_Mitigation')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 20: Add the following information:
         //          - Summary: Mitigation_Medium2
-        //          - Description Link the mitigation to the “Risk_Medium2”.
+        //          - Description
+        //          Link the mitigation to the “Risk_Medium2”.
         //          Result: The mitigation is successfully created and it is linked to the Risk Assessment
         //                  “Risk_Medium2”.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        def mitigationData2 = [
+                summary    : 'Mitigation_Medium2',
+                description: 'Mitigation for Risk Hight 1',
+        ]
+
+        issueCreationDialog.mitigationCreationFormModule.createIssue(mitigationData2, this)
+
+        then: "The mitigation has been created"
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        when:
+        mitigationData2.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "mitigationData2.key $mitigationData2.key"
+
+        and: 'Navigate to the Migitation'
+        to IssueBrowsePage, mitigationData2.key
+
+        then: 'We are in the Migitation page'
+        at IssueBrowsePage
+
+        when: 'Link the RA to he Test'
+        addLinkToIssue(CreateLinkDialogModule.linkType.mitigates, riskAssesments.riskMedium2.key)
+
+        then:
+        report('Step_20_Mitigation_created')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 21: Reevaluate the “Risk_Medium2”.
         //          Result: The calculation of Risk Priority Number (RPN) and Risk Priority is automatically amended.
         // -------------------------------------------------------------------------------------------------------------
+        when: 'change the risk assesment'
+        to IssueBrowsePage, riskAssesments.riskMedium2.key
+        editIssueButton.click()
+        waitFor { createSubtaskDialog }
+        sleep(1000)
+        riskAssesments.riskMedium2.probabilityOfDetection = CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.Immediate
+        createSubtaskDialog.updateRiskSubtask(
+                [probabilityOfDetection: riskAssesments.riskMedium2.probabilityOfDetection],
+                'RT_05_001_Step_21_Update_Risk_Assesment'
+        )
+        and: "Click on update"
+        createSubtaskDialog.createSubmitButton.click()
+        sleep(1000)
+        report('Step_21_Update_Risk_Assesment')
 
+        and: 'Reload page to check that it has been updated'
+        to IssueBrowsePage, riskAssesments.riskMedium2.key
+
+        then: "Risk priority number must be 4 and risk priority LOW"
+        assert riskprioritynumber.text() == '4'
+        assert riskpriority.text().toUpperCase() == 'LOW'
+        report('Step_21_Risk_priority_number_recalculated')
         // -------------------------------------------------------------------------------------------------------------
         // STEP 22: Move the Risk Assessment “Risk_Medium2” to the next status “done” (click on ‘approve’).
         //          Result: The Risk Assessment has the status done.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        moveRiskAssesmentToDone(riskAssesments.riskMedium2.key)
+
+        then:
+        $("#status-val > span").text().toLowerCase() == 'done'
+        report('Step_22_Risk_move_to_done')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 23: Create a Jira sub-task type Risk Assessment “Risk_Low4” to Story4.
         //          Result: A window with information to specify opens.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        to IssueBrowsePage, issues.story4.key
+
+        and:
+        issueMenu.clickCreateSubtask()
+
+        then: "the create subtask dialog is displayed"
+        assert createSubtaskDialog
+        report('Step_23_window_with_information_to_specify')
+
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 24: Add following information: - Risk description
@@ -988,14 +1199,31 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //            Add a comment to the risk.
         //          Result: It is possible to add all information defined in the instruction.
         // -------------------------------------------------------------------------------------------------------------
+        when: "Fill the data"
+        createSubtaskDialog.fillRiskSubtask(riskAssesments.riskLow4, 'RT_05_001_Step24_Fill_Risk_Data')
+
+        and: "Click on create"
+        createSubtaskDialog.createSubmitButton.click()
+        sleep(1000)
+        report('Step_24_Subtask_Created_for_Story_4')
+
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 25: Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
         //          Result: RPN = 2.
         //          Risk Priority is “Low” (equal to value 3).
         // -------------------------------------------------------------------------------------------------------------
+        and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
+        riskAssesments.riskLow4.key = subsTaskIssues.last().getAttribute("data-issuekey")
+        to IssueBrowsePage, riskAssesments.riskLow4.key
+
+        then: "Risk priority number must be 2 and risk priority HIGH"
+        assert riskprioritynumber.text() == '2'
+        assert riskpriority.text().toUpperCase() == 'LOW'
+        report('Step_25_Story_4_risk_priority_number_and_risk_priority')
 
         // -------------------------------------------------------------------------------------------------------------
+        // TODO: Ammend the documents, the step must be done previously
         // STEP 26: Click on “Create”.
         //          Result: New Risk Assessment with all required information has been created successfully. It is
         // related to Story4.
@@ -1005,6 +1233,17 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // STEP 27: Create a Jira issue type test “Test_Integration4”.
         //          Result: A window with information to specify opens.
         // -------------------------------------------------------------------------------------------------------------
+        when: "Click on create"
+        navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
+
+        and: "Select to create a Test"
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.test)
+
+        then: "We are in the issue creation of type Test"
+        report('Step_27_Start_Creating_a_Test')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 28: Add following information:
@@ -1015,21 +1254,76 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Result: The test ‘Test_Integration4” is successfully created and it’s linked to the Risk Assessment
         //                  “Risk_Low4”.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        issueCreationDialog.testCreationFormModule.createIssue(tests.testIntegration4, this)
+
+        then: "The test has been created"
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        when:
+        tests.testIntegration4.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        println "test.testIntegration4.key $tests.testIntegration4.key"
+
+        and: 'Navigate to the Risk Assesment'
+        to IssueBrowsePage, riskAssesments.riskLow4.key
+
+        then: 'We are in the Risk Assesment page'
+        at IssueBrowsePage
+
+        when: 'Link the RA to he Test'
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, tests.testIntegration4.key)
+
+        then:
+        report('Step_28_Test_2_created')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 29: Set to status of the “Test_Integration4” to “Done”.
         //          Result: The test ‘Test_Integration4’ has status “Done”.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        moveTestToDone(tests.testIntegration4.key)
+
+        then:
+        $("#status-val > span").text().toLowerCase() == 'done'
+        report('Step_29_Test_Acceptance_to_done')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 30: Reevaluate the “Risk_Low4”.
         //          Result: The calculation of Risk Priority Number (RPN) and Risk Priority is automatically amended.
         // -------------------------------------------------------------------------------------------------------------
+        when: 'change the risk assesment'
+        to IssueBrowsePage, riskAssesments.riskLow4.key
+        editIssueButton.click()
+        waitFor { createSubtaskDialog }
+        sleep(1000)
+        riskAssesments.riskLow4.probabilityOfDetection = CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.Immediate
+        createSubtaskDialog.updateRiskSubtask(
+                [probabilityOfDetection: riskAssesments.riskLow4.probabilityOfDetection],
+                'RT_05_001_Step_30_Update_Risk_Assesment'
+        )
+        and: "Click on update"
+        createSubtaskDialog.createSubmitButton.click()
+        sleep(1000)
+        report('Step_30_Update_Risk_Assesment')
+
+        and: 'Reload page to check that it has been updated'
+        to IssueBrowsePage, riskAssesments.riskLow4.key
+
+        then: "Risk priority number must be 4 and risk priority LOW"
+        assert riskprioritynumber.text() == '1'
+        assert riskpriority.text().toUpperCase() == 'LOW'
+        report('Step_21_Risk_priority_number_recalculated')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 31: Move the Risk Assessment “Risk_Low4” to the next status “done” (click on ‘approve’).
         //          Result: The Risk Assessment has the status done.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        moveRiskAssesmentToDone(riskAssesments.riskLow4.key)
+
+        then:
+        $("#status-val > span").text().toLowerCase() == 'done'
+        report('Step_31_Risk_move_to_done')
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 32: - Create a “Test_Acceptance2” (Test level “Acceptance”) linked to the “Risk_Medium2”.
@@ -1037,10 +1331,71 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          - Create a “Test_Unit2” (Test level “Unit”) linked to the “Risk_Medium2”.
         //          - Create a “Test_Acceptance4” linked directly to Story4.
         //          - Create “Test_Integration2” linked to the “Risk_Medium2”.
-        //          - Create “Test_Integration4” linked to the “Risk_Low4”.
         //          - Create “Test_Installation1” linked to the “Risk_High1”.
         //          Result: New tests have been created and are linked to the correct issues.
         // -------------------------------------------------------------------------------------------------------------
+        when:
+        createTest(tests.testAcceptance2)
+        to IssueBrowsePage, riskAssesments.riskMedium2.key
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, tests.testAcceptance2.key)
+
+        and:
+        createTest(tests.testUnit1)
+        to IssueBrowsePage, riskAssesments.riskHigh1.key
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, tests.testUnit1.key)
+
+        and:
+        createTest(tests.testUnit2)
+        to IssueBrowsePage, riskAssesments.riskMedium2.key
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, tests.testUnit2.key)
+
+        and:
+        createTest(tests.testAcceptance4)
+        to IssueBrowsePage, issues.story4.key
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, tests.testAcceptance4.key)
+
+        and:
+        createTest(tests.testIntegration2)
+        to IssueBrowsePage, riskAssesments.riskMedium2.key
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, tests.testIntegration2.key)
+
+        and:
+        createTest(tests.testInstallation1)
+        to IssueBrowsePage, riskAssesments.riskHigh1.key
+        addLinkToIssue(CreateLinkDialogModule.linkType.isTestedBy, tests.testInstallation1.key)
+
+        and: "Visit the Report Selector Page"
+        to ReportSelectorPage, projectName
+        riskAssesmentLink.click()
+
+        and: "Select the current project"
+        $("form").projectId = projectSummary
+        $("#next_submit").click()
+
+        then: "In the report page"
+        at RiskAssementReportPage
+
+        when:
+        rar = getRiskAssesmentReport()
+
+        then:
+        rar.containsKey(riskAssesments.riskMedium2.key)
+
+        rar.get(riskAssesments.riskMedium2.key).mitigationTests.findAll {
+            it.title == 'Test_Acceptance2' ||
+                    it.title == 'Test_Unit2' ||
+                    it.title == 'Test_Integration2'
+        }.size() == 3
+
+        rar.get(riskAssesments.riskLow4).mitigationTests.findAll {
+            it.title == 'Test_Integration4'
+        }.size() == 1
+
+        rar.get(riskAssesments.riskHigh1).mitigationTests.findAll {
+            it.title == 'Test_Unit1' ||
+                    it.title == 'Test_Installation1'
+        }.size() == 2
+
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 33: Log in to Bitbucket.
@@ -1054,8 +1409,21 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Result: All test issues except Test Unit 1 are in status “Done”.
         //                   Test Unit 1 is in status “In Progress”.
         // -------------------------------------------------------------------------------------------------------------
+    }
 
+    def createTest(test) {
+        to IssuesPage
+        navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.test)
+        issueCreationDialog.testCreationFormModule.createIssue(test, this)
 
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        test.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        return test.key
     }
 
     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
