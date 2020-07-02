@@ -182,7 +182,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
                               gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.Relevant,
                               severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.High,
                               probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.AfterImpact,
-                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,],
+            ],
 
             riskMediumWOPoO: [storyKey               : issues.story2.key,
                               summaryInput           : 'Risk_Medium_wo_PoO',
@@ -191,7 +191,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
                               gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
                               severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Medium,
                               probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact,
-                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,],
+            ],
 
             riskLowWOPoO   : [storyKey               : issues.story3.key,
                               summaryInput           : 'Risk_Low_wo_PoO',
@@ -200,7 +200,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
                               gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
                               severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Low,
                               probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.Immediate,
-                              probabilityOfOccurrence: CreateSubtaskDialogModule.ProbabilityOfOccurrenceTypes.None,],
+            ],
 
             riskHigh1      : [storyKey               : issues.story1.key,
                               summaryInput           : 'Risk_High1',
@@ -364,29 +364,16 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         sleep(1000)
         report('Story 1: Move to Done')
 
-        and: "Search for that issue in status Done"
-        to IssuesPage
-        sleep(10000)
-        findIssue(projectName: projectName, issueId: issues.story1.key, status: 'Done')
-        sleep(2000)
+        then: 'Status must be done'
+        $("#status-val > span").text().toLowerCase() == 'done'
 
-        then: "There must be one issue"
-        waitFor {
-            $("tr.issuerow").size() == 1
-        }
-
-        when: "Move story 2 to Done"
+        when: 'Move story 2 to Done'
         moveStoryToDone(issues.story2.key)
         sleep(1000)
         report('Story 2: Move to Done')
 
-        and: "Search for that issue in status Done"
-        to IssuesPage
-        findIssue(projectName: projectName, issueId: issues.story2.key, status: 'Done')
-        sleep(2000)
-
-        then: "There must be one issue"
-        $("tr.issuerow").size() == 1
+        then: 'Status must be done'
+        $("#status-val > span").text().toLowerCase() == 'done'
 
         // STEP 6 Open Story 3 and move it to the status “Cancelled”..
         when: "Move story 3 to Cancelled"
@@ -394,13 +381,8 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         sleep(1000)
         report('Story 3: Move to Cancel')
 
-        and: "Search for that issue in status Done"
-        to IssuesPage
-        findIssue(projectName: projectName, issueId: issues.story3.key, status: 'Cancelled')
-        sleep(2000)
-
-        then: "There must be one issue"
-        $("tr.issuerow").size() == 1
+        then: 'Status must be cancelled'
+        $("#status-val > span").text().toLowerCase() == 'cancelled'
 
         // STEP 7 Open Story 4 and move it to the status “In progress”.
         when: "Move Story 4 into progress"
@@ -408,14 +390,8 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         sleep(1000)
         report('Story 4: Move to In Progress')
 
-        and: "Search for that issue in status In progress"
-        to IssuesPage
-
-        findIssue(projectName: projectName, issueId: issues.story4.key, status: '"In Progress"')
-        sleep(2000)
-
-        then: "There must be one issue"
-        $("tr.issuerow").size() == 1
+        then: 'Status must be in progress'
+        $("#status-val > span").text().toLowerCase() == 'in progress'
 
         // STEP 8 Filter the Jira issues in order to have all “Documentation chapters” relevant for C-CSD in the list.
         //        Open each issue and amend it accordingly.
@@ -460,133 +436,34 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         true
     }
 
-    // Helpers to make more understandable the tests.
-
-    /**
-     * Move a issue to status 'Done'
-     */
-    private void moveStoryToDone(key) {
-        to IssueBrowsePage, key
-        issueMenu.transitionButtonsConfirmDoR().click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-        issueMenu.transitionButtonsImplement().click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-        issueMenu.transitionButtonsIConfirmDoD().click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-    }
-
-    /**
-     * Move a issue to status 'Cancel'
-     */
-    private void moveStoryToCancel(key) {
-        to IssueBrowsePage, key
-        issueMenu.transitionButtonsCancel().click()
-    }
-
-    /**
-     * Move a issue to status 'In Progress'
-     */
-    private void moveStoryToInProgress(key) {
-        to IssueBrowsePage, key
-        issueMenu.transitionButtonsConfirmDoR.click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-        issueMenu.transitionButtonsImplement.click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-    }
-
-    /**
-     * Move a test to status 'Done'
-     */
-    private void moveTestToDone(key) {
-        to IssueBrowsePage, key
-        issueMenu.transitionButtonsConfirmDoR().click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-        issueMenu.transitionButtonsImplement().click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-        issueMenu.transitionButtonsIConfirmDoD().click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-    }
-
-    /**
-     * Move a risk assement to status 'Done'
-     * @param key
-     */
-    private void moveRiskAssesmentToDone(key) {
-        to IssueBrowsePage, key
-        issueMenu.transitionButtonsApproveRiskAssesmet().click()
-        sleep(1000)
-        if ($('#issue-workflow-transition-submit')) {
-            $('#issue-workflow-transition-submit').click()
-        }
-    }
 
     // TEST CASES TEST GROUP 02
     // CHECK THE CORRECTNESS OF CALCULATION – RISK ASSESSMENT WITHOUT PROBABILITY OF OCCURRENCE
     def "RT_02_001"() {
         // STEP 1 Log in as team member who has rights to the project.
-        given: "Log in as team member who has rights to the project"
+        given: 'Log in as team member who has rights to the project'
         to DashboardPage
         loginForm.doLoginProcess()
 
-        expect: "We can login in Jira"
+        expect: 'We can login in Jira'
         at DashboardPage
 
-        when: "visit project page"
+        when: 'visit project page'
         to ProjectPage, projectName
         projectSummary = (title - ~/- Jira/).trim()
 
-        then: "Login in the project is successful."
+        then: 'Login in the project is successful.'
         at ProjectPage
         report('Step_1_login')
 
         // STEP 2 - Create a Jira sub-task type Risk Assessment “Risk_High_wo_PoO” to Story1
-        when: "Visit issues page"
-        to IssuesPage
-        sleep(1000)
-        switchLayoutToDetail()
+        when: 'Visit issues page'
+        to IssueBrowsePage, issues.story1.key
 
-        then:
-        assert searchTextArea
-
-        when: "Search fo the 'Story 1'"
-        findIssue(projectName: projectName, issueId: issues.story1.key)
-        switchLayoutToDetail()
-
-        then: "Story 1 exists"
-        waitFor { $("ol.issue-list > li").size() == 1 }
-
-        when: "Create a subtask for the Story 1: Open sub task creation form"
-        currentStory = $("ol.issue-list > li").first()
-        currentStoryKey = currentStory.getAttribute("data-key")
-        currentStory.click()
-        waitFor { issueMenu.moreMenu }
+        and:
         issueMenu.clickCreateSubtask()
 
-        then: "the create subtask dialog is displayed"
+        then: 'the create subtask dialog is displayed'
         assert createSubtaskDialog
         report('Step_2_window with information to specify')
 
@@ -599,21 +476,21 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // - Probability of Detection: Immediate, Before, Impact, After Impact → choose After Impact
         // Add a comment to the risk.
         //--------------------------------------------------------------------------------------------------------------
-        when: "Fill the data"
+        when: 'Fill the data'
         createSubtaskDialog.fillRiskSubtask(riskAssesments.riskHighWOPoO, 'RT_02_001_Step3_Story1')
 
         // STEP 4
-        and: "Click on create"
+        and: 'Click on create'
         createSubtaskDialog.createSubmitButton.click()
-        sleep(1000)
+        sleep(2000)
         report('Step_4_Open_Create_Subtask_for_Story_1')
 
         // STEP 5
-        and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
+        and: 'Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated'
         riskAssesments.riskHighWOPoO.key = subsTaskIssues.last().getAttribute("data-issuekey")
         to IssueBrowsePage, riskAssesments.riskHighWOPoO.key
 
-        then: "Risk priority number must be 18 and risk priority HIGH"
+        then: 'Risk priority number must be 18 and risk priority HIGH'
         assert riskprioritynumber.text() == '18'
         assert riskpriority.text() == 'HIGH'
         report('Step_5_Story_1_risk_priority_number and risk_priority')
@@ -621,41 +498,31 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // STEP 6
         // Create a Jira sub-task type Risk Assessment “Risk_Medium_wo_PoO” to Story2
         when:
-        to IssuesPage
-        sleep(1000)
-        findIssue(projectName: projectName, issueId: issues.story2.key)
-        switchLayoutToDetail()
+        to IssueBrowsePage, issues.story2.key
 
-        then: "Story 2 exists"
-        waitFor { $("ol.issue-list > li").size() == 1 }
-
-        when: "Create a subtask for the Story 2: Open sub task creation form"
-        currentStory = $("ol.issue-list > li").first()
-        currentStoryKey = currentStory.getAttribute("data-key")
-        currentStory.click()
-        waitFor { issueMenu.moreMenu }
+        and:
         issueMenu.clickCreateSubtask()
 
-        then: "the create subtask dialog is displayed"
+        then: 'the create subtask dialog is displayed'
         assert createSubtaskDialog
         report('Step_7_window with information to specify')
 
         // STEP 7
-        when: "Fill the data"
+        when: 'Fill the data'
         createSubtaskDialog.fillRiskSubtask(riskAssesments.riskMediumWOPoO, 'RT_02_001_Step7_Story2')
 
         // STEP 8
-        and: "Click create"
+        and: 'Click create'
         createSubtaskDialog.createSubmitButton.click()
-        sleep(5000)
+        sleep(2000)
         report('Step_8_Open_Create_Subtask_for_Story_2')
 
         // STEP 9 Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated
-        and: "Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated"
+        and: 'Check if the Risk Priority Number (RPN) and Risk Priority is automatically calculated'
         riskAssesments.riskMediumWOPoO.key = subsTaskIssues.last().getAttribute("data-issuekey")
         to IssueBrowsePage, riskAssesments.riskMediumWOPoO.key
 
-        then: "Risk priority number must be 4 and risk priority MEDIUM"
+        then: 'Risk priority number must be 4 and risk priority MEDIUM'
         assert riskprioritynumber.text() == '4'
         assert riskpriority.text() == 'MEDIUM'
         report('Step_9_Story_2_risk_priority_number and risk_priority')
@@ -663,19 +530,9 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         // STEP 10
         // Create a Jira sub-task type Risk Assessment “Risk_Low_wo_PoO” to Story3
         when:
-        to IssuesPage
-        sleep(1000)
-        findIssue(projectName: projectName, issueId: issues.story3.key)
-        switchLayoutToDetail()
+        to IssueBrowsePage, issues.story3.key
 
-        then: "Story 3 exists"
-        waitFor { $("ol.issue-list > li").size() == 1 }
-
-        when: "Create a subtask for the Story 3: Open sub task creation form"
-        currentStory = $("ol.issue-list > li").first()
-        currentStoryKey = currentStory.getAttribute("data-key")
-        currentStory.click()
-        waitFor { issueMenu.moreMenu }
+        and:
         issueMenu.clickCreateSubtask()
 
         then: "the create subtask dialog is displayed"
@@ -1594,4 +1451,89 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         then: 'Technical Specification Task 3 in Done Status'
         waitFor { $("tr.issuerow").size() == 1 }
     }
+
+    // Helpers to make more understandable the tests.
+
+    /**
+     * Move a issue to status 'Done'
+     */
+    private void moveStoryToDone(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsConfirmDoR().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+        issueMenu.transitionButtonsImplement().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+        issueMenu.transitionButtonsIConfirmDoD().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+    }
+
+    /**
+     * Move a issue to status 'Cancel'
+     */
+    private void moveStoryToCancel(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsCancel().click()
+    }
+
+    /**
+     * Move a issue to status 'In Progress'
+     */
+    private void moveStoryToInProgress(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsConfirmDoR.click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+        issueMenu.transitionButtonsImplement.click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+    }
+
+    /**
+     * Move a test to status 'Done'
+     */
+    private void moveTestToDone(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsConfirmDoR().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+        issueMenu.transitionButtonsImplement().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+        issueMenu.transitionButtonsIConfirmDoD().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+    }
+
+    /**
+     * Move a risk assement to status 'Done'
+     * @param key
+     */
+    private void moveRiskAssesmentToDone(key) {
+        to IssueBrowsePage, key
+        issueMenu.transitionButtonsApproveRiskAssesmet().click()
+        sleep(1000)
+        if ($('#issue-workflow-transition-submit')) {
+            $('#issue-workflow-transition-submit').click()
+        }
+    }
+
 }

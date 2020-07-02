@@ -59,7 +59,7 @@ class CreateSubtaskDialogModule extends Module {
         probabilityOfDetectionGroup(wait: true) {
             subtaskDialogForm.$("fieldset:nth-child($groupPosition.ProbabilityOfDetectionGroup)")
         }
-        probabilityOfOccurrenceGroup(wait: true) {
+        probabilityOfOccurrenceGroup(wait: true, required: false) {
             subtaskDialogForm.$("fieldset:nth-child($groupPosition.ProbabilityOfOccurrenceGroup)")
         }
         createSubmitButton(wait: true) { subtaskDialogForm.$("input", id: contains(~/create-issue-submit|edit-issue-submit/)) }
@@ -102,7 +102,9 @@ class CreateSubtaskDialogModule extends Module {
         selectGxPRelevanceForRisk(data.gxPRelevance)
         selectSeverityOfImpact(data.severityOfImpact)
         selectProbabilityOfDetection(data.probabilityOfDetection)
-        if (probabilityOfOccurrenceGroup?.size()) selectProbabilityOfOccurrence(data.probabilityOfOccurrence)
+        if (data.probabilityOfOccurrence) {
+            selectProbabilityOfOccurrence(data.probabilityOfOccurrence)
+        }
         browser.report(prefix + 'fill_data_2')
     }
 
