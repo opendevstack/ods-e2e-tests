@@ -12,6 +12,7 @@ import com.openshift.restclient.model.IDeploymentConfig
 import com.openshift.restclient.model.IResource
 import org.ods.e2e.util.SpecHelper
 
+import java.sql.Timestamp
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -101,6 +102,7 @@ class OpenShiftClient {
     }
 
     def waitForDeployment(name, lastVersion, project) {
+        System.out.println(new Timestamp(System.currentTimeMillis()))
         def listener = new IOpenShiftWatchListener.OpenShiftWatchListenerAdapter() {
             private CountDownLatch latch = new CountDownLatch(1)
             private int newVersion = 0
@@ -121,7 +123,7 @@ class OpenShiftClient {
                             break;
                     }
                 }
-                if (deleted && newVersion) {
+                if (deleted && newVersion > lastVersion) {
                     latch.countDown()
                 }
             }
@@ -141,6 +143,7 @@ class OpenShiftClient {
         } finally {
             watcher.stop()
         }
+        System.out.println(new Timestamp(System.currentTimeMillis()))
         return completed ? listener.getNewVersion() : 0
     }
 
