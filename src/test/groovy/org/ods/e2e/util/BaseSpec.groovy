@@ -27,6 +27,7 @@ class BaseSpec extends GebReportingSpec {
     def openshiftPublichost
     def simulate
     def extraLoginPage
+    def quickstartersConfigMap
 
     def setup() {
         driver.manage().window().setSize(new Dimension(1600, 1024))
@@ -40,7 +41,7 @@ class BaseSpec extends GebReportingSpec {
         baseUrlJira = removeLastSlash(applicationProperties."config.atlassian.jira.url")
         baseUrlBitbucket = removeLastSlash(applicationProperties."config.atlassian.bitbucket.url")
         baseBranchBitbucket = applicationProperties."config.atlassian.bitbucket.branch"
-        if(!baseBranchBitbucket) {
+        if (!baseBranchBitbucket) {
             baseBranchBitbucket = null
         }
         baseUrlJenkins = removeLastSlash(applicationProperties."config.jenkins.url")
@@ -51,6 +52,10 @@ class BaseSpec extends GebReportingSpec {
 
         extraLoginPage = System.getenv("OCP_LOGIN_SELECTOR_PAGE")?.toUpperCase() == 'TRUE' ?
                 true : false
+        quickstartersConfigMap = applicationProperties."config.openshift.quickstarters.configMap"
+        if (!quickstartersConfigMap) {
+            quickstartersConfigMap = 'quickstarters.properties'
+        }
     }
 
     def removeLastSlash(String str) {

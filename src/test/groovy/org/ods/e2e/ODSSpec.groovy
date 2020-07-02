@@ -447,7 +447,7 @@ class ODSSpec extends BaseSpec {
         def configMaps = getConfigMaps()
 
         then:
-        configMaps.findAll { configMap -> configMap.name == 'application.properties' }.size() == 1
+        configMaps.findAll { configMap -> configMap.name == quickstartersConfigMap }.size() == 1
         report("step 3 - Configuration maps available – namely application.properties")
 
         // STEP 4: In the application.properties config map copy the configuration lines from the quickstarter
@@ -456,7 +456,7 @@ class ODSSpec extends BaseSpec {
 
         when: 'Read configMap'
         def client = OpenShiftClient.connect(provisioningAppProject)
-        def configMap = client.getConfigMap('application.properties')
+        def configMap = client.getConfigMap(quickstartersConfigMap)
         def configMapData = configMap.getData()
 
         and: 'Read the properties'
