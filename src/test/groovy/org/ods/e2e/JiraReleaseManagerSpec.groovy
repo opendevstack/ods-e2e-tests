@@ -175,31 +175,31 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     ]
 
     def static riskAssesments = [
-            riskHighWOPoO  : [storyKey               : issues.story1.key,
-                              summaryInput           : 'Risk_High_wo_PoO',
-                              descriptionEditor      : 'Risk_High_wo_PoO',
-                              riskComment            : 'Must be tested',
-                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.Relevant,
-                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.High,
-                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.AfterImpact,
+            riskHighWOPoO  : [storyKey              : issues.story1.key,
+                              summaryInput          : 'Risk_High_wo_PoO',
+                              descriptionEditor     : 'Risk_High_wo_PoO',
+                              riskComment           : 'Must be tested',
+                              gxPRelevance          : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.Relevant,
+                              severityOfImpact      : CreateSubtaskDialogModule.SeverityOfImpactTypes.High,
+                              probabilityOfDetection: CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.AfterImpact,
             ],
 
-            riskMediumWOPoO: [storyKey               : issues.story2.key,
-                              summaryInput           : 'Risk_Medium_wo_PoO',
-                              descriptionEditor      : 'Risk_Medium_wo_PoO',
-                              riskComment            : 'Story 2 comment: Must be tested',
-                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
-                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Medium,
-                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact,
+            riskMediumWOPoO: [storyKey              : issues.story2.key,
+                              summaryInput          : 'Risk_Medium_wo_PoO',
+                              descriptionEditor     : 'Risk_Medium_wo_PoO',
+                              riskComment           : 'Story 2 comment: Must be tested',
+                              gxPRelevance          : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
+                              severityOfImpact      : CreateSubtaskDialogModule.SeverityOfImpactTypes.Medium,
+                              probabilityOfDetection: CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.BeforeImpact,
             ],
 
-            riskLowWOPoO   : [storyKey               : issues.story3.key,
-                              summaryInput           : 'Risk_Low_wo_PoO',
-                              descriptionEditor      : 'Risk_Low_wo_PoO',
-                              riskComment            : 'Story 3 comment: Could be tested',
-                              gxPRelevance           : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
-                              severityOfImpact       : CreateSubtaskDialogModule.SeverityOfImpactTypes.Low,
-                              probabilityOfDetection : CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.Immediate,
+            riskLowWOPoO   : [storyKey              : issues.story3.key,
+                              summaryInput          : 'Risk_Low_wo_PoO',
+                              descriptionEditor     : 'Risk_Low_wo_PoO',
+                              riskComment           : 'Story 3 comment: Could be tested',
+                              gxPRelevance          : CreateSubtaskDialogModule.GxPRelevanceGroupTypes.NotRelevantLess,
+                              severityOfImpact      : CreateSubtaskDialogModule.SeverityOfImpactTypes.Low,
+                              probabilityOfDetection: CreateSubtaskDialogModule.ProbabilityOfDetectionTypes.Immediate,
             ],
 
             riskHigh1      : [storyKey               : issues.story1.key,
@@ -594,6 +594,62 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         assert CreateSubtaskDialogModule.ProbabilityOfDetectionTypesStrings[riskAssesments.riskLowWOPoO.probabilityOfDetection].toLowerCase() == ra3.probabilityOfDetection.replaceAll("\\s", "").toLowerCase()
 
         report('Step_14_Risk_Assesment')
+
+    }
+
+    //TODO: Has to be finished its implementation
+    /**
+     * Test Objective:
+     * Check, who can access risks as per authorization model. Configure the risk plugin within the
+     * provisioned project (probability of occurrence).
+     * Prerequisites:
+     *
+     */
+    def "RT_03_001"() {
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 6: Log in to Jira as Project Administrator who has rights to the project.
+        //          Result: Login works, within a provisioning and history links
+        // -------------------------------------------------------------------------------------------------------------
+        given: "Log in as team member who has rights to the project"
+        to DashboardPage
+        loginForm.doLoginProcess()
+
+        expect: "We can login in Jira"
+        at DashboardPage
+
+        when: "visit project page"
+        to ProjectPage, projectName
+        projectSummary = (title - ~/- Jira/).trim()
+
+        then: "Login in the project is successful."
+        at ProjectPage
+        report('Step_06_login_as_administrator')
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 7: Change the status of property “Probability of occurrence” (under the menu item “Project Properties”)
+        //          from false to true.
+        //          Result: The action is possible and the field “probability of occurrence” is changed to “true”.
+        // -------------------------------------------------------------------------------------------------------------
+        when: 'Visit the project properties page'
+        to JiraProjectPropertiesActionPage, projectKey: 'EDPP'
+        def property = getProjectProperty('PROJECT.USES_POO')
+
+        then:
+        property != null
+
+        when:
+        to JiraProjectPropertiesEditAction, projectKey: 'EDPP', propertyId: property.id
+
+        and:
+        propertyValue = 'true'
+        saveButton.click()
+
+        then:
+        waitFor {
+            $('p.aui-message', text: contains("Updated property ID #$property.id"))
+        }
+        report('Step_07_change_property_value')
+
 
     }
 
@@ -1237,20 +1293,21 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
 
         then:
         rar.containsKey(riskAssesments.riskMedium2.key)
-
         rar.get(riskAssesments.riskMedium2.key).mitigationTests.findAll {
-            it.title == 'Test_Acceptance2' ||
-                    it.title == 'Test_Unit2' ||
-                    it.title == 'Test_Integration2'
+            it.title.toLowerCase().trim() == tests.testAcceptance2.summary.toLowerCase().trim() ||
+                    it.title.toLowerCase().trim() == tests.testUnit2.summary.toLowerCase().trim() ||
+                    it.title.toLowerCase().trim() == tests.testIntegration2.summary.toLowerCase().trim()
         }.size() == 3
 
-        rar.get(riskAssesments.riskLow4).mitigationTests.findAll {
-            it.title == 'Test_Integration4'
+        rar.containsKey(riskAssesments.riskLow4.key)
+        rar.get(riskAssesments.riskLow4.key).mitigationTests.findAll {
+            it.title.toLowerCase().trim() == tests.testIntegration4.summary.toLowerCase().trim()
         }.size() == 1
 
-        rar.get(riskAssesments.riskHigh1).mitigationTests.findAll {
-            it.title == 'Test_Unit1' ||
-                    it.title == 'Test_Installation1'
+        rar.containsKey(riskAssesments.riskHigh1.key)
+        rar.get(riskAssesments.riskHigh1.key).mitigationTests.findAll {
+            it.title.toLowerCase().trim() == tests.testUnit1.summary.toLowerCase().trim() ||
+                    it.title.toLowerCase().trim() == tests.testInstallation1.summary.toLowerCase().trim()
         }.size() == 2
 
 
@@ -1266,21 +1323,6 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
         //          Result: All test issues except Test Unit 1 are in status “Done”.
         //                   Test Unit 1 is in status “In Progress”.
         // -------------------------------------------------------------------------------------------------------------
-    }
-
-    def createTest(test) {
-        to IssuesPage
-        navigationBar.createLink.click()
-        waitFor {
-            issueCreationDialog
-        }
-        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.test)
-        issueCreationDialog.testCreationFormModule.createIssue(test, this)
-
-        waitFor { $('a.issue-created-key.issue-link') }
-
-        test.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
-        return test.key
     }
 
     // TEST CASES TEST GROUP 04 – CREATION OF C-CSD
@@ -1457,7 +1499,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     /**
      * Move a issue to status 'Done'
      */
-    private void moveStoryToDone(key) {
+    def moveStoryToDone(key) {
         to IssueBrowsePage, key
         issueMenu.transitionButtonsConfirmDoR().click()
         sleep(1000)
@@ -1479,7 +1521,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     /**
      * Move a issue to status 'Cancel'
      */
-    private void moveStoryToCancel(key) {
+    def moveStoryToCancel(key) {
         to IssueBrowsePage, key
         issueMenu.transitionButtonsCancel().click()
     }
@@ -1487,7 +1529,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     /**
      * Move a issue to status 'In Progress'
      */
-    private void moveStoryToInProgress(key) {
+    def moveStoryToInProgress(key) {
         to IssueBrowsePage, key
         issueMenu.transitionButtonsConfirmDoR.click()
         sleep(1000)
@@ -1504,7 +1546,7 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
     /**
      * Move a test to status 'Done'
      */
-    private void moveTestToDone(key) {
+    def moveTestToDone(key) {
         to IssueBrowsePage, key
         issueMenu.transitionButtonsConfirmDoR().click()
         sleep(1000)
@@ -1527,13 +1569,28 @@ class JiraReleaseManagerSpec extends JiraBaseSpec {
      * Move a risk assement to status 'Done'
      * @param key
      */
-    private void moveRiskAssesmentToDone(key) {
+    def moveRiskAssesmentToDone(key) {
         to IssueBrowsePage, key
         issueMenu.transitionButtonsApproveRiskAssesmet().click()
         sleep(1000)
         if ($('#issue-workflow-transition-submit')) {
             $('#issue-workflow-transition-submit').click()
         }
+    }
+
+    def createTest(test) {
+        to IssuesPage
+        navigationBar.createLink.click()
+        waitFor {
+            issueCreationDialog
+        }
+        issueCreationDialog.issueTypeSelectorModule.selectIssueOfType(IssueSelectorHelper.issueType.test)
+        issueCreationDialog.testCreationFormModule.createIssue(test, this)
+
+        waitFor { $('a.issue-created-key.issue-link') }
+
+        test.key = $('a.issue-created-key.issue-link').getAttribute('data-issue-key')
+        return test.key
     }
 
 }
