@@ -1,6 +1,5 @@
 package org.ods.e2e.openshift.client
 
-
 import com.openshift.internal.util.JBossDmrExtentions
 import com.openshift.restclient.ClientBuilder
 import com.openshift.restclient.IClient
@@ -12,7 +11,6 @@ import com.openshift.restclient.model.IDeploymentConfig
 import com.openshift.restclient.model.IResource
 import org.ods.e2e.util.SpecHelper
 
-import java.sql.Timestamp
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -115,18 +113,23 @@ class OpenShiftClient {
                     def version = Integer.parseInt(matcher.group(1))
                     switch (change) {
                         case IOpenShiftWatchListener.ChangeType.ADDED:
-                            newVersion = version
-                            ready = resource.isReady()
-                            break;
+                            if (version > newVersion) {
+                                newVersion = version
+                                ready = resource.isReady()
+                            }
+                            break
                         case IOpenShiftWatchListener.ChangeType.DELETED:
                             if (version == lastVersion) {
                                 deleted = true
+                            } else if (version == newVersion) {
+                                newVersion = 0
                             }
-                            break;
+                            break
                         case IOpenShiftWatchListener.ChangeType.MODIFIED:
                             if (version == newVersion) {
                                 ready = resource.isReady()
                             }
+                            break
                     }
                 }
                 if (deleted && ready && newVersion > lastVersion) {
