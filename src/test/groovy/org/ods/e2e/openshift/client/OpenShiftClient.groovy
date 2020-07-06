@@ -111,23 +111,28 @@ class OpenShiftClient {
                 def matcher = resource.name =~ /$name-(\d+)-.*/
                 if (resource.kind == ResourceKind.POD && matcher.matches()) {
                     def version = Integer.parseInt(matcher.group(1))
+                    println("Event type $change, resource ${resource.name}, version $version")
                     switch (change) {
                         case IOpenShiftWatchListener.ChangeType.ADDED:
                             if (version > newVersion) {
+                                println("New version $version, previous $newVersion, last $lastVersion")
                                 newVersion = version
                                 ready = resource.isReady()
                             }
                             break
                         case IOpenShiftWatchListener.ChangeType.DELETED:
                             if (version == lastVersion) {
+                                println("Deleted version $version")
                                 deleted = true
                             } else if (version == newVersion) {
+                                println("Unexpected deletion $version")
                                 newVersion = 0
                             }
                             break
                         case IOpenShiftWatchListener.ChangeType.MODIFIED:
                             if (version == newVersion) {
                                 ready = resource.isReady()
+                                println("Resource modified: Ready = $ready")
                             }
                             break
                     }
