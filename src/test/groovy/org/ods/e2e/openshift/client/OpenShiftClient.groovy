@@ -11,6 +11,7 @@ import com.openshift.restclient.model.IDeploymentConfig
 import com.openshift.restclient.model.IResource
 import org.ods.e2e.util.SpecHelper
 
+import java.sql.Timestamp
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -111,7 +112,7 @@ class OpenShiftClient {
                 def matcher = resource.name =~ /$name-(\d+)-.*/
                 if (resource.kind == ResourceKind.POD && matcher.matches()) {
                     def version = Integer.parseInt(matcher.group(1))
-                    println("Event type $change, resource ${resource.name}, version $version")
+                    println("Event type ${change.value}, resource ${resource.name}, version $version")
                     switch (change) {
                         case IOpenShiftWatchListener.ChangeType.ADDED:
                             if (version > newVersion) {
@@ -143,7 +144,10 @@ class OpenShiftClient {
             }
 
             def await(timeout, timeUnit) {
-                return latch.await(timeout, timeUnit)
+                println("Before wait " + new Timestamp(System.currentTimeMillis()))
+                def result = latch.await(timeout, timeUnit)
+                println('After wait ' + new Timestamp(System.currentTimeMillis()) + " Result $result")
+                return result
             }
 
             def getNewVersion() {
