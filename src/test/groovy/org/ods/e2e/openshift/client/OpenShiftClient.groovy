@@ -107,23 +107,29 @@ class OpenShiftClient {
             private CountDownLatch latch = new CountDownLatch(1)
             private int newVersion = 0
             private boolean deleted = false
+            private boolean ready = false
 
             @Override
             void received(IResource resource, IOpenShiftWatchListener.ChangeType change) {
-                def matcher = resource.name =~ /$name-(\d+)-.*/
-                if (resource.kind == ResourceKind.POD && matcher.matches()) {
+                if (resource.kind == ResourceKind.POD && resource.getAnnotation('openshift.io/deployment-config.name') == name) {
+                    def version = resource.getAnnotation('openshift.io/deployment-config.latest-version')
                     switch (change) {
                         case IOpenShiftWatchListener.ChangeType.ADDED:
-                            newVersion = Integer.parseInt(matcher.group(1))
+                            newVersion = version
+                            ready = resource.isReady()
                             break;
                         case IOpenShiftWatchListener.ChangeType.DELETED:
-                            if (Integer.parseInt(matcher.group(1)) == lastVersion) {
+                            if (version == lastVersion) {
                                 deleted = true
                             }
                             break;
+                        case IOpenShiftWatchListener.ChangeType.MODIFIED:
+                            if(version == newVersion) {
+                                ready = resource.isReady()
+                            }
                     }
                 }
-                if (deleted && newVersion > lastVersion) {
+                if (deleted && ready && newVersion > lastVersion) {
                     latch.countDown()
                 }
             }
