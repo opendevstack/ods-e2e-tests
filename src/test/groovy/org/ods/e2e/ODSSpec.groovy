@@ -520,7 +520,8 @@ class ODSSpec extends BaseSpec {
 
         and: 'Wait for deployment'
         def newVersion = client.waitForDeployment(provisioningAppDeployCfg, lastVersion)
-
+        sleep(30000)
+        
         then: 'New deployment exists'
         newVersion > lastVersion
         report("step 6 - New deployment of provision app shown in console and new pod available.")
