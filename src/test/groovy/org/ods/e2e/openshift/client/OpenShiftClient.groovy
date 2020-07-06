@@ -112,7 +112,7 @@ class OpenShiftClient {
             @Override
             void received(IResource resource, IOpenShiftWatchListener.ChangeType change) {
                 if (resource.kind == ResourceKind.POD && resource.getAnnotation('openshift.io/deployment-config.name') == name) {
-                    def version = resource.getAnnotation('openshift.io/deployment-config.latest-version')
+                    def version = Integer.parseInt(resource.getAnnotation('openshift.io/deployment-config.latest-version'))
                     switch (change) {
                         case IOpenShiftWatchListener.ChangeType.ADDED:
                             newVersion = version
@@ -124,7 +124,7 @@ class OpenShiftClient {
                             }
                             break;
                         case IOpenShiftWatchListener.ChangeType.MODIFIED:
-                            if(version == newVersion) {
+                            if (version == newVersion) {
                                 ready = resource.isReady()
                             }
                     }
