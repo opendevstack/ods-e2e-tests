@@ -102,7 +102,6 @@ class OpenShiftClient {
     }
 
     def waitForDeployment(name, lastVersion, project) {
-        System.out.println(new Timestamp(System.currentTimeMillis()))
         def listener = new IOpenShiftWatchListener.OpenShiftWatchListenerAdapter() {
             private CountDownLatch latch = new CountDownLatch(1)
             private int newVersion = 0
@@ -111,8 +110,9 @@ class OpenShiftClient {
 
             @Override
             void received(IResource resource, IOpenShiftWatchListener.ChangeType change) {
-                if (resource.kind == ResourceKind.POD && resource.getAnnotation('openshift.io/deployment-config.name') == name) {
-                    def version = Integer.parseInt(resource.getAnnotation('openshift.io/deployment-config.latest-version'))
+                def matcher = resource.name =~ /$name-(\d+)-.*/
+                if (resource.kind == ResourceKind.POD && matcher.matches()) {
+                    def version = Integer.parseInt(matcher.group(1))
                     switch (change) {
                         case IOpenShiftWatchListener.ChangeType.ADDED:
                             newVersion = version
@@ -149,7 +149,6 @@ class OpenShiftClient {
         } finally {
             watcher.stop()
         }
-        System.out.println(new Timestamp(System.currentTimeMillis()))
         return completed ? listener.getNewVersion() : 0
     }
 
