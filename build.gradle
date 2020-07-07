@@ -1,0 +1,90 @@
+plugins {
+    id "idea"
+    id "groovy"
+    id "com.github.erdi.webdriver-binaries" version "2.2"
+    id "com.github.erdi.idea-base" version "2.2"
+    id 'com.adarshr.test-logger' version "2.0.0"
+}
+
+ext {
+    // The drivers we want to use
+    drivers = ["firefox", "chrome", "chromeHeadless","htmlunit"]
+
+    spockVersion = "1.3-groovy-2.5"
+    gebVersion = '3.4'
+    unirestVersion = "3.7.02"
+    seleniumVersion = '3.141.59'
+    chromeDriverVersion = '83.0.4103.39'
+    geckoDriverVersion = '0.26.0'
+    htmlunitVersion = "2.36.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // If using Spock, need to depend on geb-spock
+    testCompile "org.gebish:geb-spock:${gebVersion}"
+    testCompile("org.spockframework:spock-core:1.3-groovy-2.5") {
+        exclude group: "org.codehaus.groovy"
+    }
+
+    // If using JUnit, need to depend on geb-junit (3 or 4)
+    testCompile "org.gebish:geb-junit4:$gebVersion"
+
+    // Drivers
+    testCompile "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:htmlunit-driver:$htmlunitVersion"
+    testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+
+    // Utils
+    testCompile "com.konghq:unirest-java:$unirestVersion:standalone"
+
+    // Use of git
+    compile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+    testCompile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+    testCompile "org.yaml:snakeyaml:1.26"
+
+}
+
+webdriverBinaries {
+    chromedriver  chromeDriverVersion
+    geckodriver geckoDriverVersion
+    fallbackTo32Bit = true
+    driverUrlsConfiguration = resources.text.fromFile('repository-3.0.json')
+    drivers.each { driver ->
+        task "${driver}Test"(type: Test) {
+            group JavaBasePlugin.VERIFICATION_GROUP
+
+            outputs.upToDateWhen { false }  // Always run tests
+
+            systemProperty "geb.build.reportsDir", reporting.file("geb/$name")
+            systemProperty "geb.env", driver
+        }
+    }
+}
+
+
+test {
+    dependsOn drivers.collect { tasks["${it}Test"] }
+    enabled = false
+    systemProperties System.properties
+}
+
+tasks.withType(Test) {
+    maxHeapSize = "1g"
+    jvmArgs '-XX:MaxMetaspaceSize=128m'
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.withType(GroovyCompile) {
+    groovyOptions.forkOptions.memoryMaximumSize = '256m'
+}
+
+testlogger {
+    showStandardStreams true
+}
