@@ -27,7 +27,7 @@ class ODSSpec extends BaseSpec {
     def static E2E_TEST_FILE = 'e2e-tests.txt'
     def static E2E_TEST_QUICKSTARTER = 'e2e-test-quickstarter'
 
-    def projects = [
+    def static projects = [
             default: [
                     name        : 'E2E Test Project',
                     description : 'E2E Test Project',
