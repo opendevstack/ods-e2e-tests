@@ -25,7 +25,7 @@ class ODSSpec extends BaseSpec {
     def static OPENDEVSTACK = 'OPENDEVSTACK'
     def static E2E_TEST_BRANCH = 'e2e-test-branch'
     def static E2E_TEST_FILE = 'e2e-tests.txt'
-    def static E2E_TEST_QUICKSTARTER = 'E2ET3'
+    def static E2E_TEST_QUICKSTARTER = 'e2e-test-quickstarter'
 
     def projects = [
             default: [
@@ -110,7 +110,7 @@ class ODSSpec extends BaseSpec {
         // STEP 1: Login to provisioning application with administrator privileges
         //          Result: Login works, within a provisioning and history links
         // -------------------------------------------------------------------------------------------------------------
-        given: 'We are logged in the provissioning app'
+        given: 'We are logged in the provisioning app'
         def project = projects.default
         baseUrl = baseUrlProvisioningApp
 
@@ -142,7 +142,7 @@ class ODSSpec extends BaseSpec {
         and: 'Get the next key'
         def nextId = getNextId(project.key)
         project.name = String.format("$project.name - %02d", nextId)
-        project.key = String.format("$project.key%02d", nextId)
+        project.key = String.format("${project.key}%02d", nextId)
 
         and: 'We open the project creation form'
         provisionOptionChooser.doSelectCreateNewProject()
@@ -521,7 +521,7 @@ class ODSSpec extends BaseSpec {
         and: 'Wait for deployment'
         def newVersion = client.waitForDeployment(provisioningAppDeployCfg, lastVersion)
         sleep(30000)
-        
+
         then: 'New deployment exists'
         newVersion > lastVersion
         report("step 6 - New deployment of provision app shown in console and new pod available.")
