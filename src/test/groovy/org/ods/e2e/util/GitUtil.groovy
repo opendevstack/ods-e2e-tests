@@ -1,8 +1,6 @@
 package org.ods.e2e.util
 
-
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import javax.net.ssl.X509TrustManager
@@ -107,5 +105,13 @@ class GitUtil {
                 .add()
                 .addFilepattern(files)
                 .call()
+    }
+
+    static deleteBranch(Git gitRepository, branch, remote = false) {
+        def branches = [branch]
+        if (remote) {
+            branches << 'origin/' + branch
+        }
+        gitRepository.branchDelete().setBranchNames(branches as String[]).call()
     }
 }
