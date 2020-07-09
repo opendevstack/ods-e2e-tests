@@ -1,9 +1,6 @@
 ### Set the default target
 .DEFAULT_GOAL := help
 
-### Include the environment information
-include .env
-
 ### Use the headless chrome by default
 test: testChromeHeadless
 .PHONY:	 test
