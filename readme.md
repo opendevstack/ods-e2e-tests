@@ -11,20 +11,24 @@ You need to set several environment variables in order to make this work, as it 
 
 | Variable | Value |
 |---|---|
+| QUICKSTARTERS_CONFIGMAP | ConfigMap containing quickstarter configuration. Used to be application.properties, now quickstarters.properties |
+| PROV_APP_PROJECT | Id of the OpenShift project of the provisioning app |
+| PROV_APP_DEPLOY_CFG | Name of the deployment config of the provisioning app |
+| PROV_APP_NAME | Name of the provisioning app, as it appears in the public URL |
 | PROV_APP_USER | Provisioning app user name |
 | PROV_APP_PASSWORD | Provisioning app password |
 | ATLASSIAN_USER | Atlassian user name |
 | ATLASSIAN_PASSWORD | Atlassian password |
+| JIRA_URL | Url of Jira instance related with the prov app |
 | JENKINS_USER | Jenkins user name |
 | JENKINS_PASSWORD | Jenkins password |
 | OPENSHIFT_USER | Openshift user name |
 | OPENSHIFT_PASSWORD | Openshift password |
-| PROV_APP_NAME | Name of the deployment of the provisioning app |
-| JIRA_URL | Url of Jira instance related with the prov app |
 | OPENSHIFT_PROJECT | project identifier for prov app in the preliminary tests |
 | OPENSHIFT_PUBLIC_HOST | host where we can locate the prov app |
 | OPENSHIFT_CLUSTER | URL of the Openshift Cluster |
 | BITBUCKET_URL | Url of Bitbucket instance |
+| BITBUCKET_BASE_BRANCH | Branch of the OpenShift project which should be treated as HEAD. In some cases, main may not be available. |
 | SIMULATE | Specify (true or false)  if we skip the creation of project, components, etc |
 
 The following commands will launch the tests with the individual browsers:
