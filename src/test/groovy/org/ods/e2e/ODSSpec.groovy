@@ -566,6 +566,9 @@ class ODSSpec extends BaseSpec {
         configMapData.put('properties', propertyBackup)
         client.modifyConfigMap(configMap, configMapData)
         client.update(configMap)
+        client.deploy(provisioningAppDeployCfg)
+        GitUtil.checkout(gitRepository, baseBranchBitbucket)
+        client.waitForDeployment(provisioningAppDeployCfg, newVersion)
 
     }
 
