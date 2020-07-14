@@ -1,13 +1,16 @@
 ### Set the default target
 .DEFAULT_GOAL := help
 
+../../truststores/cacerts:
+	./scripts/buildtrust
+
 ### Use the headless chrome by default
 test: testChromeHeadless
 .PHONY:	 test
 
 ### Test with Chrome in headless versoin
-testChromeHeadless: 
-	./gradlew chromeHeadlessTest --tests "org.ods.e2e.ODSSpec"
+testChromeHeadless: ../../truststores/cacerts
+	./gradlew chromeHeadlessTest --system-prop "javax.net.ssl.trustStore=${HOME}/truststores/cacerts" --system-prop "javax.net.ssl.trustStorePassword=changeit" --tests "org.ods.e2e.ODSSpec"
 .PHONY: testChromeHeadless
 
 ### Test with Chrome in desktop version

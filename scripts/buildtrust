@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+app_dns=docker-registry-default.ocp.odsbox.lan
+# configure path to grab basic java truststore from
+truststore_path=/etc/pki/ca-trust/extracted/java/cacerts
+local_truststore_folder="${HOME}/truststores"
+local_truststore_path="${local_truststore_folder}/cacerts"
+
+if [[ ! -f "${local_truststore_path}" ]]
+then
+    # create central truststore for ease of configuration
+    mkdir -p "${local_truststore_folder}"
+    sudo cp /etc/pki/ca-trust/extracted/java/cacerts "${HOME}/truststores"
+    sudo chown openshift:openshift "${local_truststore_path}"
+    sudo chmod u+w "${local_truststore_path}"
+
+    echo "Importing certificate from DNS=${app_dns} PORT=443"
+    cert_bundle_path="/etc/pki/ca-trust/source/anchors/${app_dns}.pem"
+    openssl s_client -showcerts -host ${app_dns} -port 443 </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee "${cert_bundle_path}"
+    keytool -import -noprompt -trustcacerts -file "${cert_bundle_path}" -alias "${app_dns}" -keystore ${local_truststore_path} -storepass changeit
+
+    sudo update-ca-trust enable
+    sudo update-ca-trust extract
+    echo "Done with certificate setup"
+else
+    echo "Local truststore found, skipping certificate import" ...
+fi
