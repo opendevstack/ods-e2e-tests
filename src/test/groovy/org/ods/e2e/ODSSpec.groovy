@@ -578,15 +578,14 @@ class ODSSpec extends BaseSpec {
         // STEP 10: Go to bitbucket, locate the new repository and locate the file added in step 2
         //         Result: Repository and file available
 
-        when: 'Visit bitbucket to grab evidences of adding files'
-        baseUrl = baseUrlBitbucket
-        to RepositoryPage, OPENDEVSTACK, 'ods-quickstarters', filesPath, [at: E2E_TEST_BRANCH]
-
-        and: 'Get the existing files'
-        def files = getFiles()
+        when: 'Grab evidences of adding files from bitbucket'
+        gitRepository = GitUtil.cloneRepository(projects.default.name, E2E_TEST_QUICKSTARTER, baseBranchBitbucket)
+        directory = gitRepository.repository.getWorkTree()
+        filesPath = 'files'
+        testFilePath = "$filesPath/$E2E_TEST_FILE"
 
         then: 'Test file exists'
-        files.find { file -> file.name == E2E_TEST_FILE }
+        new File("$directory/$testFilePath").text == 'Test file for FT_01_002'
         report("step 10 - Repository and file available.")
 
         cleanup: 'Restore original contents of the config map'
