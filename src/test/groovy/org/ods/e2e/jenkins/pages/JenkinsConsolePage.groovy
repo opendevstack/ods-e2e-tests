@@ -22,7 +22,7 @@ class JenkinsConsolePage extends Page {
                 collectEntries {
                     [it.@id - "job_$projectKey-cd-",
                      [
-                             id                    : (it.@id - "job_$projectKey-cd-") - 'ods-qs-',
+                             id                    : (it.@id - "job_$projectKey-cd/") - 'ods-qs-',
                              success               : it.hasClass('job-status-blue'),
                              notBuild              : it.hasClass('job-status-nobuilt'),
                              odsStartupComponentJob: it.@id.contains('ods-qs-'),
@@ -38,8 +38,8 @@ class JenkinsConsolePage extends Page {
                 collectEntries {
                     [it.@id - "job_$projectKey-cd-",
                      [
-                             id                    : (it.@id - "job_$projectKey-cd-") - 'ods-qs-',
-                             branch                : ((it.@id - "job_$projectKey-cd-") - 'ods-qs-') - "$component-",
+                             id                    : (it.@id - "job_$projectKey-cd/") - 'ods-qs-',
+                             branch                : ((it.@id - "job_$projectKey-cd/") - 'ods-qs-') - "$component-",
                              success               : it.hasClass('job-status-blue'),
                              notBuild              : it.hasClass('job-status-nobuilt'),
                              odsStartupComponentJob: it.@id.contains('ods-qs-'),
