@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 
-app_dns=docker-registry-default.ocp.odsbox.lan
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ods_configuration_dir="${script_dir}/../../ods-configuration"
+
+if [[ -f "${ods_configuration_dir}/ods-core.env" ]]
+then
+    echo "sourcing ${ods_configuration_dir}/ods-core.env"
+    source "${ods_configuration_dir}/ods-core.env"
+fi
+
+app_dns="${APP_DNS:-docker-registry-default.ocp.odsbox.lan}"
+
 # configure path to grab basic java truststore from
 truststore_path=/etc/pki/ca-trust/extracted/java/cacerts
 local_truststore_folder="${HOME}/truststores"
