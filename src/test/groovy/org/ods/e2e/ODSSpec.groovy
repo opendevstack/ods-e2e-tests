@@ -575,8 +575,35 @@ class ODSSpec extends BaseSpec {
         simulate ? true : $("#resProject.alert-success")
         report("step 9 - quick starter provisioned")
 
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 10: Go to your project’s Jenkins and locate the provision job of the component
+        // with the name you provided.
+        //          Result: Instance can be found and green (successful)
+        // -------------------------------------------------------------------------------------------------------------
+        when:
+        baseUrl = getJenkinsBaseUrl(project.key)
 
-        // STEP 10: Go to bitbucket, locate the new repository and locate the file added in step 2
+        and:
+        doJenkinsLoginProcess()
+
+        then: 'The project folder exists'
+        assert $("#job_${project.key.toLowerCase()}-cd")
+
+        when: 'Visit the jobs'
+        to JenkinsJobFolderPage, project.key
+
+        and:
+        def componentJob = getComponentJobs(project.key, E2E_TEST_COMPONENT)
+
+        then: 'The component startup jobs finished succesfully'
+        waitFor('verySlow') {
+            getComponentJobs(project.key, E2E_TEST_COMPONENT).jobs.find {
+                job -> job.value.odsStartupComponentJob && job.value.success
+            }
+        }
+        report("step 10 - provision job of the component")
+
+        // STEP 11: Go to bitbucket, locate the new repository and locate the file added in step 2
         //         Result: Repository and file available
 
         when: 'Grab evidences of adding files from bitbucket'
@@ -587,7 +614,7 @@ class ODSSpec extends BaseSpec {
 
         then: 'Test file exists'
         new File("$directory/$testFilePath").text == 'Test file for FT_01_002'
-        report("step 10 - Repository and file available.")
+        report("step 11 - Repository and file available.")
 
         cleanup: 'Restore original contents of the config map'
         configMapData.put('properties', propertyBackup)
