@@ -9,24 +9,28 @@ You can have a look at the `build.gradle` and `src/test/resources/GebConfig.groo
 ## Usage
 You need to set several environment variables in order to make this work, as it is intended to use in a container / pod lately.
 
-| Variable              | Value                            | Description                                                                  |
-|-----------------------|----------------------------------|----------------------------------------------------------------------------- |
-| PROV_APP_USER         | openshift                        | Provisioning app user name                                                   |
-| PROV_APP_PASSWORD     | openshift                        | Provisioning app password                                                    |
-| ATLASSIAN_USER        | openshift                        | Atlassian user name                                                          |
-| ATLASSIAN_PASSWORD    | openshift                        | Atlassian password                                                           |
-| JENKINS_USER          | developer                        | Jenkins user name                                                            |
-| JENKINS_PASSWORD      | any                              | Jenkins password                                                             |
-| OPENSHIFT_USER        | developer                        | Openshift user name                                                          |
-| OPENSHIFT_PASSWORD    | any                              | Openshift password                                                           |
-| PROV_APP_NAME         | openshift                        | Name of the deployment of the provisioning app                               |
-| JIRA_URL              | http://jira.odsbox.lan:8080/     | Url of Jira instance related with the prov app                               |
-| OPENSHIFT_PROJECT     | edpp                             | project identifier for prov app in the preliminary tests(jira tests)         |
-| OPENSHIFT_PUBLIC_HOST | .ocp.odsbox.lan                  | host where we can locate the prov app                                        |
-| OPENSHIFT_CLUSTER     | https://ocp.odsbox.lan:8443/     | URL of the Openshift Cluster                                                 |
-| BITBUCKET_URL         | http://bitbucket.odsbox.lan:7990 | Url of Bitbucket instance                                                    |
-| SIMULATE              | false                            | Specify (true or false)  if we skip the creation of project, components, etc |
-
+| Variable              | Value                            | Description                                                                                                      |
+|-----------------------|----------------------------------|------------------------------------------------------------------------------------------------------------------|
+| PROV_APP_USER         | openshift                        | Provisioning app user name                                                                                       |
+| PROV_APP_PASSWORD     | openshift                        | Provisioning app password                                                                                        |
+| ATLASSIAN_USER        | openshift                        | Atlassian user name                                                                                              |
+| ATLASSIAN_PASSWORD    | openshift                        | Atlassian password                                                                                               |
+| JENKINS_USER          | developer                        | Jenkins user name                                                                                                |
+| JENKINS_PASSWORD      | any                              | Jenkins password                                                                                                 |
+| OPENSHIFT_USER        | developer                        | Openshift user name                                                                                              |
+| OPENSHIFT_PASSWORD    | any                              | Openshift password                                                                                               |
+| PROV_APP_NAME         | openshift                        | Name of the deployment of the provisioning app                                                                   |
+| JIRA_URL              | http://jira.odsbox.lan:8080/     | Url of Jira instance related with the prov app                                                                   |
+| OPENSHIFT_PROJECT     | edpp                             | project identifier for prov app in the preliminary tests(jira tests)                                             |
+| OPENSHIFT_PUBLIC_HOST | .ocp.odsbox.lan                  | host where we can locate the prov app                                                                            |
+| OPENSHIFT_CLUSTER     | https://ocp.odsbox.lan:8443/     | URL of the Openshift Cluster                                                                                     |
+| BITBUCKET_URL         | http://bitbucket.odsbox.lan:7990 | Url of Bitbucket instance                                                                                        |
+| SIMULATE              | false                            | Specify (true or false)  if we skip the creation of project, components, etc                                     |
+| NO_NEXUS              | true                             | In case you want to use the public repositories, if it set to true it is not needed to set the next 3 properties |
+| NEXUS_URL             | https://nexus-ods.ocp.odsbox.lan | The nexus url if we want to use an specific nexus instance                                                       |
+| NEXUS_USERNAME        | admin                            | The nexus user                                                                                                   |
+| NEXUS_PASSWORD        | openshift                        | The nexus password                                                                                               |
+  
 ### Environment variables setup
 To get the information needed to run the tests there are 3 steps that override the previous one:
 1. If the test project is co-located with the ods-configuration folder, the process will retrieve the values that exists in the ods-core.env file to obtain the urls of Openshift, Jira, Bitbucket.
