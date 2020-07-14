@@ -599,7 +599,7 @@ class ODSSpec extends BaseSpec {
         }
 
         then: 'The component startup job finished succesfully'
-        waitFor('extremelySlow') {
+        waitFor('verySlow') {
             getComponentJobs(project.key, E2E_TEST_COMPONENT).jobs.find {
                 job -> job.value.odsStartupComponentJob && job.value.success
             }
