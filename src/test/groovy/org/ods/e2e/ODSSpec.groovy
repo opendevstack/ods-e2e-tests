@@ -26,6 +26,7 @@ class ODSSpec extends BaseSpec {
     def static E2E_TEST_BRANCH = 'e2e-test-branch'
     def static E2E_TEST_FILE = 'e2e-tests.txt'
     def static E2E_TEST_QUICKSTARTER = 'e2e-test-quickstarter'
+    def static E2E_TEST_COMPONENT = 'e2e-test-component'
 
     def static projects = [
             default: [
@@ -541,14 +542,40 @@ class ODSSpec extends BaseSpec {
         and: 'We have selected modify project'
         provisionOptionChooser.doSelectModifyProject()
 
-        then: 'The new quickstarter available in the list'
-        projectModifyForm.getProjects().find {
-            entry -> entry.key == project.key
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 8: Click on the Quickstarter dropdown list and select a boilerplate “Frontend implemented with Vue JS”
+        //          Result: The component ID is listed: fe-vue
+        // -------------------------------------------------------------------------------------------------------------
+        and:
+        projectModifyForm.doAddQuickStarter(E2E_TEST_QUICKSTARTER, E2E_TEST_COMPONENT)
+        projectModifyForm.addQuickStarterButton.click()
+        report("step 8 - add quickstarter")
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 9: Click on Start Provision
+        //          Result: Message the provision is in progress.
+        //                  Another message (screen) appears with the links of:
+        //                  Jenkins, Bitbucket, Project link, Provisioning jobs, and others.
+        // -------------------------------------------------------------------------------------------------------------
+        and:
+        if (!simulate) {
+            projectModifyForm.doStartProvision()
+            sleep(15000)
+
+            waitFor {
+                $(".modal-dialog").css("display") != "hidden"
+                $("#resProject.alert-success")
+                $("#resButton").text() == "Close"
+            }
+            report('Status after Quickstarters Addition')
         }
-        report("step 7 - New quickstarter available in the list in provision application.")
+
+        then: 'Quickstarter was added'
+        simulate ? true : $("#resProject.alert-success")
+        report("step 9 - quick starter provisioned")
 
 
-        // STEP 8: Go to bitbucket, locate the new repository and locate the file added in step 2
+        // STEP 10: Go to bitbucket, locate the new repository and locate the file added in step 2
         //         Result: Repository and file available
 
         when: 'Visit bitbucket to grab evidences of adding files'
@@ -560,7 +587,7 @@ class ODSSpec extends BaseSpec {
 
         then: 'Test file exists'
         files.find { file -> file.name == E2E_TEST_FILE }
-        report("step 8 - Repository and file available.")
+        report("step 10 - Repository and file available.")
 
         cleanup: 'Restore original contents of the config map'
         configMapData.put('properties', propertyBackup)
