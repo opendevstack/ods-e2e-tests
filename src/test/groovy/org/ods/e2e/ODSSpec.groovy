@@ -562,8 +562,7 @@ class ODSSpec extends BaseSpec {
         if (!simulate) {
             projectModifyForm.doStartProvision()
             sleep(15000)
-
-            waitFor {
+            waitFor('extremelySlow') {
                 $(".modal-dialog").css("display") != "hidden"
                 $("#resProject.alert-success")
                 $("#resButton").text() == "Close"
@@ -580,7 +579,11 @@ class ODSSpec extends BaseSpec {
         // with the name you provided.
         //          Result: Instance can be found and green (successful)
         // -------------------------------------------------------------------------------------------------------------
-        when:
+        // -------------------------------------------------------------------------------------------------------------
+        // We first need to check that the Jenkins jobs had finalized properly for the release manager
+        // Before continuing with the steps of the test
+        // -------------------------------------------------------------------------------------------------------------
+        when: 'visit Jenkins'
         baseUrl = getJenkinsBaseUrl(project.key)
 
         and:
@@ -589,11 +592,14 @@ class ODSSpec extends BaseSpec {
         then: 'The project folder exists'
         assert $("#job_${project.key.toLowerCase()}-cd")
 
-        when: 'Visit the jobs'
+        when: 'Retrieve the jobs related with the Release Manager deploy'
         to JenkinsJobFolderPage, project.key
+        if (activateAutorefreshLink) {
+            activateAutorefreshLink.click()
+        }
 
-        then: 'The component startup jobs finished succesfully'
-        waitFor('verySlow') {
+        then: 'The component startup job finished succesfully'
+        waitFor('extremelySlow') {
             getComponentJobs(project.key, E2E_TEST_COMPONENT).jobs.find {
                 job -> job.value.odsStartupComponentJob && job.value.success
             }
