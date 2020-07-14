@@ -20,7 +20,7 @@ class JenkinsConsolePage extends Page {
         def projectKey = project.toLowerCase()
         jobsTable.$("tr").findAll { it.@id }.
                 collectEntries {
-                    [it.@id - "job_$projectKey-cd-",
+                    [it.@id - "job_$projectKey-cd/",
                      [
                              id                    : (it.@id - "job_$projectKey-cd/") - 'ods-qs-',
                              success               : it.hasClass('job-status-blue'),
@@ -36,7 +36,7 @@ class JenkinsConsolePage extends Page {
         def projectKey = project.toLowerCase()
         jobsTable.$("tr").findAll { it.@id.contains(component) }.
                 collectEntries {
-                    [it.@id - "job_$projectKey-cd-",
+                    [it.@id - "job_$projectKey-cd/",
                      [
                              id                    : (it.@id - "job_$projectKey-cd/") - 'ods-qs-',
                              branch                : ((it.@id - "job_$projectKey-cd/") - 'ods-qs-') - "$component-",
