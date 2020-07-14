@@ -490,7 +490,7 @@ class ODSSpec extends BaseSpec {
         properties.putAll(tmpProps)
         properties.setProperty("jenkinspipeline.quickstarter.${E2E_TEST_QUICKSTARTER}.branch".toString(), E2E_TEST_BRANCH)
         properties.setProperty("jenkinspipeline.quickstarter.${E2E_TEST_QUICKSTARTER}.jenkinsfile".toString(),
-                "$E2E_TEST_QUICKSTARTER/Jenkinsfile".toString())
+                "$quickstarter/Jenkinsfile".toString())
 
         and: 'Update config map'
         def sw = new StringWriter()
@@ -591,9 +591,6 @@ class ODSSpec extends BaseSpec {
 
         when: 'Visit the jobs'
         to JenkinsJobFolderPage, project.key
-
-        and:
-        def componentJob = getComponentJobs(project.key, E2E_TEST_COMPONENT)
 
         then: 'The component startup jobs finished succesfully'
         waitFor('verySlow') {
