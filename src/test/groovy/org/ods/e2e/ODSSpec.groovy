@@ -26,7 +26,7 @@ class ODSSpec extends BaseSpec {
     def static E2E_TEST_BRANCH = 'e2e-test-branch'
     def static E2E_TEST_FILE = 'e2e-tests.txt'
     def static E2E_TEST_QUICKSTARTER = 'e2e-test-quickstarter'
-    def static E2E_TEST_COMPONENT = 'e2e-test-component'
+    def static E2E_TEST_COMPONENT = 'test-component'
 
     def static projects = [
             default: [
