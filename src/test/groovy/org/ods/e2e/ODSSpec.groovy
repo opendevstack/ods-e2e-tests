@@ -541,6 +541,7 @@ class ODSSpec extends BaseSpec {
 
         and: 'We have selected modify project'
         provisionOptionChooser.doSelectModifyProject()
+        projectModifyForm.doSelectProject(project.key)
 
         // -------------------------------------------------------------------------------------------------------------
         // STEP 8: Click on the Quickstarter dropdown list and select a boilerplate “Frontend implemented with Vue JS”
@@ -579,7 +580,7 @@ class ODSSpec extends BaseSpec {
         //         Result: Repository and file available
 
         when: 'Grab evidences of adding files from bitbucket'
-        gitRepository = GitUtil.cloneRepository(projects.default.name, E2E_TEST_QUICKSTARTER, baseBranchBitbucket)
+        gitRepository = GitUtil.cloneRepository(project.key, E2E_TEST_QUICKSTARTER, baseBranchBitbucket)
         directory = gitRepository.repository.getWorkTree()
         filesPath = 'files'
         testFilePath = "$filesPath/$E2E_TEST_FILE"
