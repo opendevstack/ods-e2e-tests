@@ -594,7 +594,7 @@ class ODSSpec extends BaseSpec {
         client.modifyConfigMap(configMap, configMapData)
         client.update(configMap)
         client.deploy(provisioningAppDeployCfg)
-        GitUtil.checkout(gitRepository, baseBranchBitbucket)
+        GitUtil.deleteBranch(gitRepository, E2E_TEST_BRANCH, true)
         client.waitForDeployment(provisioningAppDeployCfg, newVersion)
 
     }
