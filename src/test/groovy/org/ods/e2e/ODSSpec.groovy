@@ -625,6 +625,7 @@ class ODSSpec extends BaseSpec {
         client.deploy(provisioningAppDeployCfg)
         GitUtil.deleteBranch(gitRepository, E2E_TEST_BRANCH, true)
         client.waitForDeployment(provisioningAppDeployCfg, newVersion)
+        sleep(30000)
 
     }
 
