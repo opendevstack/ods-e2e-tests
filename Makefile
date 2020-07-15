@@ -14,7 +14,7 @@ testChromeHeadless: ../../truststores/cacerts
 .PHONY: testChromeHeadless
 
 ### Test with Chrome in desktop version
-testChrome:
+testChrome: ../../truststores/cacerts
 	./gradlew chromeTest --tests "org.ods.e2e.ODSSpec"
 .PHONY: testChrome
 

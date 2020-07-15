@@ -118,7 +118,7 @@ def loadEnvironmentVariables() {
         environmentVariables.JIRA_URL = props.JIRA_URL
         environmentVariables.OPENSHIFT_PUBLIC_HOST = props.OPENSHIFT_APPS_BASEDOMAIN
         environmentVariables.OPENSHIFT_CLUSTER = props.OPENSHIFT_CONSOLE_HOST
-        environmentVariables.BITBUCKET_URL = props.BITBUCKET_URl
+        environmentVariables.BITBUCKET_URL = props.BITBUCKET_URL
         environmentVariables.NEXUS_URL = props.NEXUS_URL
         environmentVariables.NEXUS_USERNAME = props.NEXUS_USERNAME
         environmentVariables.NEXUS_PASSWORD = props.NEXUS_PASSWORD
