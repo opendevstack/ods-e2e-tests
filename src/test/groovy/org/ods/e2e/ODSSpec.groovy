@@ -521,7 +521,10 @@ class ODSSpec extends BaseSpec {
 
         and: 'Wait for deployment'
         def newVersion = client.waitForDeployment(provisioningAppDeployCfg, lastVersion)
-        sleep(30000)
+        baseUrl = baseUrlProvisioningApp
+        waitFor {
+            to ProvAppLoginPage
+        }
 
         then: 'New deployment exists'
         newVersion > lastVersion
@@ -531,8 +534,6 @@ class ODSSpec extends BaseSpec {
         //         Result: New quickstarter available in the list in provision application
 
         when: 'We are logged in the provissioning app'
-        baseUrl = baseUrlProvisioningApp
-        to ProvAppLoginPage
         doLoginProcess()
 
         and: 'We are in the provisioning page'
