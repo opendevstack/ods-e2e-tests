@@ -4,17 +4,23 @@
 ../../truststores/cacerts:
 	./scripts/buildtrust
 
+.env:
+	echo "Please provide a valid .env file before running tests" && exit 127
+
+checkPreconditions: .env ../../truststores/cacerts
+.PHONY: checkPreconditions
+
 ### Use the headless chrome by default
 test: testChromeHeadless
 .PHONY:	 test
 
 ### Test with Chrome in headless versoin
-testChromeHeadless: ../../truststores/cacerts
+testChromeHeadless: checkPreconditions
 	./gradlew chromeHeadlessTest --system-prop "javax.net.ssl.trustStore=${HOME}/truststores/cacerts" --system-prop "javax.net.ssl.trustStorePassword=changeit" --tests "org.ods.e2e.ODSSpec"
 .PHONY: testChromeHeadless
 
 ### Test with Chrome in desktop version
-testChrome:
+testChrome: checkPreconditions
 	./gradlew chromeTest --tests "org.ods.e2e.ODSSpec"
 .PHONY: testChrome
 
