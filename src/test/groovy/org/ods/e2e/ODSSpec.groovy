@@ -610,10 +610,9 @@ class ODSSpec extends BaseSpec {
         //         Result: Repository and file available
 
         when: 'Grab evidences of adding files from bitbucket'
-        gitRepository = GitUtil.cloneRepository(project.key, E2E_TEST_QUICKSTARTER, baseBranchBitbucket)
+        gitRepository = GitUtil.cloneRepository(project.key, E2E_TEST_COMPONENT, baseBranchBitbucket)
         directory = gitRepository.repository.getWorkTree()
-        filesPath = 'files'
-        testFilePath = "$filesPath/$E2E_TEST_FILE"
+        testFilePath = E2E_TEST_FILE
 
         then: 'Test file exists'
         new File("$directory/$testFilePath").text == 'Test file for FT_01_002'
