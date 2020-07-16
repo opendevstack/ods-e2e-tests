@@ -75,7 +75,7 @@ class BaseSpec extends GebReportingSpec {
      * @return
      */
     def getJenkinsBaseUrl(project) {
-        return "https://jenkins-$project-cd.$openshiftPublichost".toLowerCase()
+        return "https://jenkins-$project-cd$openshiftPublichost".toLowerCase()
     }
 
     /**

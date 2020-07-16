@@ -8,7 +8,7 @@ plugins {
 
 ext {
     // The drivers we want to use
-    drivers = ["firefox", "chrome", "chromeHeadless","htmlunit"]
+    drivers = ["firefox", "chrome", "chromeHeadless", "htmlunit"]
 
     spockVersion = "1.3-groovy-2.5"
     gebVersion = '3.4'
@@ -18,6 +18,27 @@ ext {
     geckoDriverVersion = '0.26.0'
     htmlunitVersion = "2.36.0"
     openshiftClientVersion = '9.0.0.Final'
+
+    // Environment variable needed to run the tests
+    dotEnvFile = './.env'
+    odsConfigFile = '../ods-configuration/ods-core.env'
+    environmentVariables = [
+            PROV_APP_USER        : '',
+            PROV_APP_PASSWORD    : '',
+            ATLASSIAN_USER       : '',
+            ATLASSIAN_PASSWORD   : '',
+            JENKINS_USER         : '',
+            JENKINS_PASSWORD     : '',
+            OPENSHIFT_USER       : '',
+            OPENSHIFT_PASSWORD   : '',
+            PROV_APP_NAME        : '',
+            JIRA_URL             : '',
+            OPENSHIFT_PROJECT    : '',
+            OPENSHIFT_PUBLIC_HOST: '',
+            OPENSHIFT_CLUSTER    : '',
+            BITBUCKET_URL        : '',
+            SIMULATE             : ''
+    ]
 }
 
 repositories {
@@ -53,19 +74,60 @@ dependencies {
 
 }
 
+
+def loadEnvironmentVariables() {
+
+    def props = new Properties()
+    if (file(odsConfigFile).exists()) {
+        file(odsConfigFile).withInputStream { props.load(it) }
+        environmentVariables.JIRA_URL = props.JIRA_URL
+        environmentVariables.OPENSHIFT_PUBLIC_HOST = props.OPENSHIFT_APPS_BASEDOMAIN
+        environmentVariables.OPENSHIFT_CLUSTER = props.OPENSHIFT_CONSOLE_HOST
+        environmentVariables.BITBUCKET_URL = props.BITBUCKET_URL
+
+        println 'ods-core.env: ' + environmentVariables.JIRA_URL
+        println 'ods-core.env: ' + environmentVariables.OPENSHIFT_PUBLIC_HOST
+        println 'ods-core.env: ' + environmentVariables.OPENSHIFT_CLUSTER
+        println 'ods-core.env: ' + environmentVariables.BITBUCKET_URL
+    } else {
+        logger.warn('There is no ods-core.env file')
+    }
+
+    // Load .env file with extra properties
+    def dotEnvProps = new Properties()
+    if (file(dotEnvFile).exists()) {
+        file(dotEnvFile).withInputStream { dotEnvProps.load(it) }
+        dotEnvProps.keys().each { envVar ->
+            environmentVariables[envVar] = dotEnvProps[envVar]
+        }
+        println '.env: ' + environmentVariables.JIRA_URL
+        println '.env: ' + environmentVariables.OPENSHIFT_PUBLIC_HOST
+        println '.env: ' + environmentVariables.OPENSHIFT_CLUSTER
+        println '.env: ' + environmentVariables.BITBUCKET_URL
+    } else {
+        logger.warn('There is no .env file, it will be used only system enviroment variables')
+    }
+}
+
 webdriverBinaries {
-    chromedriver  chromeDriverVersion
+    chromedriver chromeDriverVersion
     geckodriver geckoDriverVersion
     fallbackTo32Bit = true
     driverUrlsConfiguration = resources.text.fromFile('repository-3.0.json')
+    loadEnvironmentVariables()
+
     drivers.each { driver ->
         task "${driver}Test"(type: Test) {
             group JavaBasePlugin.VERIFICATION_GROUP
-
             outputs.upToDateWhen { false }  // Always run tests
-
             systemProperty "geb.build.reportsDir", reporting.file("geb/$name")
             systemProperty "geb.env", driver
+
+            environmentVariables.each { key, value ->
+                if (!System.env.get(key)) {
+                    environment key, value
+                }
+            }
         }
     }
 }
