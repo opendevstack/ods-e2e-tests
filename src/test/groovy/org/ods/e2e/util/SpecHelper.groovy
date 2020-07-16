@@ -46,7 +46,7 @@ class SpecHelper {
 
         Unirest.config().verifySsl(false);
 
-        def response = Unirest.get(applicationProperties."config.atlassian.jira.url" + "rest/api/2/issue/createmeta?expand=projects.issuetypes.fields&projectKeys={projectKey}")
+        def response = Unirest.get(applicationProperties."config.atlassian.jira.url" + "/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields&projectKeys={projectKey}")
                 .routeParam("projectKey", projectKey.toUpperCase())
                 .basicAuth(applicationProperties."config.atlassian.user.name", applicationProperties."config.atlassian.user.password")
                 .header("Accept", "application/json")
@@ -89,7 +89,7 @@ class SpecHelper {
 
         Unirest.config().verifySsl(false);
 
-        def response = Unirest.get(applicationProperties."config.atlassian.jira.url" + "rest/api/2/issue/{issueKey}/transitions")
+        def response = Unirest.get(applicationProperties."config.atlassian.jira.url" + "/rest/api/2/issue/{issueKey}/transitions")
                 .routeParam("issueKey", issueKey.toUpperCase())
                 .basicAuth(applicationProperties."config.atlassian.user.name", applicationProperties."config.atlassian.user.password")
                 .header("Accept", "application/json")
