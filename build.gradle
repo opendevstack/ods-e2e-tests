@@ -1,9 +1,9 @@
 plugins {
     id "idea"
     id "groovy"
-    id "com.github.erdi.webdriver-binaries" version "2.2"
-    id "com.github.erdi.idea-base" version "2.2"
-    id 'com.adarshr.test-logger' version "2.0.0"
+    id "com.github.erdi.webdriver-binaries"
+    id "com.github.erdi.idea-base"
+    id 'com.adarshr.test-logger'
 }
 
 ext {
