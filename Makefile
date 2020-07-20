@@ -1,13 +1,13 @@
 ### Set the default target
 .DEFAULT_GOAL := help
 
-../../truststores/cacerts:
+${HOME}/truststores/cacerts:
 	./scripts/buildtrust
 
 .env:
 	echo "Please provide a valid .env file before running tests" && exit 127
 
-checkPreconditions: .env ../../truststores/cacerts
+checkPreconditions: .env ${HOME}/truststores/cacerts
 .PHONY: checkPreconditions
 
 ### Use the headless chrome by default
