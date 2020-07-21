@@ -215,13 +215,20 @@ class ODSSpec extends BaseSpec {
         and: "Visit all project page"
         to ConsoleProjectsPage
         waitFor(10000) { projectList }
-        def projects = findProjects(project.key)
+        if ((findProjects(project.key).size() <= 0) ||
+                findProjects(project.key).contains(project.key.toLowerCase())) {
+            driver.navigate().refresh()
+        }
 
         then:
-        assert projects
-        assert projects.contains(project.key.toLowerCase() + '-cd')
+        waitFor('slow') {
+            findProjects(project.key).size() > 0
+            findProjects(project.key).contains(project.key.toLowerCase() + '-cd')
+        }
 
-        when: 'Visit pods page'
+
+        when:
+        'Visit pods page'
         to PodsPage, project.key.toLowerCase() + '-cd'
         sleep(5000)
 
@@ -286,7 +293,8 @@ class ODSSpec extends BaseSpec {
             report('Status after Quickstarters Addition')
         }
 
-        then: 'Quickstarter was added'
+        then:
+        'Quickstarter was added'
         simulate ? true : $("#resProject.alert-success")
         report("step 9 - quick starter provisioned")
 
@@ -295,17 +303,20 @@ class ODSSpec extends BaseSpec {
         // with the name you provided.
         //          Result: The content of the components are available.
         // -------------------------------------------------------------------------------------------------------------
-        when: 'Visit Bitbucket'
+        when:
+        'Visit Bitbucket'
         baseUrl = baseUrlBitbucket
         to ProjectPage, project.key
 
-        then: 'We are in the project page'
+        then:
+        'We are in the project page'
         currentUrl.endsWith("projects/${project.key}/")
 
         when: 'We visit one repository'
         def repositories = getRepositoriesInfo()
 
-        then: 'The repositories exits for each component'
+        then:
+        'The repositories exits for each component'
         project.components.each { component ->
             assert repositories.findAll { repository -> repository.name.toLowerCase() == (project.key + '-' + component.componentId).toLowerCase() }.size() == 1
         }
@@ -325,7 +336,8 @@ class ODSSpec extends BaseSpec {
         then: 'The project folder exists'
         assert $("#job_${project.key.toLowerCase()}-cd")
 
-        when: 'Visit the jobs'
+        when:
+        'Visit the jobs'
         to JenkinsJobFolderPage, project.key
 
         and:
@@ -333,7 +345,8 @@ class ODSSpec extends BaseSpec {
             component.jobs = getComponentJobs(project.key, component.componentId)
         }
 
-        then: 'The component startup jobs finished succesfully'
+        then:
+        'The component startup jobs finished succesfully'
         waitFor('verySlow') {
             project.components.each {
                 component ->
@@ -358,7 +371,8 @@ class ODSSpec extends BaseSpec {
         //                  - Building a docker image
         //                  - Deployment of the docker image
         // -------------------------------------------------------------------------------------------------------------
-        and: 'Checks that exists jobs that are not qs startup jobs for the components'
+        and:
+        'Checks that exists jobs that are not qs startup jobs for the components'
         waitFor('verySlow') {
             project.components.each {
                 component ->
