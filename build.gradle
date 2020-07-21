@@ -42,7 +42,7 @@ ext {
             NEXUS_PASSWORD        : '',
             NEXUS_FOLDER_RELEASES : '',
             NEXUS_FOLDER_SNAPSHOTS: '',
-            NO_NEXUS              : '',
+            NO_NEXUS              : (project.findProperty('no_nexus') ?: System.getenv('NO_NEXUS') ?: false).toBoolean(),
     ]
 
 
@@ -51,7 +51,7 @@ ext {
 
 repositories {
     if (environmentVariables.NO_NEXUS) {
-        println("using repositories 'jcenter' and 'mavenCentral', because property no_nexus=$NO_NEXUS")
+        println("using repositories 'jcenter' and 'mavenCentral', because property no_nexus=$environmentVariables.NO_NEXUS")
         jcenter()
         mavenCentral()
     } else {
