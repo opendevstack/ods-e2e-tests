@@ -212,16 +212,9 @@ class ODSSpec extends BaseSpec {
         and: 'and login in Openshift'
         doOpenshiftLoginProcess()
 
-        and: "Visit all project page"
-        to ConsoleProjectsPage
-        waitFor(10000) { projectList }
-        if ((findProjects(project.key).size() <= 0) ||
-                findProjects(project.key).contains(project.key.toLowerCase())) {
-            driver.navigate().refresh()
-        }
-
-        then:
-        waitFor('slow') {
+        then: "Visit all project page and check for the projects"
+        waitFor('mediumSlow') {
+            to ConsoleProjectsPage
             findProjects(project.key).size() > 0
             findProjects(project.key).contains(project.key.toLowerCase() + '-cd')
         }

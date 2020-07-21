@@ -24,8 +24,12 @@ waiting {
             timeout = 3600
             retryInterval = 2
         }
-        verySlow {
+         verySlow {
             timeout = 600
+            retryInterval = 5
+        }
+        mediumSlow {
+            timeout = 300
             retryInterval = 5
         }
         slow {
