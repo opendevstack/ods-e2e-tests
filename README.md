@@ -30,7 +30,9 @@ You need to set several environment variables in order to make this work, as it 
 | NEXUS_URL             | https://nexus-ods.ocp.odsbox.lan | The nexus url if we want to use an specific nexus instance                                                       |
 | NEXUS_USERNAME        | admin                            | The nexus user                                                                                                   |
 | NEXUS_PASSWORD        | openshift                        | The nexus password                                                                                               |
-  
+|BITBUCKET_BASE_BRANCH  | master                           | The branck used as base branch for the QS(useful when you are testing the box)|
+|QUICKSTARTERS_CONFIGMAP| quickstarters.properties         | The configmap name where the qs of the provisioning app gets its configuration|
+
 ### Environment variables setup
 To get the information needed to run the tests there are 3 steps that override the previous one:
 1. If the test project is co-located with the ods-configuration folder, the process will retrieve the values that exists in the ods-core.env file to obtain the urls of Openshift, Jira, Bitbucket.
