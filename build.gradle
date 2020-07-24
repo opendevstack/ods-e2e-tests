@@ -1,0 +1,202 @@
+plugins {
+    id "idea"
+    id "groovy"
+    id "com.github.erdi.webdriver-binaries" version "2.2"
+    id "com.github.erdi.idea-base" version "2.2"
+    id 'com.adarshr.test-logger' version "2.0.0"
+}
+
+ext {
+    // The drivers we want to use
+    drivers = ["firefox", "chrome", "chromeHeadless", "htmlunit"]
+
+    spockVersion = "1.3-groovy-2.5"
+    gebVersion = '3.4'
+    unirestVersion = "3.7.02"
+    seleniumVersion = '3.141.59'
+    chromeDriverVersion = '83.0.4103.39'
+    geckoDriverVersion = '0.26.0'
+    htmlunitVersion = "2.36.0"
+
+    // Environment variable needed to run the tests
+    dotEnvFile = './.env'
+    odsConfigFile = '../ods-configuration/ods-core.env'
+    environmentVariables = [
+            PROV_APP_USER         : '',
+            PROV_APP_PASSWORD     : '',
+            ATLASSIAN_USER        : '',
+            ATLASSIAN_PASSWORD    : '',
+            JENKINS_USER          : '',
+            JENKINS_PASSWORD      : '',
+            OPENSHIFT_USER        : '',
+            OPENSHIFT_PASSWORD    : '',
+            PROV_APP_NAME         : '',
+            JIRA_URL              : '',
+            OPENSHIFT_PROJECT     : '',
+            OPENSHIFT_PUBLIC_HOST : '',
+            OPENSHIFT_CLUSTER     : '',
+            BITBUCKET_URL         : '',
+            SIMULATE              : '',
+            NEXUS_URL             : '',
+            NEXUS_USERNAME        : '',
+            NEXUS_PASSWORD        : '',
+            NEXUS_FOLDER_RELEASES : '',
+            NEXUS_FOLDER_SNAPSHOTS: '',
+            NO_NEXUS              : (project.findProperty('no_nexus') ?: System.getenv('NO_NEXUS') ?: false).toBoolean(),
+    ]
+
+
+    loadEnvironmentVariables()
+}
+
+repositories {
+    if (environmentVariables.NO_NEXUS) {
+        println("using repositories 'jcenter' and 'mavenCentral', because property no_nexus=$environmentVariables.NO_NEXUS")
+        jcenter()
+        mavenCentral()
+    } else {
+        println("using nexus repositories")
+        maven() {
+            url "${environmentVariables.NEXUS_URL}/repository/jcenter/"
+            credentials {
+                username = "${environmentVariables.NEXUS_USERNAME}"
+                password = "${environmentVariables.NEXUS_PASSWORD}"
+            }
+        }
+
+        maven() {
+            url "${environmentVariables.NEXUS_URL}/repository/maven-public/"
+            credentials {
+                username = "${environmentVariables.NEXUS_USERNAME}"
+                password = "${environmentVariables.NEXUS_PASSWORD}"
+            }
+        }
+
+        maven() {
+            url "${environmentVariables.NEXUS_URL}/repository/atlassian_public/"
+            credentials {
+                username = "${environmentVariables.NEXUS_USERNAME}"
+                password = "${environmentVariables.NEXUS_PASSWORD}"
+            }
+        }
+    }
+}
+
+
+dependencies {
+    // If using Spock, need to depend on geb-spock
+    testCompile "org.gebish:geb-spock:${gebVersion}"
+    testCompile("org.spockframework:spock-core:1.3-groovy-2.5") {
+        exclude group: "org.codehaus.groovy"
+    }
+
+    // If using JUnit, need to depend on geb-junit (3 or 4)
+    testCompile "org.gebish:geb-junit4:$gebVersion"
+
+    // Drivers
+    testCompile "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:htmlunit-driver:$htmlunitVersion"
+    testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+
+    // Utils
+    testCompile "com.konghq:unirest-java:$unirestVersion:standalone"
+
+    // Use of git
+    compile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+    testCompile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+    testCompile "org.yaml:snakeyaml:1.26"
+
+}
+
+
+def loadEnvironmentVariables() {
+    println "Loading Environment Variables"
+    def props = new Properties()
+    if (file(odsConfigFile).exists()) {
+        file(odsConfigFile).withInputStream { props.load(it) }
+        environmentVariables.JIRA_URL = props.JIRA_URL
+        environmentVariables.OPENSHIFT_PUBLIC_HOST = props.OPENSHIFT_APPS_BASEDOMAIN
+        environmentVariables.OPENSHIFT_CLUSTER = props.OPENSHIFT_CONSOLE_HOST
+        environmentVariables.BITBUCKET_URL = props.BITBUCKET_URL
+        environmentVariables.NEXUS_URL = props.NEXUS_URL
+        environmentVariables.NEXUS_USERNAME = props.NEXUS_USERNAME
+        environmentVariables.NEXUS_PASSWORD = props.NEXUS_PASSWORD
+
+        println 'ods-core.env: ' + environmentVariables.JIRA_URL
+        println 'ods-core.env: ' + environmentVariables.OPENSHIFT_PUBLIC_HOST
+        println 'ods-core.env: ' + environmentVariables.OPENSHIFT_CLUSTER
+        println 'ods-core.env: ' + environmentVariables.BITBUCKET_URL
+        println 'ods-core.env: ' + environmentVariables.NEXUS_URL
+    } else {
+        logger.warn('There is no ods-core.env file')
+    }
+
+    // Load .env file with extra properties
+    def dotEnvProps = new Properties()
+    if (file(dotEnvFile).exists()) {
+        file(dotEnvFile).withInputStream { dotEnvProps.load(it) }
+        dotEnvProps.keys().each { envVar ->
+            environmentVariables[envVar] = dotEnvProps[envVar]
+        }
+        println '.env: ' + environmentVariables.JIRA_URL
+        println '.env: ' + environmentVariables.OPENSHIFT_PUBLIC_HOST
+        println '.env: ' + environmentVariables.OPENSHIFT_CLUSTER
+        println '.env: ' + environmentVariables.BITBUCKET_URL
+        println '.env: ' + environmentVariables.NEXUS_URL
+    } else {
+        logger.warn('There is no .env file, it will be used only system enviroment variables')
+    }
+    def nexus_url = "${environmentVariables.NEXUS_URL ?: System.getenv('NEXUS_URL') ?: System.getenv('NEXUS_HOST')}"
+    def nexus_user = "${environmentVariables.NEXUS_USERNAME ?: System.getenv('NEXUS_USERNAME')}"
+    def nexus_pw = "${environmentVariables.NEXUS_PASSWORD ?: System.getenv('NEXUS_PASSWORD')}"
+    def no_nexus = (environmentVariables.NO_NEXUS ?: System.getenv('NO_NEXUS') ?: false).toBoolean()
+    if (!no_nexus && (nexus_url == "null" || nexus_user == "null" || nexus_pw == "null")) {
+        throw new GradleException("property no_nexus='false' (or not defined) but at least one of the properties nexus_url, nexus_user or nexus_pw is not configured. Please configure those properties!")
+    }
+}
+
+webdriverBinaries {
+    chromedriver chromeDriverVersion
+    geckodriver geckoDriverVersion
+    fallbackTo32Bit = true
+    driverUrlsConfiguration = resources.text.fromFile('repository-3.0.json')
+
+    drivers.each { driver ->
+        task "${driver}Test"(type: Test) {
+            group JavaBasePlugin.VERIFICATION_GROUP
+            outputs.upToDateWhen { false }  // Always run tests
+            systemProperty "geb.build.reportsDir", reporting.file("geb/$name")
+            systemProperty "geb.env", driver
+
+            environmentVariables.each { key, value ->
+                if (!System.env.get(key)) {
+                    environment key, value
+                }
+            }
+        }
+    }
+}
+
+
+test {
+    dependsOn drivers.collect { tasks["${it}Test"] }
+    enabled = false
+    systemProperties System.properties
+}
+
+tasks.withType(Test) {
+    maxHeapSize = "1g"
+    jvmArgs '-XX:MaxMetaspaceSize=128m'
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.withType(GroovyCompile) {
+    groovyOptions.forkOptions.memoryMaximumSize = '256m'
+}
+
+testlogger {
+    showStandardStreams true
+}
