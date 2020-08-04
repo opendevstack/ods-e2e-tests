@@ -103,13 +103,15 @@ class BaseSpec extends GebReportingSpec {
      */
     def doJenkinsLoginProcess() {
         via JenkinsLoginPage
-        loginButton.click()
+        if ($("a.btn.btn-lg.btn-primary").size() > 0) {
+            loginButton.click()
+        }
         if (extraLoginPage) {
             at(new JenkinsLoginSelectorPage())
             ldapLink.click()
         }
         at OpenShiftLoginPage
-        doLogin()
+        doJenkinsLogin()
         if ($('input', name: 'approve')) {
             $('input', name: 'approve').click()
         }
