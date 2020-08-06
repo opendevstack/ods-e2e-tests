@@ -865,9 +865,12 @@ class ODSSpec extends BaseSpec {
         baseUrl = getJenkinsBaseUrl(project.key)
 
         and: 'Login again in jenkins as it has been rebooted'
-        waitFor('extremelySlow') {
-            doJenkinsLoginProcess()
+        if ($("body > div >h1").text()?.toLowerCase()?.contains('application is not available') != null) {
+            waitFor('extremelySlow') {
+                doJenkinsLoginProcess()
+            }
         }
+
         def parameters = [environment: 'dev', version: 'WIP',]
         to JenkinsConsoleParametrizedBuildPage, project.key, releaseManagerPipelineJob
         fillData(parameters)
