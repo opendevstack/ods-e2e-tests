@@ -79,6 +79,7 @@ class ODSSpec extends BaseSpec {
         println 'Tests setup'
     }
 
+
     /**
      * Test Objective:
      * The purpose of this test case is to present a level of evidences that the use of Provisioning Application,
@@ -257,18 +258,28 @@ class ODSSpec extends BaseSpec {
         report("step 7 - go to provissioning app")
 
         // -------------------------------------------------------------------------------------------------------------
-        // STEP 8: Click on the Quickstarter dropdown list and select a boilerplate “Frontend implemented with Vue JS”
-        //          Result: The component ID is listed: fe-vue
+        // STEP 8: Click on the Quickstarter dropdown list
+        //          Result: The component list is displayed
+        // -------------------------------------------------------------------------------------------------------------
+        and: 'Click on quickstarte dropdownlist'
+        projectModifyForm.quickStarteDropdown.click()
+        projectModifyForm.doScrollToEnd()
+        sleep(1000)
+        report("step 8 - Clicked on dropdownlist")
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 9: Click on the Quickstarter dropdown list and select a boilerplate “Backend - golang”
+        //          Result: The component is added
         // -------------------------------------------------------------------------------------------------------------
         and:
         project.components.eachWithIndex { component, index ->
             projectModifyForm.doAddQuickStarter(component.quickStarter, component.componentId, index + 1)
             projectModifyForm.addQuickStarterButton.click()
         }
-        report("step 8 - add quickstarter")
+        report("step 9 - add quickstarter")
 
         // -------------------------------------------------------------------------------------------------------------
-        // STEP 9: Click on Start Provision
+        // STEP 10: Click on Start Provision
         //          Result: Message the provision is in progress.
         //                  Another message (screen) appears with the links of:
         //                  Jenkins, Bitbucket, Project link, Provisioning jobs, and others.
@@ -283,16 +294,16 @@ class ODSSpec extends BaseSpec {
                 $("#resProject.alert-success")
                 $("#resButton").text() == "Close"
             }
-            report('Status after Quickstarters Addition')
+            report('step 10 - Status after Quickstarters Addition')
         }
 
         then:
         'Quickstarter was added'
         simulate ? true : $("#resProject.alert-success")
-        report("step 9 - quick starter provisioned")
+        report("step 10 - quick starter provisioned")
 
         // -------------------------------------------------------------------------------------------------------------
-        // STEP 10: Go to bitbucket into the above named project and check for your component repository
+        // STEP 11: Go to bitbucket into the above named project and check for your component repository
         // with the name you provided.
         //          Result: The content of the components are available.
         // -------------------------------------------------------------------------------------------------------------
@@ -313,10 +324,10 @@ class ODSSpec extends BaseSpec {
         project.components.each { component ->
             assert repositories.findAll { repository -> repository.name.toLowerCase() == (project.key + '-' + component.componentId).toLowerCase() }.size() == 1
         }
-        report("step 10 - components repositories in bitbucket")
+        report("step 11 - components repositories in bitbucket")
 
         // -------------------------------------------------------------------------------------------------------------
-        // STEP 11: Go to your project’s Jenkins and locate the provision job of the component
+        // STEP 12: Go to your project’s Jenkins and locate the provision job of the component
         // with the name you provided.
         //          Result: Instance can be found and green (successful)
         // -------------------------------------------------------------------------------------------------------------
@@ -349,10 +360,10 @@ class ODSSpec extends BaseSpec {
             }
         }
 
-        report("step 11 - provision job of the component")
+        report("step 12 - provision job of the component")
 
         // -------------------------------------------------------------------------------------------------------------
-        // STEP 12: Go to your project’s Jenkins and locate the build job of the component named *component-name*-master
+        // STEP 13: Go to your project’s Jenkins and locate the build job of the component named *component-name*-master
         // with the name you provided.
         //          Result: Build job instance found and green.
         //                  A log in Jenkins shows on Console Output:
@@ -375,7 +386,7 @@ class ODSSpec extends BaseSpec {
             }
         }
 
-        report("step 12 - build job of the component")
+        report("step 13 - build job of the component")
     }
 
     /**

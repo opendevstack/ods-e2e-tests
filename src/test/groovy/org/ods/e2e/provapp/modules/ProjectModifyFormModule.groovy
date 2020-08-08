@@ -11,6 +11,7 @@ class ProjectModifyFormModule extends Module {
     static content = {
         modifyForm(wait: true, required: true) { $("#modifyProject") }
         projectSelectControl(wait: true, required: true) { $("#projects") }
+        quickStarteDropdown(wait: true, required: true) { $("select.form-control.quickstart-chooser") }
         quickStarterTable(wait: true, required: true) { $("#quickstartTable") }
         quickStarterAddGroup(wait: true, required: true) { $(".form-group.quickstartergroup") }
         addQuickStarterButton(wait: true, required: true) { $("button.btn-add") }
@@ -75,5 +76,9 @@ class ProjectModifyFormModule extends Module {
 
         max ? max + 1 : 1
 
+    }
+
+    def doScrollToEnd() {
+        (driver as JavascriptExecutor).executeScript("window.scrollTo(0, document.body.scrollHeight);")
     }
 }
