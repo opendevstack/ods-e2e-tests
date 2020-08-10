@@ -19,7 +19,6 @@ import org.ods.e2e.util.BaseSpec
 import org.ods.e2e.util.GitUtil
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
-import spock.lang.Ignore
 
 class ODSSpec extends BaseSpec {
 
@@ -388,7 +387,6 @@ class ODSSpec extends BaseSpec {
      * to the console/terminal logs of Jenkins, Nexus and SonarQube and have administrator access to the Bitbucket
      * repositories including the OpenDevStack one.
      */
-    @Ignore
     def "FT_01_002"() {
         // STEP 1: Go to Bitbucket ODS project – into repository ods-quickstarters
         //         Result: Project and repository available
