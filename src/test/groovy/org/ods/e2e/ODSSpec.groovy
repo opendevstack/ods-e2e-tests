@@ -1,15 +1,15 @@
 package org.ods.e2e
 
-
 import org.ods.e2e.bitbucket.pages.DashboardPage
 import org.ods.e2e.bitbucket.pages.LoginPage
 import org.ods.e2e.bitbucket.pages.ProjectPage
 import org.ods.e2e.bitbucket.pages.RepositoryPage
 import org.ods.e2e.jenkins.pages.JenkinsConsoleParametrizedBuildPage
 import org.ods.e2e.jenkins.pages.JenkinsJobFolderPage
+import org.ods.e2e.jenkins.pages.JenkinsLoginPage
 import org.ods.e2e.openshift.client.OpenShiftClient
+import org.ods.e2e.openshift.client.OpenShiftHelper
 import org.ods.e2e.openshift.pages.ConsoleDeploymentsPage
-import org.ods.e2e.openshift.pages.ConsoleProjectsPage
 import org.ods.e2e.openshift.pages.ConsoleResourcesConfigMaps
 import org.ods.e2e.openshift.pages.PodsPage
 import org.ods.e2e.provapp.pages.HomePage
@@ -27,6 +27,7 @@ class ODSSpec extends BaseSpec {
     def static E2E_TEST_FILE = 'e2e-tests.txt'
     def static E2E_TEST_QUICKSTARTER = 'e2e-test-quickstarter'
     def static E2E_TEST_COMPONENT = 'test-component'
+    def static openshifHelper = new OpenShiftHelper()
 
     def static projects = [
             default: [
@@ -87,6 +88,7 @@ class ODSSpec extends BaseSpec {
         println 'Tests setup'
     }
 
+
     /**
      * Test Objective:
      * The purpose of this test case is to present a level of evidences that the use of Provisioning Application,
@@ -112,6 +114,7 @@ class ODSSpec extends BaseSpec {
         //          Result: Login works, within a provisioning and history links
         // -------------------------------------------------------------------------------------------------------------
         given: 'We are logged in the provisioning app'
+        def openshifHelper = new OpenShiftHelper()
         def project = projects.default
         baseUrl = baseUrlProvisioningApp
 
@@ -143,7 +146,9 @@ class ODSSpec extends BaseSpec {
         and: 'Get the next key'
         def nextId = getNextId(project.key)
         project.name = String.format("$project.name - %02d", nextId)
-        project.key = String.format("${project.key}%02d", nextId)
+        if (!simulate) {
+            project.key = String.format("${project.key}%02d", nextId)
+        }
 
         and: 'We open the project creation form'
         provisionOptionChooser.doSelectCreateNewProject()
@@ -166,7 +171,7 @@ class ODSSpec extends BaseSpec {
             projectCreateForm.doStartProvision()
 
             // wait until project is created
-            waitFor {
+            waitFor('verySlow') {
                 $(".modal-dialog").css("display") != "hidden"
                 $("#resProject.alert-success")
                 $("#resButton").text() == "Close"
@@ -185,7 +190,9 @@ class ODSSpec extends BaseSpec {
         simulate ? true : $("#resProject.alert-success").size() == 1
 
         report("step 4 - project has been created")
-        $("#resButton").click()
+        if (!simulate) {
+            $("#resButton").click()
+        }
 
 
         // -------------------------------------------------------------------------------------------------------------
@@ -207,6 +214,9 @@ class ODSSpec extends BaseSpec {
 
         then: 'We are in the project page'
         currentUrl.endsWith("projects/${project.key}/")
+        if (!simulate) {
+            $("h2.page-panel-content-header")?.text()?.contains('Repositories')
+        }
         report("step 5 - project in bitbucket")
 
         // -------------------------------------------------------------------------------------------------------------
@@ -214,41 +224,19 @@ class ODSSpec extends BaseSpec {
         //          Result: Find a running Jenkins deployment – click on it and verify that the image used comes from the
         //                  CD namespace
         // -------------------------------------------------------------------------------------------------------------
-        when: 'Visit Openshift'
-        baseUrl = baseUrlOpenshift
+        when: 'Check if we have a Jenkins instance running'
+        baseUrl = getJenkinsBaseUrl(project.key)
 
-        and: 'and login in Openshift'
-        doOpenshiftLoginProcess()
-
-        then: "Visit all project page and check for the projects"
-        waitFor('mediumSlow') {
-            to ConsoleProjectsPage
-            findProjects(project.key).size() > 0
-            findProjects(project.key).contains(project.key.toLowerCase() + '-cd')
+        and:
+        waitFor('extremelySlow') {
+            openshifHelper.existsNamespace(project.key.toLowerCase() + '-cd')
         }
-
-
-        when:
-        'Visit pods page'
-        to PodsPage, project.key.toLowerCase() + '-cd'
-        sleep(5000)
 
         then:
-        waitFor('verySlow') {
-            getPods().find { pod ->
-                pod.name.startsWith('jenkins') &&
-                        pod.status == 'Running' &&
-                        !pod.isDeployPod &&
-                        pod.containersReady == '1/1'
-            }
-
-            getPods().find { pod ->
-                pod.name.startsWith('webhook') &&
-                        pod.status == 'Running' &&
-                        !pod.isDeployPod &&
-                        pod.containersReady == '1/1'
-            }
+        waitFor('extremelySlow') {
+            doJenkinsLoginProcess()
         }
+
         report("step 6 - existing jenkins instance for the project")
 
         // -------------------------------------------------------------------------------------------------------------
@@ -332,7 +320,7 @@ class ODSSpec extends BaseSpec {
         baseUrl = getJenkinsBaseUrl(project.key)
 
         and:
-        doJenkinsLoginProcess()
+        to JenkinsLoginPage
 
         then: 'The project folder exists'
         assert $("#job_${project.key.toLowerCase()}-cd")
@@ -342,6 +330,11 @@ class ODSSpec extends BaseSpec {
         to JenkinsJobFolderPage, project.key
 
         and:
+        if (activateAutorefreshLink) {
+            activateAutorefreshLink.click()
+        }
+
+        and:
         project.components.each { component ->
             component.jobs = getComponentJobs(project.key, component.componentId)
         }
@@ -349,11 +342,11 @@ class ODSSpec extends BaseSpec {
         then:
         'The component startup jobs finished succesfully'
         waitFor('verySlow') {
-            project.components.each {
+            project.components.every {
                 component ->
-                    getComponentJobs(project.key, component.componentId).jobs.find {
+                    getComponentJobs(project.key, component.componentId).find {
                         job -> job.value.odsStartupComponentJob && job.value.success
-                    }
+                    } != null
             }
         }
 
@@ -375,11 +368,11 @@ class ODSSpec extends BaseSpec {
         and:
         'Checks that exists jobs that are not qs startup jobs for the components'
         waitFor('verySlow') {
-            project.components.each {
+            project.components.every {
                 component ->
-                    getComponentJobs(project.key, component.componentId).jobs.find {
+                    getComponentJobs(project.key, component.componentId).find {
                         job -> !job.value.odsStartupComponentJob && job.value.success
-                    }
+                    } != null
             }
         }
 
@@ -761,11 +754,15 @@ class ODSSpec extends BaseSpec {
             }
         }
 
-        and: 'Wait if the job is still running'
+
+        // After adding the new component some changes are introduced to the configuration of the jenkins pod
+        // so the pod is restarted.
+        and: 'Wait if the job is still running or jenkins is still running'
         waitFor('verySlow') {
-            getComponentJobs(project.key, releaseManagerComponent.componentId).find {
-                job -> job.value.odsStartupComponentJob && job.value.success
-            }
+            $("body > div >h1").text()?.toLowerCase()?.contains('application is not available') != null ||
+                    getComponentJobs(project.key, releaseManagerComponent.componentId).find {
+                        job -> job.value.odsStartupComponentJob && job.value.success
+                    } != null
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -843,24 +840,34 @@ class ODSSpec extends BaseSpec {
             metadataRepositories = metadataYml.getAt('repositories')
         }
         def component = project.components.first()
-        metadataRepositories.putAt(metadataRepositories.size, [
-                id  : component.componentId.toLowerCase(),
-                name: "$project.key-$component.componentId".toLowerCase(), type: 'ods'])
+        if (metadataRepositories.size() == 0 || metadataRepositories.findAll { it -> it.id == component.componentId.toLowerCase() }.size() == 0) {
+            metadataRepositories.putAt(metadataRepositories.size, [
+                    id  : component.componentId.toLowerCase(),
+                    name: "$project.key-$component.componentId".toLowerCase(), type: 'ods'])
+        }
+
 
         and: 'Save metada.yml'
         parser.dump(metadataYml, new FileWriter("$repositoryFolder/metadata.yml"))
 
         and: 'Commit the file'
-        GitUtil.commitAddAll(gitRepository,'New component added')
+        GitUtil.commitAddAll(gitRepository, 'New component added')
 
         and: 'Push it to the repository'
-        GitUtil.push(gitRepository,'origin')
+        GitUtil.push(gitRepository, 'origin')
 
         // -------------------------------------------------------------------------------------------------------------
         //       3.2 Trigger Jenkins build of the release manager.
         // -------------------------------------------------------------------------------------------------------------
-        and:
+        and: 'Go to jenkins'
         baseUrl = getJenkinsBaseUrl(project.key)
+
+        and: 'Login again in jenkins as it has been rebooted'
+        if ($("body > div >h1").text()?.toLowerCase()?.contains('application is not available') != null) {
+            waitFor('extremelySlow') {
+                doJenkinsLoginProcess()
+            }
+        }
 
         def parameters = [environment: 'dev', version: 'WIP',]
         to JenkinsConsoleParametrizedBuildPage, project.key, releaseManagerPipelineJob
