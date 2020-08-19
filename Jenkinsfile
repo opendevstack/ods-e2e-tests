@@ -28,13 +28,17 @@ odsComponentPipeline(
 ) {
     environment {
         OPENSHIFT_PROJECT="${ODS_PROJECT}-cd"
-        CERT_BUNDLE_PATH='build/trusted.pem'
+        CERT_BUNDLE_BASE_PATH='/etc/pki/ca-trust/source/anchors'
         TRUSTSTORE_PATH='build/truststore.jks'
     }
     stage('Set up tests') {
         withEnv(readProperties(file: "env-${ENV}.properties").collect(key, value -> key + '=' + value) {
-            sh("openssl s_client -showcerts -host '${APP_DNS}' -port 443 </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee '${CERT_BUNDLE_PATH}'")
-            sh("keytool -import -noprompt -trustcacerts -file '${CERT_BUNDLE_PATH}' -alias '${APP_DNS}' -keystore '${TRUSTSTORE_PATH}' -storepass changeit")
+            withEnv("CERT_BUNDLE_PATH=\"${CERT_BUNDLE_BASE_PATH}/${APP_DNS}.pem\"") {
+                sh('update-ca-trust force-enable')
+                sh("openssl s_client -showcerts -host '${APP_DNS}' -port 443 </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee '${CERT_BUNDLE_PATH}'")
+                sh('update-ca-trust extract')
+                sh("keytool -import -noprompt -trustcacerts -file '${CERT_BUNDLE_PATH}' -alias '${APP_DNS}' -keystore '${TRUSTSTORE_PATH}' -storepass changeit")
+            }
         }
     }
     stage('Run tests') {
@@ -59,7 +63,7 @@ odsComponentPipeline(
                                             , credentialsId: "${OPENSHIFT_PROJECT}-${PROV_APP_CREDENTIALS}"
                                             , usernameVariable: 'PROV_APP_USER'
                                             , passwordVariable: 'PROV_APP_PASSWORD']]) {
-                                sh('./gradlew chromeHeadlessTest --tests org.ods.e2e.ODSSpec')
+                                sh('./gradlew chromeHeadlessTest --tests org.ods.e2e.ODSSpec --system-prop "javax.net.ssl.trustStore=${HOME}/truststores/cacerts" --system-prop "javax.net.ssl.trustStorePassword=changeit"')
                             }
                         }
                     }
