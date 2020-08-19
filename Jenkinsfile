@@ -1,15 +1,15 @@
-@Library('ods-jenkins-shared-library@master') _
+@Library('ods-jenkins-shared-library@production') _
 
 node {
     properties([[$class: 'BuildConfigProjectProperty', name: '', namespace: '', resourceVersion: '', uid: ''],
                     parameters([
                             choice(
                                    name: 'ENV'
-                                 , choices: ['prod', 'dev', 'box']
+                                 , choices: ['dev', 'prod', 'box']
                                  , description: 'Environment against which to run the E2E tests')
                           , string(
                                    name: 'ODS_PROJECT'
-                                 , defaultValue: 'e2etests'
+                                 , defaultValue: 'edpc'
                                  , description: 'ID of the ODS project for the E2E tests')
                     ])
         ])
@@ -17,10 +17,10 @@ node {
 
 def extraVars
 
-odsComponentPipeline(
-  imageStreamTag: "${SLAVE_IMAGE}",
+odsPipeline(
+  image: "docker-registry.default.svc:5000/cd/jenkins-slave-python:2.x",
   projectId: "${ODS_PROJECT}",
-  componentId: 'ods-e2e-test',
+  componentId: 'e2etests',
   branchToEnvironmentMapping: [
     'master': 'dev',
     // 'release/': 'test'
@@ -38,7 +38,9 @@ odsComponentPipeline(
         sh("keytool -import -noprompt -trustcacerts -file \"${CERT_BUNDLE_PATH}\" -alias ssl_truststore -keystore \"${TRUSTSTORE_PATH}\" -storepass changeit")
     }
     stage('Run tests') {
-        withEnv(readProperties(file: "env-${ENV}.properties").collect(key, value -> key + '=' + value) {
+        withEnv(readProperties(file: "env-${ENV}.properties").collect {
+            entry -> entry.key + '=' + entry.value
+        }) {
             withCredentials([[$class: 'UsernamePasswordMultiBinding'
                             , credentialsId: "${OPENSHIFT_PROJECT}-${ATLASSIAN_CREDENTIALS}"
                             , usernameVariable: 'ATLASSIAN_USER'
