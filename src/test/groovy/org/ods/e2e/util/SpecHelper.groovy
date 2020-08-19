@@ -3,6 +3,7 @@ package org.ods.e2e.util
 import groovy.json.JsonSlurperClassic
 import kong.unirest.Unirest
 
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class SpecHelper {
@@ -26,7 +27,7 @@ class SpecHelper {
                         println "ERROR: Missing properties in configuration $match[0]"
                         raiseError = true
                     } else {
-                        value = value.replaceAll(Pattern.quote(nameToReplace), valueToReplace)
+                        value = value.replaceAll(Pattern.quote(nameToReplace), Matcher.quoteReplacement(valueToReplace))
                         properties[key] = value
                     }
                 }
