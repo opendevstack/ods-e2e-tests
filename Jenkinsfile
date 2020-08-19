@@ -28,18 +28,14 @@ odsComponentPipeline(
 ) {
     environment {
         OPENSHIFT_PROJECT="${ODS_PROJECT}-cd"
-        CERT_BUNDLE_BASE_PATH='/etc/pki/ca-trust/source/anchors'
+        CERT_BUNDLE_PATH='/etc/pki/ca-trust/source/anchors/ssl_truststore.pem'
         TRUSTSTORE_PATH='build/truststore.jks'
     }
     stage('Set up tests') {
-        withEnv(readProperties(file: "env-${ENV}.properties").collect(key, value -> key + '=' + value) {
-            withEnv("CERT_BUNDLE_PATH=\"${CERT_BUNDLE_BASE_PATH}/${APP_DNS}.pem\"") {
-                sh('update-ca-trust force-enable')
-                sh("openssl s_client -showcerts -host '${APP_DNS}' -port 443 </dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee '${CERT_BUNDLE_PATH}'")
-                sh('update-ca-trust extract')
-                sh("keytool -import -noprompt -trustcacerts -file '${CERT_BUNDLE_PATH}' -alias '${APP_DNS}' -keystore '${TRUSTSTORE_PATH}' -storepass changeit")
-            }
-        }
+        sh('update-ca-trust force-enable')
+        sh("cp certs/ssl_truststore.pem \"${CERT_BUNDLE_PATH}\"")
+        sh('update-ca-trust extract')
+        sh("keytool -import -noprompt -trustcacerts -file \"${CERT_BUNDLE_PATH}\" -alias ssl_truststore -keystore \"${TRUSTSTORE_PATH}\" -storepass changeit")
     }
     stage('Run tests') {
         withEnv(readProperties(file: "env-${ENV}.properties").collect(key, value -> key + '=' + value) {
