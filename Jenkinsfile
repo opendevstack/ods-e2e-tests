@@ -31,7 +31,7 @@ odsComponentPipeline(
         CERT_BUNDLE_PATH='/etc/pki/ca-trust/source/anchors/ssl_truststore.pem'
         TRUSTSTORE_PATH='build/truststore.jks'
     }
-    stage('Set up tests') {
+    stage('Set trust stores up') {
         sh('update-ca-trust force-enable')
         sh("cp certs/ssl_truststore.pem \"${CERT_BUNDLE_PATH}\"")
         sh('update-ca-trust extract')
