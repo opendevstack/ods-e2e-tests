@@ -17,13 +17,17 @@ class BaseSpec extends GebReportingSpec {
     static JavascriptExecutor js
 
     def baseUrlProvisioningApp
+    def provisioningAppProject
+    def provisioningAppDeployCfg
     def baseUrlJira
     def baseUrlBitbucket
+    def baseBranchBitbucket
     def baseUrlJenkins
     def baseUrlOpenshift
     def openshiftPublichost
     def simulate
     def extraLoginPage
+    def quickstartersConfigMap
 
     def setup() {
         driver.manage().window().setSize(new Dimension(1600, 1024))
@@ -32,8 +36,14 @@ class BaseSpec extends GebReportingSpec {
         js = (JavascriptExecutor) driver
         openshiftPublichost = removeLastSlash(applicationProperties."config.openshift.publichost")
         baseUrlProvisioningApp = removeLastSlash(applicationProperties."config.provisioning.url")
+        provisioningAppDeployCfg = applicationProperties."config.provisioning-app.deployCfg"
+        provisioningAppProject = applicationProperties."config.provisioning-app.project"
         baseUrlJira = removeLastSlash(applicationProperties."config.atlassian.jira.url")
         baseUrlBitbucket = removeLastSlash(applicationProperties."config.atlassian.bitbucket.url")
+        baseBranchBitbucket = applicationProperties."config.atlassian.bitbucket.branch"
+        if (!baseBranchBitbucket) {
+            baseBranchBitbucket = null
+        }
         baseUrlJenkins = removeLastSlash(applicationProperties."config.jenkins.url")
         baseUrlOpenshift = removeLastSlash(applicationProperties."config.openshift.url")
         simulate = applicationProperties."config.simulate".toUpperCase() == 'TRUE'
@@ -42,6 +52,10 @@ class BaseSpec extends GebReportingSpec {
 
         extraLoginPage = System.getenv("OCP_LOGIN_SELECTOR_PAGE")?.toUpperCase() == 'TRUE' ?
                 true : false
+        quickstartersConfigMap = applicationProperties."config.openshift.quickstarters.configMap"
+        if (!quickstartersConfigMap) {
+            quickstartersConfigMap = 'quickstarters.properties'
+        }
     }
 
     def removeLastSlash(String str) {
@@ -89,13 +103,15 @@ class BaseSpec extends GebReportingSpec {
      */
     def doJenkinsLoginProcess() {
         via JenkinsLoginPage
-        loginButton.click()
+        if ($("a.btn.btn-lg.btn-primary").size() > 0) {
+            loginButton.click()
+        }
         if (extraLoginPage) {
             at(new JenkinsLoginSelectorPage())
             ldapLink.click()
         }
         at OpenShiftLoginPage
-        doLogin()
+        doJenkinsLogin()
         if ($('input', name: 'approve')) {
             $('input', name: 'approve').click()
         }

@@ -1,14 +1,16 @@
 package org.ods.e2e
 
-
 import org.ods.e2e.bitbucket.pages.DashboardPage
 import org.ods.e2e.bitbucket.pages.LoginPage
 import org.ods.e2e.bitbucket.pages.ProjectPage
 import org.ods.e2e.bitbucket.pages.RepositoryPage
 import org.ods.e2e.jenkins.pages.JenkinsConsoleParametrizedBuildPage
 import org.ods.e2e.jenkins.pages.JenkinsJobFolderPage
+import org.ods.e2e.jenkins.pages.JenkinsLoginPage
+import org.ods.e2e.openshift.client.OpenShiftClient
+import org.ods.e2e.openshift.client.OpenShiftHelper
 import org.ods.e2e.openshift.pages.ConsoleDeploymentsPage
-import org.ods.e2e.openshift.pages.ConsoleProjectsPage
+import org.ods.e2e.openshift.pages.ConsoleResourcesConfigMaps
 import org.ods.e2e.openshift.pages.PodsPage
 import org.ods.e2e.provapp.pages.HomePage
 import org.ods.e2e.provapp.pages.ProvAppLoginPage
@@ -19,6 +21,13 @@ import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
 
 class ODSSpec extends BaseSpec {
+
+    def static OPENDEVSTACK = 'OPENDEVSTACK'
+    def static E2E_TEST_BRANCH = 'e2e-test-branch'
+    def static E2E_TEST_FILE = 'e2e-tests.txt'
+    def static E2E_TEST_QUICKSTARTER = 'e2e-test-quickstarter'
+    def static E2E_TEST_COMPONENT = 'test-component'
+    def static openshifHelper = new OpenShiftHelper()
 
     def static projects = [
             default: [
@@ -79,6 +88,7 @@ class ODSSpec extends BaseSpec {
         println 'Tests setup'
     }
 
+
     /**
      * Test Objective:
      * The purpose of this test case is to present a level of evidences that the use of Provisioning Application,
@@ -103,7 +113,8 @@ class ODSSpec extends BaseSpec {
         // STEP 1: Login to provisioning application with administrator privileges
         //          Result: Login works, within a provisioning and history links
         // -------------------------------------------------------------------------------------------------------------
-        given: 'We are logged in the provissioning app'
+        given: 'We are logged in the provisioning app'
+        def openshifHelper = new OpenShiftHelper()
         def project = projects.default
         baseUrl = baseUrlProvisioningApp
 
@@ -135,7 +146,9 @@ class ODSSpec extends BaseSpec {
         and: 'Get the next key'
         def nextId = getNextId(project.key)
         project.name = String.format("$project.name - %02d", nextId)
-        project.key = String.format("$project.key%02d", nextId)
+        if (!simulate) {
+            project.key = String.format("${project.key}%02d", nextId)
+        }
 
         and: 'We open the project creation form'
         provisionOptionChooser.doSelectCreateNewProject()
@@ -158,7 +171,7 @@ class ODSSpec extends BaseSpec {
             projectCreateForm.doStartProvision()
 
             // wait until project is created
-            waitFor {
+            waitFor('verySlow') {
                 $(".modal-dialog").css("display") != "hidden"
                 $("#resProject.alert-success")
                 $("#resButton").text() == "Close"
@@ -177,7 +190,9 @@ class ODSSpec extends BaseSpec {
         simulate ? true : $("#resProject.alert-success").size() == 1
 
         report("step 4 - project has been created")
-        $("#resButton").click()
+        if (!simulate) {
+            $("#resButton").click()
+        }
 
 
         // -------------------------------------------------------------------------------------------------------------
@@ -199,6 +214,9 @@ class ODSSpec extends BaseSpec {
 
         then: 'We are in the project page'
         currentUrl.endsWith("projects/${project.key}/")
+        if (!simulate) {
+            $("h2.page-panel-content-header")?.text()?.contains('Repositories')
+        }
         report("step 5 - project in bitbucket")
 
         // -------------------------------------------------------------------------------------------------------------
@@ -206,41 +224,19 @@ class ODSSpec extends BaseSpec {
         //          Result: Find a running Jenkins deployment – click on it and verify that the image used comes from the
         //                  CD namespace
         // -------------------------------------------------------------------------------------------------------------
-        when: 'Visit Openshift'
-        baseUrl = baseUrlOpenshift
+        when: 'Check if we have a Jenkins instance running'
+        baseUrl = getJenkinsBaseUrl(project.key)
 
-        and: 'and login in Openshift'
-        doOpenshiftLoginProcess()
-
-        then: "Visit all project page and check for the projects"
-        waitFor('mediumSlow') {
-            to ConsoleProjectsPage
-            findProjects(project.key).size() > 0
-            findProjects(project.key).contains(project.key.toLowerCase() + '-cd')
+        and:
+        waitFor('extremelySlow') {
+            openshifHelper.existsNamespace(project.key.toLowerCase() + '-cd')
         }
-
-
-        when:
-        'Visit pods page'
-        to PodsPage, project.key.toLowerCase() + '-cd'
-        sleep(5000)
 
         then:
-        waitFor('verySlow') {
-            getPods().find { pod ->
-                pod.name.startsWith('jenkins') &&
-                        pod.status == 'Running' &&
-                        !pod.isDeployPod &&
-                        pod.containersReady == '1/1'
-            }
-
-            getPods().find { pod ->
-                pod.name.startsWith('webhook') &&
-                        pod.status == 'Running' &&
-                        !pod.isDeployPod &&
-                        pod.containersReady == '1/1'
-            }
+        waitFor('extremelySlow') {
+            doJenkinsLoginProcess()
         }
+
         report("step 6 - existing jenkins instance for the project")
 
         // -------------------------------------------------------------------------------------------------------------
@@ -324,7 +320,7 @@ class ODSSpec extends BaseSpec {
         baseUrl = getJenkinsBaseUrl(project.key)
 
         and:
-        doJenkinsLoginProcess()
+        to JenkinsLoginPage
 
         then: 'The project folder exists'
         assert $("#job_${project.key.toLowerCase()}-cd")
@@ -334,6 +330,11 @@ class ODSSpec extends BaseSpec {
         to JenkinsJobFolderPage, project.key
 
         and:
+        if (activateAutorefreshLink) {
+            activateAutorefreshLink.click()
+        }
+
+        and:
         project.components.each { component ->
             component.jobs = getComponentJobs(project.key, component.componentId)
         }
@@ -341,11 +342,11 @@ class ODSSpec extends BaseSpec {
         then:
         'The component startup jobs finished succesfully'
         waitFor('verySlow') {
-            project.components.each {
+            project.components.every {
                 component ->
-                    getComponentJobs(project.key, component.componentId).jobs.find {
+                    getComponentJobs(project.key, component.componentId).find {
                         job -> job.value.odsStartupComponentJob && job.value.success
-                    }
+                    } != null
             }
         }
 
@@ -367,15 +368,269 @@ class ODSSpec extends BaseSpec {
         and:
         'Checks that exists jobs that are not qs startup jobs for the components'
         waitFor('verySlow') {
-            project.components.each {
+            project.components.every {
                 component ->
-                    getComponentJobs(project.key, component.componentId).jobs.find {
+                    getComponentJobs(project.key, component.componentId).find {
                         job -> !job.value.odsStartupComponentJob && job.value.success
-                    }
+                    } != null
             }
         }
 
         report("step 12 - build job of the component")
+    }
+
+    /**
+     * Test Objective: To provide evidences that a new boilerplate software updates can be easily added to ODS,
+     * and be available for use.
+     *
+     * Prerequisites: Be logged in as Provisioning Application administrator, have a OpenShift project, have access
+     * to the console/terminal logs of Jenkins, Nexus and SonarQube and have administrator access to the Bitbucket
+     * repositories including the OpenDevStack one.
+     */
+    def "FT_01_002"() {
+        // STEP 1: Go to Bitbucket ODS project – into repository ods-quickstarters
+        //         Result: Project and repository available
+        given:
+        baseUrl = baseUrlBitbucket
+
+        when:
+        to LoginPage
+
+        and: 'we do login'
+        doLogin()
+
+        then: 'we are at the Dashboard'
+        at DashboardPage
+
+        when: 'Visit project'
+        to RepositoryPage, OPENDEVSTACK, 'ods-quickstarters'
+
+        then: 'Project and repository available'
+        currentUrl.endsWith('OPENDEVSTACK/repos/ods-quickstarters/browse')
+        report('step 1 - Project and repository available')
+
+        // STEP 2: Pick one quickstarter repository and create a branch from master – add, and commit a file into /files
+        //         Result: Repository with master branch found, branch modified and committed/pushed
+        when: 'Checkout project'
+        def quickstarter = 'fe-angular'
+        def gitRepository = GitUtil.cloneRepository(OPENDEVSTACK, 'ods-quickstarters', baseBranchBitbucket, false)
+
+        and: 'Create a branch'
+        GitUtil.checkout(gitRepository, E2E_TEST_BRANCH, true)
+
+        and: 'Add a file into /files'
+        def directory = gitRepository.repository.getWorkTree()
+        def filesPath = "$quickstarter/files".toString()
+        def testFilePath = "$filesPath/$E2E_TEST_FILE"
+        new File("$directory/$testFilePath").text = 'Test file for FT_01_002'
+
+        and: 'Commit and push file'
+        GitUtil.add(gitRepository, testFilePath)
+        GitUtil.commitAddAll(gitRepository, 'Added test file')
+        GitUtil.push(gitRepository)
+
+        then: 'Push successful if no exception'
+        true
+        report("step 2 - Repository with master branch found, branch modified and committed/pushed.")
+
+        // STEP 3: Go to Openshift prov-test project and open available config maps
+        //         Result: Configuration maps available – namely application.properties
+        when: 'Visit Openshift'
+        baseUrl = baseUrlOpenshift
+
+        and: 'and login in Openshift'
+        doOpenshiftLoginProcess()
+
+        and: 'Visit the config maps of the provisioning application'
+        to ConsoleResourcesConfigMaps, provisioningAppProject
+
+        and: 'Retrieve the configMaps'
+        def configMaps = getConfigMaps()
+
+        then:
+        configMaps.findAll { configMap -> configMap.name == quickstartersConfigMap }.size() == 1
+        report("step 3 - Configuration maps available – namely application.properties")
+
+        // STEP 4: In the application.properties config map copy the configuration lines from the quickstarter
+        //         you pick from the step 2
+        //         Result: Existing Quickstarter / boilerplace configuration available
+
+        when: 'Read configMap'
+        def client = OpenShiftClient.connect(provisioningAppProject)
+        def configMap = client.getConfigMap(quickstartersConfigMap)
+        def configMapData = configMap.getData()
+
+        and: 'Read the properties'
+        def propertyFile = configMapData.properties
+        def propertyBackup = propertyFile
+        def properties = new Properties()
+        properties.load(new StringReader(propertyFile))
+
+        and: 'Obtain existing properties'
+        def tmpProps = properties.findAll {
+            key, value ->
+                key.startsWith("jenkinspipeline.quickstarter.$quickstarter.")
+        }
+
+        then:
+        !tmpProps.isEmpty()
+        report("step 4 - Existing Quickstarter / boilerplace configuration available")
+
+        // STEP 5: Replace the key with a name of your choice and add the branch identifier and Jenkins file path as
+        //         documented in the application.properties – click save
+        //         Result: Config map can be saved
+
+        when: 'Add quickstarter properties'
+        tmpProps = tmpProps.collectEntries {
+            key, value ->
+                def concreteProperty = key.substring("jenkinspipeline.quickstarter.$quickstarter.".length())
+                def newKey = "jenkinspipeline.quickstarter.${E2E_TEST_QUICKSTARTER}.${concreteProperty}".toString()
+                [(newKey): value]
+        }
+        properties.putAll(tmpProps)
+        properties.setProperty("jenkinspipeline.quickstarter.${E2E_TEST_QUICKSTARTER}.branch".toString(), E2E_TEST_BRANCH)
+        properties.setProperty("jenkinspipeline.quickstarter.${E2E_TEST_QUICKSTARTER}.jenkinsfile".toString(),
+                "$quickstarter/Jenkinsfile".toString())
+
+        and: 'Update config map'
+        def sw = new StringWriter()
+        properties.store(sw, null)
+        propertyFile = sw.toString()
+        configMapData.properties = propertyFile
+        client.modifyConfigMap(configMap, configMapData)
+
+        and: 'Save modified config map'
+        configMap = client.update(configMap)
+
+        and: 'Retrieve the config map again'
+        configMapData = configMap.getData()
+        def newContent = configMapData.get('properties')
+
+        then: 'We correctly retrieve the updated data'
+        newContent == propertyFile
+        report("step 5 - Config map can be saved")
+
+        // STEP 6: From the console or thru OC cli - redeploy the provision application in prov-test
+        //         Result: New deployment of provision app shown in console and new pod available
+
+        when: 'Get deployments'
+        def lastVersion = client.getLastDeploymentVersion(provisioningAppDeployCfg)
+
+        and: 'Redeploy the provisioning app'
+        client.deploy(provisioningAppDeployCfg)
+
+        and: 'Wait for deployment'
+        def newVersion = client.waitForDeployment(provisioningAppDeployCfg, lastVersion)
+        baseUrl = baseUrlProvisioningApp
+        waitFor('verySlow') {
+            to ProvAppLoginPage
+        }
+
+        then: 'New deployment exists'
+        newVersion > lastVersion
+        report("step 6 - New deployment of provision app shown in console and new pod available.")
+
+        // STEP 7: Login and pick modify existing project / and locate the new quickstarter
+        //         Result: New quickstarter available in the list in provision application
+
+        when: 'We are logged in the provissioning app'
+        doLoginProcess()
+
+        and: 'We are in the provisioning page'
+        def project = projects.default
+        to ProvisionPage
+
+        and: 'We have selected modify project'
+        provisionOptionChooser.doSelectModifyProject()
+        projectModifyForm.doSelectProject(project.key)
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 8: Click on the Quickstarter dropdown list and select a boilerplate “Frontend implemented with Vue JS”
+        //          Result: The component ID is listed: fe-vue
+        // -------------------------------------------------------------------------------------------------------------
+        and:
+        projectModifyForm.doAddQuickStarter(E2E_TEST_QUICKSTARTER, E2E_TEST_COMPONENT)
+        projectModifyForm.addQuickStarterButton.click()
+        report("step 8 - add quickstarter")
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 9: Click on Start Provision
+        //          Result: Message the provision is in progress.
+        //                  Another message (screen) appears with the links of:
+        //                  Jenkins, Bitbucket, Project link, Provisioning jobs, and others.
+        // -------------------------------------------------------------------------------------------------------------
+        and:
+        if (!simulate) {
+            projectModifyForm.doStartProvision()
+            sleep(15000)
+            waitFor('extremelySlow') {
+                $(".modal-dialog").css("display") != "hidden"
+                $("#resProject.alert-success")
+                $("#resButton").text() == "Close"
+            }
+            report('Status after Quickstarters Addition')
+        }
+
+        then: 'Quickstarter was added'
+        simulate ? true : $("#resProject.alert-success")
+        report("step 9 - quick starter provisioned")
+
+        // -------------------------------------------------------------------------------------------------------------
+        // STEP 10: Go to your project’s Jenkins and locate the provision job of the component
+        // with the name you provided.
+        //          Result: Instance can be found and green (successful)
+        // -------------------------------------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------------------------------------
+        // We first need to check that the Jenkins jobs had finalized properly for the release manager
+        // Before continuing with the steps of the test
+        // -------------------------------------------------------------------------------------------------------------
+        when: 'visit Jenkins'
+        baseUrl = getJenkinsBaseUrl(project.key)
+
+        and:
+        doJenkinsLoginProcess()
+
+        then: 'The project folder exists'
+        assert $("#job_${project.key.toLowerCase()}-cd")
+
+        when: 'Retrieve the jobs related with the Release Manager deploy'
+        to JenkinsJobFolderPage, project.key
+        if (activateAutorefreshLink) {
+            activateAutorefreshLink.click()
+        }
+
+        then: 'The component startup job finished succesfully'
+        waitFor('verySlow') {
+            getComponentJobs(project.key, E2E_TEST_COMPONENT).find {
+                job -> job.value.odsStartupComponentJob && job.value.success
+            }
+        }
+        report("step 10 - provision job of the component")
+
+        // STEP 11: Go to bitbucket, locate the new repository and locate the file added in step 2
+        //         Result: Repository and file available
+
+        when: 'Grab evidences of adding files from bitbucket'
+        gitRepository = GitUtil.cloneRepository(project.key, E2E_TEST_COMPONENT, baseBranchBitbucket)
+        directory = gitRepository.repository.getWorkTree()
+        testFilePath = E2E_TEST_FILE
+
+        then: 'Test file exists'
+        new File("$directory/$testFilePath").text == 'Test file for FT_01_002'
+        report("step 11 - Repository and file available.")
+
+        cleanup: 'Restore original contents of the config map'
+        configMapData.put('properties', propertyBackup)
+        client.modifyConfigMap(configMap, configMapData)
+        client.update(configMap)
+        client.deploy(provisioningAppDeployCfg)
+        GitUtil.deleteBranch(gitRepository, E2E_TEST_BRANCH, true)
+        client.waitForDeployment(provisioningAppDeployCfg, newVersion)
+        baseUrl = baseUrlProvisioningApp
+        waitFor('verySlow') {
+            to ProvAppLoginPage
+        }
+
     }
 
     /**
@@ -499,11 +754,15 @@ class ODSSpec extends BaseSpec {
             }
         }
 
-        and: 'Wait if the job is still running'
+
+        // After adding the new component some changes are introduced to the configuration of the jenkins pod
+        // so the pod is restarted.
+        and: 'Wait if the job is still running or jenkins is still running'
         waitFor('verySlow') {
-            getComponentJobs(project.key, releaseManagerComponent.componentId).find {
-                job -> job.value.odsStartupComponentJob && job.value.success
-            }
+            $("body > div >h1").text()?.toLowerCase()?.contains('application is not available') != null ||
+                    getComponentJobs(project.key, releaseManagerComponent.componentId).find {
+                        job -> job.value.odsStartupComponentJob && job.value.success
+                    } != null
         }
 
         // -------------------------------------------------------------------------------------------------------------
@@ -543,7 +802,8 @@ class ODSSpec extends BaseSpec {
         //          Result: Repository cloned, metadata.yml is available
         // -------------------------------------------------------------------------------------------------------------
         when:
-        def repositoryFolder = GitUtil.cloneRepository(projects.default.key, releaseManagerComponent.componentId)
+        def gitRepository = GitUtil.cloneRepository(projects.default.key, releaseManagerComponent.componentId)
+        def repositoryFolder = gitRepository.repository.getWorkTree()
 
         and:
         DumperOptions options = new DumperOptions()
@@ -580,24 +840,34 @@ class ODSSpec extends BaseSpec {
             metadataRepositories = metadataYml.getAt('repositories')
         }
         def component = project.components.first()
-        metadataRepositories.putAt(metadataRepositories.size, [
-                id  : component.componentId.toLowerCase(),
-                name: "$project.key-$component.componentId".toLowerCase(), type: 'ods'])
+        if (metadataRepositories.size() == 0 || metadataRepositories.findAll { it -> it.id == component.componentId.toLowerCase() }.size() == 0) {
+            metadataRepositories.putAt(metadataRepositories.size, [
+                    id  : component.componentId.toLowerCase(),
+                    name: "$project.key-$component.componentId".toLowerCase(), type: 'ods'])
+        }
+
 
         and: 'Save metada.yml'
         parser.dump(metadataYml, new FileWriter("$repositoryFolder/metadata.yml"))
 
         and: 'Commit the file'
-        GitUtil.commitAddAll('New component added')
+        GitUtil.commitAddAll(gitRepository, 'New component added')
 
         and: 'Push it to the repository'
-        GitUtil.push('origin')
+        GitUtil.push(gitRepository, 'origin')
 
         // -------------------------------------------------------------------------------------------------------------
         //       3.2 Trigger Jenkins build of the release manager.
         // -------------------------------------------------------------------------------------------------------------
-        and:
+        and: 'Go to jenkins'
         baseUrl = getJenkinsBaseUrl(project.key)
+
+        and: 'Login again in jenkins as it has been rebooted'
+        if ($("body > div >h1").text()?.toLowerCase()?.contains('application is not available') != null) {
+            waitFor('extremelySlow') {
+                doJenkinsLoginProcess()
+            }
+        }
 
         def parameters = [environment: 'dev', version: 'WIP',]
         to JenkinsConsoleParametrizedBuildPage, project.key, releaseManagerPipelineJob

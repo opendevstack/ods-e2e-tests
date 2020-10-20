@@ -20,4 +20,11 @@ class OpenShiftLoginPage extends Page {
         loginButton.click()
         sleep(3000)
     }
+
+    def doJenkinsLogin() {
+        username.value(applicationProperties."config.jenkins.user.name")
+        password.value(applicationProperties."config.jenkins.user.password")
+        loginButton.click()
+        sleep(3000)
+    }
 }

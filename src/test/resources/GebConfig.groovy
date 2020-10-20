@@ -22,7 +22,7 @@ waiting {
     presets {
         extremelySlow {
             timeout = 3600
-            retryInterval = 2
+            retryInterval = 5
         }
          verySlow {
             timeout = 600
