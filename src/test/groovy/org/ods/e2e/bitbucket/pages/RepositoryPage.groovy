@@ -25,7 +25,7 @@ class RepositoryPage extends Page {
                 repository = entry
             } else {
                 if (entry instanceof String) {
-                    file += file + "/$entry"
+                    file += "/$entry"
                 } else if (entry instanceof LinkedHashMap) {
                     entry.each { it ->
                         params += "$it.key=$it.value"

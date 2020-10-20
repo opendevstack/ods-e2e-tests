@@ -4,7 +4,7 @@ import geb.Page
 
 class JenkinsConsoleParametrizedBuildPage extends Page {
 
-    static url = '/job/'
+    static url = '/job'
     /**
      * Adapt the url to get to the jenkins job/jobfolder page
      *     https://jenkins-url/job/$project$-cd/job/$job$/build?delay=0sec
