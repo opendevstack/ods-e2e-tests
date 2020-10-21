@@ -28,6 +28,7 @@ class BaseSpec extends GebReportingSpec {
     def simulate
     def extraLoginPage
     def quickstartersConfigMap
+    def additionalTemplatesConfigMap
 
     def setup() {
         driver.manage().window().setSize(new Dimension(1600, 1024))
@@ -55,6 +56,10 @@ class BaseSpec extends GebReportingSpec {
         quickstartersConfigMap = applicationProperties."config.openshift.quickstarters.configMap"
         if (!quickstartersConfigMap) {
             quickstartersConfigMap = 'quickstarters.properties'
+        }
+        additionalTemplatesConfigMap = applicationProperties."config.openshift.additionalTemplates.configMap"
+        if(!additionalTemplatesConfigMap) {
+            additionalTemplatesConfigMap = 'additional-templates.properties'
         }
     }
 
