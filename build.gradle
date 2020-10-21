@@ -14,10 +14,10 @@ ext {
     gebVersion = '3.4'
     unirestVersion = "3.7.02"
     seleniumVersion = '3.141.59'
-    chromeDriverVersion = '83.0.4103.39'
+    chromeDriverVersion = '86.0.4240.22'
     geckoDriverVersion = '0.26.0'
     htmlunitVersion = "2.36.0"
-    openshiftClientVersion = '9.0.0.Final'
+    openshiftClientVersion = '9.0.1.Final'
 
     // Environment variable needed to run the tests
     dotEnvFile = './.env'
@@ -29,6 +29,7 @@ ext {
             PROV_APP_PASSWORD     : '',
             BITBUCKET_BASE_BRANCH   : '',
             QUICKSTARTERS_CONFIGMAP : '',
+            ADDITIONAL_TEMPLATES_CONFIGMAP : '',
             ATLASSIAN_USER        : '',
             ATLASSIAN_PASSWORD    : '',
             JENKINS_USER          : '',

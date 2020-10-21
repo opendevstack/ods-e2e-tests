@@ -21,6 +21,7 @@ class ProjectCreateFormModule extends Module {
         projectSpecialPermissionSetCheckbox(wait:true, required: true) { $("#specialPermissionSet") }
         projectAdminUser(wait:true, required: true) { $("#projectAdminUser") }
         projectAdminGroup(wait:true, required: true) { $("#projectAdminGroup") }
+        projectUserGroup(wait:true, required: true) { $("#projectUserGroup") }
         projectReadonlyGroup(wait:true, required: true) { $("#projectReadonlyGroup") }
         bugtrackerSpace(wait:true, required: true) { $("#bugtrackerSpace") }
         platformRuntime(wait:true, required: true) { $("#platformRuntime") }

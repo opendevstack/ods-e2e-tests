@@ -11,6 +11,8 @@ You need to set several environment variables in order to make this work, as it 
 
 | Variable               | Value                            | Description                                                                  |
 |------------------------|----------------------------------|----------------------------------------------------------------------------- |
+| PROV_APP_PROJECT       | ods                              | OpenShift project where the provisioning app is deployed                     |
+| PROV_APP_DEPLOY_CFG    | ods-provisioning-app             | Name of the deployment config of the provisioning app in ${PROV_APP_PROJECT} |
 | PROV_APP_USER          | openshift                        | Provisioning app user name                                                   |
 | PROV_APP_PASSWORD      | openshift                        | Provisioning app password                                                    |
 | ATLASSIAN_USER         | openshift                        | Atlassian user name                                                          |
@@ -32,6 +34,7 @@ You need to set several environment variables in order to make this work, as it 
 | NEXUS_PASSWORD         | openshift                        | The nexus password                                                                                               |
 | BITBUCKET_BASE_BRANCH  | master                           | The branck used as base branch for the QS(useful when you are testing the box)|
 | QUICKSTARTERS_CONFIGMAP| quickstarters.properties         | The configmap name where the qs of the provisioning app gets its configuration|
+|ADDITIONAL_TEMPLATES_CONFIGMAP|additional-templates.properties|Name of the configmap in ${PROV_APP_PROJECT} with the configuration of additional project templates, such as the EDP project template|
 | OPENSHIFT_TOKEN        | the_token                        | Token to login in Openshift to be use instead of the openshift user for specific tasks |
 
 ### Environment variables setup
