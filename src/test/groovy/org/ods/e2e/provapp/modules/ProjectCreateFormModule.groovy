@@ -9,7 +9,7 @@ class ProjectCreateFormModule extends Module {
 
     static projectTypes = [default: 'default',
                            kanban : 'kanban',
-                           edp    : 'EDP-project-template']
+                           edp    : 'EDProject']
     static content = {
         createForm(wait:true, required: true) { $("#createProject") }
         projectName(wait:true, required: true) { $("#projectName") }
