@@ -82,6 +82,21 @@ class GitUtil {
     }
 
     /**
+     * Push tags to a repository
+     * @param gitRepository The git repository
+     * @param remote The remote repository
+     * @return
+     */
+    static pushTag(gitRepository, remote = 'origin') {
+        gitRepository.push()
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
+                .setRemote(remote)
+                .setPushTags()
+                .setForce(true)
+                .call()
+    }
+
+    /**
      * Checkout an specific branch.
      * @param gitRepository The git repository.
      * @param branch The branch name.
@@ -113,5 +128,30 @@ class GitUtil {
             branches << 'origin/' + branch
         }
         gitRepository.branchDelete().setBranchNames(branches as String[]).call()
+    }
+
+    /**
+     * Delete tag.
+     * @param gitRepository The repository.
+     * @param tag The tag.
+     * @param remote delete remote.
+     */
+    static deleteTag(Git gitRepository, tag, remote = true) {
+        def tags = [tag]
+        if (remote) {
+            tags << 'origin/' + tag
+        }
+
+        gitRepository.tagDelete().setTags(tags as String[]).call()
+    }
+
+    /**
+     * Create tag.
+     * @param gitRepository The repository.
+     * @param tag The tag.
+     * @param message Tmessage.
+     */
+    static createTag(Git gitRepository, tag, message) {
+        gitRepository.tag().setName(tag).setMessage(message).call()
     }
 }
