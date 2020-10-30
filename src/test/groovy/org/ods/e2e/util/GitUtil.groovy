@@ -1,6 +1,7 @@
 package org.ods.e2e.util
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import javax.net.ssl.X509TrustManager
@@ -153,5 +154,20 @@ class GitUtil {
      */
     static createTag(Git gitRepository, tag, message) {
         gitRepository.tag().setName(tag).setMessage(message).call()
+    }
+
+    /**
+     * Get tags.
+     * @param gitRepository The repository.
+     * @return the Tags
+     */
+    static getTags(Git gitRepository) {
+        List<Ref> call = gitRepository.tagList().call()
+        def tags = []
+        for (Ref ref : call) {
+            println("Tag: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName())
+            tags << ref.getName()
+        }
+        return tags
     }
 }
