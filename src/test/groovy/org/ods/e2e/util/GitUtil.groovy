@@ -150,7 +150,7 @@ class GitUtil {
      * Create tag.
      * @param gitRepository The repository.
      * @param tag The tag.
-     * @param message Tmessage.
+     * @param message The message.
      */
     static createTag(Git gitRepository, tag, message) {
         gitRepository.tag().setName(tag).setMessage(message).call()
