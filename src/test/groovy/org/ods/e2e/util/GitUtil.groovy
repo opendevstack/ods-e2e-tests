@@ -1,7 +1,8 @@
 package org.ods.e2e.util
 
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import javax.net.ssl.X509TrustManager
@@ -162,7 +163,25 @@ class GitUtil {
      * @return the Tags
      */
     static getTags(Git gitRepository) {
+        final RevWalk walk = new RevWalk(gitRepository.repository)
         List<Ref> call = gitRepository.tagList().call()
+
+        // Order tags by date (older > newer)
+        Collections.sort(call, new Comparator<Ref>() {
+            int compare(Ref o1, Ref o2) {
+                java.util.Date d1 = null;
+                java.util.Date d2 = null;
+                try {
+                    d1 = walk.parseTag(o1.getObjectId()).getTaggerIdent().getWhen();
+                    d2 = walk.parseTag(o2.getObjectId()).getTaggerIdent().getWhen();
+
+                } catch (IOException e) {
+                    println "Error: ${e.message}"
+                }
+                return d1.compareTo(d2);
+            }
+        })
+
         def tags = []
         for (Ref ref : call) {
             println("Tag: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName())
