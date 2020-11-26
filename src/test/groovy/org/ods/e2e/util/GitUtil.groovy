@@ -1,6 +1,8 @@
 package org.ods.e2e.util
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 import javax.net.ssl.X509TrustManager
@@ -82,6 +84,21 @@ class GitUtil {
     }
 
     /**
+     * Push tags to a repository
+     * @param gitRepository The git repository
+     * @param remote The remote repository
+     * @return
+     */
+    static pushTag(gitRepository, remote = 'origin') {
+        gitRepository.push()
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
+                .setRemote(remote)
+                .setPushTags()
+                .setForce(true)
+                .call()
+    }
+
+    /**
      * Checkout an specific branch.
      * @param gitRepository The git repository.
      * @param branch The branch name.
@@ -113,5 +130,63 @@ class GitUtil {
             branches << 'origin/' + branch
         }
         gitRepository.branchDelete().setBranchNames(branches as String[]).call()
+    }
+
+    /**
+     * Delete tag.
+     * @param gitRepository The repository.
+     * @param tag The tag.
+     * @param remote delete remote.
+     */
+    static deleteTag(Git gitRepository, tag, remote = true) {
+        def tags = [tag]
+        if (remote) {
+            tags << 'origin/' + tag
+        }
+
+        gitRepository.tagDelete().setTags(tags as String[]).call()
+    }
+
+    /**
+     * Create tag.
+     * @param gitRepository The repository.
+     * @param tag The tag.
+     * @param message The message.
+     */
+    static createTag(Git gitRepository, tag, message) {
+        gitRepository.tag().setName(tag).setMessage(message).call()
+    }
+
+    /**
+     * Get tags.
+     * @param gitRepository The repository.
+     * @return the Tags
+     */
+    static getTags(Git gitRepository) {
+        final RevWalk walk = new RevWalk(gitRepository.repository)
+        List<Ref> call = gitRepository.tagList().call()
+
+        // Order tags by date (older > newer)
+        Collections.sort(call, new Comparator<Ref>() {
+            int compare(Ref o1, Ref o2) {
+                java.util.Date d1 = null;
+                java.util.Date d2 = null;
+                try {
+                    d1 = walk.parseTag(o1.getObjectId()).getTaggerIdent().getWhen();
+                    d2 = walk.parseTag(o2.getObjectId()).getTaggerIdent().getWhen();
+
+                } catch (IOException e) {
+                    println "Error: ${e.message}"
+                }
+                return d1.compareTo(d2);
+            }
+        })
+
+        def tags = []
+        for (Ref ref : call) {
+            println("Tag: " + ref + " " + ref.getName() + " " + ref.getObjectId().getName())
+            tags << ref.getName()
+        }
+        return tags
     }
 }
