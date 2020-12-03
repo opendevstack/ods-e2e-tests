@@ -21,9 +21,9 @@ class JenkinsJobConfigurePage extends JenkinsJobFolderPage {
 
     static content = {
         paramsTable(required: true) { $("#main-panel > div > div > div > form > table > tbody > tr:nth-child(72) > td:nth-child(2)") }
-        saveButton(required: true) { $("#yui-gen45-button") }
-        addParameter(required: true) { $("#yui-gen19-button") }
-        addStringParameter(required: false) { $("#yui-gen57 > a")}
+        saveButton(required: true) { $("button", text:'Save') }
+        addParameter(required: true) { $("button", text: 'Add Parameter') }
+        addStringParameter(required: false) { $("a", text: 'String Parameter')}
     }
 
     def existParam(paramName) {
@@ -53,7 +53,15 @@ class JenkinsJobConfigurePage extends JenkinsJobFolderPage {
         sleep(1000)
         addParameter.click()
         sleep(1000)
+
         addStringParameter.click()
+        sleep(1000)
+
+        // Set values in new fields
+        def paramInputs = $("td.setting-main > input")
+        paramInputs[paramInputs.size()-19].value(paramName)
+        paramInputs[paramInputs.size()-18].value(value)
+        sleep(1000)
     }
 
     def setRePromoteValue(value) {
