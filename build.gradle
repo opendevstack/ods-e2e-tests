@@ -1,9 +1,22 @@
 plugins {
+    id "maven"
     id "idea"
     id "groovy"
     id "com.github.erdi.webdriver-binaries" version "2.2"
     id "com.github.erdi.idea-base" version "2.2"
     id 'com.adarshr.test-logger' version "2.0.0"
+}
+
+group="org.ods.e2e"
+version="1.0.0"
+
+// Create JAR with test fixtures
+task testJar(type: Jar, dependsOn: testClasses) {
+    from sourceSets.test.output
+}
+
+artifacts {
+    archives testJar
 }
 
 ext {
@@ -56,6 +69,7 @@ ext {
 }
 
 repositories {
+    mavenLocal()
     if (environmentVariables.NO_NEXUS) {
         println("using repositories 'jcenter' and 'mavenCentral', because property no_nexus=$environmentVariables.NO_NEXUS")
         jcenter()
