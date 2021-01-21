@@ -24,6 +24,11 @@ testChrome: checkPreconditions
 	./gradlew chromeTest --tests "org.ods.e2e.ODSSpec"
 .PHONY: testChrome
 
+
+generateLocalLibrary:
+	./gradlew clean install
+.PHONY: generateLocalLibrary
+
 ### Default goal, information
 help:
 	@ echo 'Usage'
