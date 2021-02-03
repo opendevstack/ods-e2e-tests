@@ -24,12 +24,12 @@ testChrome: checkPreconditions
 	./gradlew chromeTest --tests "org.ods.e2e.ODSSpec"
 .PHONY: testChrome
 
-
+### Install generate artifact in the local maven repository
 generateLocalLibrary:
 	./gradlew clean install
 .PHONY: generateLocalLibrary
 
-### Default goal, information
+### Defau                       lt goal, information
 help:
 	@ echo 'Usage'
 	@ echo '  make <target>'
