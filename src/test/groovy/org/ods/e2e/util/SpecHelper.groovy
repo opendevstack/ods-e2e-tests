@@ -13,7 +13,7 @@ class SpecHelper {
     public Properties getApplicationProperties() {
 
         if (properties == null) {
-            return initProperties()
+            properties = initProperties()
         }
 
         return properties
@@ -47,8 +47,6 @@ class SpecHelper {
         if (raiseError) {
             throw IllegalStateException("ERROR: Missing properties in configuration $match[0]")
         }
-
-        this.properties = properties
 
         return properties
     }
