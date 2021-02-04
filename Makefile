@@ -29,7 +29,7 @@ generateLocalLibrary:
 	./gradlew clean install
 .PHONY: generateLocalLibrary
 
-### Defau                       lt goal, information
+### Default goal, information
 help:
 	@ echo 'Usage'
 	@ echo '  make <target>'
