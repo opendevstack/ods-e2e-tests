@@ -8,7 +8,18 @@ import java.util.regex.Pattern
 
 class SpecHelper {
 
+    static Properties properties
+
     public Properties getApplicationProperties() {
+
+        if (properties == null) {
+            properties = initProperties()
+        }
+
+        return properties
+    }
+
+    private Properties initProperties() {
         def env = System.getenv()
 
         def properties = new Properties()
@@ -122,5 +133,17 @@ class SpecHelper {
 
     public String getTransitionId(String issueKey, String name) {
         return getTransitionId(getJiraTransitionsMetadata(issueKey), name)
+    }
+
+    public String getUser() {
+        return getApplicationProperties()."config.atlassian.user.name"
+    }
+
+    public String getPassword() {
+        return getApplicationProperties()."config.atlassian.user.password"
+    }
+
+    public String getBaseURL() {
+        return getApplicationProperties()."config.atlassian.jira.url"
     }
 }
