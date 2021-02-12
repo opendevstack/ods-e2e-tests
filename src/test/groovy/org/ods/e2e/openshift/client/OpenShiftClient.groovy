@@ -96,7 +96,7 @@ class OpenShiftClient {
         return client.<IDeploymentConfig> get(ResourceKind.DEPLOYMENT_CONFIG, name, project)
     }
 
-    def waitForDeployment(name, lastVersion) {
+    def waitForDeployment(name, lastVersion = 0) {
         return waitForDeployment(name, lastVersion, project)
     }
 
@@ -104,8 +104,9 @@ class OpenShiftClient {
         def listener = new IOpenShiftWatchListener.OpenShiftWatchListenerAdapter() {
             private CountDownLatch latch = new CountDownLatch(1)
             private int newVersion = 0
-            private boolean deleted = false
+            private boolean deleted = lastVersion == 0
             private boolean ready = false
+            private boolean healthy = false
 
             @Override
             void received(IResource resource, IOpenShiftWatchListener.ChangeType change) {
@@ -117,6 +118,7 @@ class OpenShiftClient {
                             if (version > newVersion) {
                                 newVersion = version
                                 ready = resource.isReady()
+                                healthy = resource.isHealthy()
                             }
                             break
                         case IOpenShiftWatchListener.ChangeType.DELETED:
@@ -127,11 +129,12 @@ class OpenShiftClient {
                         case IOpenShiftWatchListener.ChangeType.MODIFIED:
                             if (version == newVersion) {
                                 ready = resource.isReady()
+                                healthy = resource.isHealthy()
                             }
                             break
                     }
                 }
-                if (deleted && ready && newVersion > lastVersion) {
+                if (deleted && ready && healthy && newVersion > lastVersion) {
                     latch.countDown()
                 }
             }
@@ -147,7 +150,7 @@ class OpenShiftClient {
         def completed
         def watcher = client.watch(project, listener, ResourceKind.POD)
         try {
-            completed = listener.await(5, TimeUnit.MINUTES)
+            completed = listener.await(10, TimeUnit.MINUTES)
         } finally {
             watcher.stop()
         }

@@ -1,6 +1,7 @@
 package org.ods.e2e.provapp.util
 
 import groovy.json.JsonOutput
+import groovyjarjarcommonscli.MissingArgumentException
 import kong.unirest.Unirest
 import org.ods.e2e.util.SpecHelper
 
@@ -28,7 +29,7 @@ class ProvAppClient {
      * @throws RuntimeException if there was an error validating the name.
      */
     def validateProject(projectName) {
-        if(!projectName) {
+        if (!projectName) {
             throw new NullPointerException('You need to specify the project name')
         }
         def url = "${baseProjectURL}/validate?projectName=${projectName}"
@@ -37,7 +38,7 @@ class ProvAppClient {
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .asString()
-        if(rs.getStatus() == NOT_ACCEPTABLE) {
+        if (rs.getStatus() == NOT_ACCEPTABLE) {
             return false
         }
         rs.ifFailure {
@@ -55,7 +56,7 @@ class ProvAppClient {
      * @throws RuntimeException if there was an error validating the key.
      */
     def validateKey(projectKey) {
-        if(!projectKey) {
+        if (!projectKey) {
             throw new NullPointerException('You need to specify the project key')
         }
         def url = "${baseProjectURL}/key/validate?projectKey=${projectKey}"
@@ -64,7 +65,7 @@ class ProvAppClient {
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .asString()
-        if(rs.getStatus() == NOT_ACCEPTABLE) {
+        if (rs.getStatus() == NOT_ACCEPTABLE) {
             return false
         }
         rs.ifFailure {
@@ -83,7 +84,7 @@ class ProvAppClient {
      * @throws RuntimeException if there was an error generating the key.
      */
     def generateKey(name) {
-        if(!name) {
+        if (!name) {
             throw new NullPointerException('You need to specify the project name')
         }
         def url = "${baseProjectURL}/key/generate?name=${name}"
@@ -127,20 +128,20 @@ class ProvAppClient {
      * @throws IllegalArgumentException if either the name or the key for the project already exist.
      */
     def createProject(args) {
-        if(!args || !args.projectName) {
+        if (!args || !args.projectName) {
             throw new NullPointerException('You need to specify at least a project name')
         }
-        if(!validateProject(args.projectName)) {
+        if (!validateProject(args.projectName)) {
             throw new AlreadyExistsException("The project name already exists: ${args.projectName}")
         }
-        if(!args.projectKey) {
+        if (!args.projectKey) {
             args.projectKey = generateKey(args.projectName)
         }
-        if(!validateKey(args.projectKey)) {
+        if (!validateKey(args.projectKey)) {
             throw new AlreadyExistsException("The project key aleady exists: ${args.projectKey}")
         }
         def url = baseProjectURL
-        if(args.onllyCheckPreconditions) {
+        if (args.onllyCheckPreconditions) {
             url = "${url}?onlyCheckPreconditions=TRUE"
         }
         Unirest.config().verifySsl(false);
@@ -151,7 +152,9 @@ class ProvAppClient {
                 .body(JsonOutput.toJson(args))
                 .asJson()
         rs.ifFailure {
-            throw new RuntimeException("Error creating project with name ${args.projectName} and key ${args.projectKey}.\nResponse status: ${rs.status} ${rs.statusText}.\nResponse body: ${rs.body.toPrettyString()}")
+            def error = rs.body ? rs.body.toPrettyString() : rs.parsingError?.value?.originalBody
+            throw new RuntimeException("Error creating project with name ${args.projectName} and key ${args.projectKey}." +
+                    "\nResponse status: ${rs.status} ${rs.statusText}.\nResponse body: $error")
         }
         return rs.body.object.toMap()
     }
@@ -186,25 +189,51 @@ class ProvAppClient {
      * @throws RuntimeException if it wasn't possible to generate unique key and name values for the project.
      */
     def createRandomProject(args) {
-        if(!args) {
+        if (!args) {
             args = [:]
         }
-        if(!args.projectName) {
+        if (!args.projectName) {
             args.projectName = DEFAULT_PROJECT_NAME_PREFIX
         }
         args.projectName = args.projectName.trim()
-        for(int i = 0; i < RETRIES; i++) {
+        for (int i = 0; i < RETRIES; i++) {
             def id = generateRndId()
             args.projectName += id
-            if(args.projectKey) {
+            if (args.projectKey) {
                 args.projectKey += id
             }
             try {
                 return createProject(args)
-            } catch(AlreadyExistsException e) {
+            } catch (AlreadyExistsException e) {
             }
         }
         throw new RuntimeException("Could not generate unique name and key for the project for the prefixes ${args.projectName} and ${args.projectKey}")
+    }
+
+    /**
+     * Add a new component to a existing project
+     */
+    def addComponentsToProject(args) {
+        if (!args || !args.projectKey) {
+            throw new NullPointerException('You need to specify at least a project key')
+        }
+        if (!args.quickstarters) {
+            throw new MissingArgumentException('Missing quickstarters data')
+        }
+        def url = baseProjectURL
+        Unirest.config().verifySsl(false);
+        def rs = Unirest.put(url)
+                .basicAuth(user, password)
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .body(JsonOutput.toJson(args))
+                .asJson()
+        rs.ifFailure {
+            def error = rs.body ? rs.body.toPrettyString() : rs.parsingError?.value?.originalBody
+            throw new RuntimeException("Error adding components in project key ${args.projectKey}.\n" +
+                    "Response status: ${rs.status} ${rs.statusText}.\nResponse body: $error")
+        }
+        return rs.body.object.toMap()
     }
 
     /**
@@ -225,7 +254,7 @@ class ProvAppClient {
      */
     def generateRndId(bound, format) {
         def id = rnd.nextInt(bound)
-        return String.format( format, id )
+        return String.format(format, id)
     }
 
     private class AlreadyExistsException extends IllegalArgumentException {
