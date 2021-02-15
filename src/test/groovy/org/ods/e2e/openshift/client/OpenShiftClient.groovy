@@ -106,7 +106,6 @@ class OpenShiftClient {
             private int newVersion = 0
             private boolean deleted = lastVersion == 0
             private boolean ready = false
-            private boolean healthy = false
 
             @Override
             void received(IResource resource, IOpenShiftWatchListener.ChangeType change) {
@@ -118,7 +117,6 @@ class OpenShiftClient {
                             if (version > newVersion) {
                                 newVersion = version
                                 ready = resource.isReady()
-                                healthy = resource.isHealthy()
                             }
                             break
                         case IOpenShiftWatchListener.ChangeType.DELETED:
@@ -129,12 +127,11 @@ class OpenShiftClient {
                         case IOpenShiftWatchListener.ChangeType.MODIFIED:
                             if (version == newVersion) {
                                 ready = resource.isReady()
-                                healthy = resource.isHealthy()
                             }
                             break
                     }
                 }
-                if (deleted && ready && healthy && newVersion > lastVersion) {
+                if (deleted && ready && newVersion > lastVersion) {
                     latch.countDown()
                 }
             }
