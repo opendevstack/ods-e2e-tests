@@ -38,7 +38,7 @@ class ProjectProvisionerHelper {
         UriHelper.waitURLAvailable(generatedProjectData.platformBuildEngineUrl, 300, 10)
 
         // Add components
-        addComponents(projectKey, project.components)
+        addComponents(project.key, project.components)
 
         return generatedProjectData
     }
@@ -53,7 +53,7 @@ class ProjectProvisionerHelper {
         def openshiftClient = OpenShiftClient.connect("$projectKey-dev")
 
         components.each { component ->
-            println "[provisioning-ods] provisioning component: $component"
+            println "[provisioning-ods] provisioning component: $component in project $projectKey)"
             def data = provAppClient.addComponentsToProject(
                     [projectKey   : projectKey,
                      quickstarters: [
