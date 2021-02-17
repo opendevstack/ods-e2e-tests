@@ -16,20 +16,29 @@ class ProjectHelperSpec extends Specification {
         ]
 
         def components = [
-                [component_type: 'docker-plain', component_id: 'docker-plain-one'],
-                [component_type: 'docker-plain', component_id: 'docker-plain-two'],
+                [qs: 'docker-plain', type: 'ods', id: 'docker-plain-one'],
+                [qs: 'docker-plain', type: 'ods', id: 'docker-plain-two'],
+                [qs: 'release-manager', type: 'release-manager', id: 'relman'],
         ]
 
         def project = [projectDefinition: projectDefinition,
                        components       : components]
 
-        def projectHelper = new ProjectHelper()
+        def projectHelper = new ProjectProvisionerHelper()
 
         when:
         def projectKey = projectHelper.provisionProject(project)
 
         then:
         projectKey
+    }
 
+    def "jenkins jellper"() {
+        def status
+        when:
+        def jh = new UriHelper()
+        status = jh.waitURLAvailable('https://jenkins-tes99-cd.ocp.odsbox.lan')
+        then:
+        status == 200
     }
 }
