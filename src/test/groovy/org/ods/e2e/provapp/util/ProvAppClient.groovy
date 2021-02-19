@@ -1,7 +1,6 @@
 package org.ods.e2e.provapp.util
 
 import groovy.json.JsonOutput
-import groovyjarjarcommonscli.MissingArgumentException
 import kong.unirest.Unirest
 import org.ods.e2e.util.SpecHelper
 
@@ -33,7 +32,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project name')
         }
         def url = "${baseProjectURL}/validate?projectName=${projectName}"
-        Unirest.config().verifySsl(false);
+        Unirest.config().verifySsl(false)
         def rs = Unirest.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
@@ -60,7 +59,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project key')
         }
         def url = "${baseProjectURL}/key/validate?projectKey=${projectKey}"
-        Unirest.config().verifySsl(false);
+        Unirest.config().verifySsl(false)
         def rs = Unirest.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
@@ -88,7 +87,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project name')
         }
         def url = "${baseProjectURL}/key/generate?name=${name}"
-        Unirest.config().verifySsl(false);
+        Unirest.config().verifySsl(false)
         def rs = Unirest.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
@@ -144,7 +143,7 @@ class ProvAppClient {
         if (args.onllyCheckPreconditions) {
             url = "${url}?onlyCheckPreconditions=TRUE"
         }
-        Unirest.config().verifySsl(false);
+        Unirest.config().verifySsl(false)
         def rs = Unirest.post(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
@@ -218,10 +217,10 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify at least a project key')
         }
         if (!args.quickstarters) {
-            throw new MissingArgumentException('Missing quickstarters data')
+            throw new IllegalArgumentException('Missing quickstarters data')
         }
         def url = baseProjectURL
-        Unirest.config().verifySsl(false);
+        Unirest.config().verifySsl(false)
         def rs = Unirest.put(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
@@ -237,7 +236,7 @@ class ProvAppClient {
     }
 
     /**
-     * Generates a random ID betwenn 0, inclusive, and <code>RND_ID_BOUND</code>, exclusive and formats it using <code>RND_ID_FORMAT</code> pattern.
+     * Generates a random ID between 0, inclusive, and <code>RND_ID_BOUND</code>, exclusive and formats it using <code>RND_ID_FORMAT</code> pattern.
      *
      * @return a string id generated with default parameters.
      */
@@ -246,7 +245,7 @@ class ProvAppClient {
     }
 
     /**
-     * Generates a random ID betwenn 0, inclusive, and <code>bound</code>, exclusive and formats it using <code>format</code> pattern.
+     * Generates a random ID between 0, inclusive, and <code>bound</code>, exclusive and formats it using <code>format</code> pattern.
      *
      * @param bound an integer bound for the generated random values.
      * @param format a string with the format pattern to generated the string ID from the random integer value.
