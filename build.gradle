@@ -33,7 +33,7 @@ ext {
     gebVersion = '3.4'
     unirestVersion = "3.7.02"
     seleniumVersion = '3.141.59'
-    chromeDriverVersion = '86.0.4240.22'
+    chromeDriverVersion = '87.0.4280.20'
     geckoDriverVersion = '0.26.0'
     htmlunitVersion = "2.36.0"
     openshiftClientVersion = '9.0.1.Final'
