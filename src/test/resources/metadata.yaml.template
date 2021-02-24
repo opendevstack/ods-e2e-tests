@@ -1,0 +1,34 @@
+id: ${projectName}
+name: Project ${projectName}
+description: Description of ${projectName}.
+
+services:
+  bitbucket:
+    credentials:
+      id: ${projectName}-cd-cd-user-with-password
+
+  # Uncomment (below) to connect to jira
+  jira:
+    credentials:
+      id: ${projectName}-cd-cd-user-with-password
+  nexus:
+    repository:
+      name: leva-documentation
+
+repositories:
+<% components?.each { component -> %>
+  - id: ${component.id}
+    name: ${projectName}-${component.id}
+    type: ${component.type}
+<%}%>
+
+#    forceRebuild: true
+
+# Uncomment (below) to generate documents
+capabilities:
+  - Zephyr
+  - LeVADocs:
+      GAMPCategory: 5
+      templatesVersion: "1.1"
+# Uncomment (below) to allow partial rebuilding during development
+# allowPartialRebuild: true

@@ -96,42 +96,45 @@ class OpenShiftClient {
         return client.<IDeploymentConfig> get(ResourceKind.DEPLOYMENT_CONFIG, name, project)
     }
 
-    def waitForDeployment(name, lastVersion) {
-        return waitForDeployment(name, lastVersion, project)
+    def waitForDeployment(String name, Integer lastVersion = 0) {
+        return waitForDeployment([name], [lastVersion])
     }
 
-    def waitForDeployment(name, lastVersion, project) {
+    def waitForDeployment(ArrayList<String> names, ArrayList<Integer> lastVersions) {
+        def name = names.join('|')
         def listener = new IOpenShiftWatchListener.OpenShiftWatchListenerAdapter() {
-            private CountDownLatch latch = new CountDownLatch(1)
-            private int newVersion = 0
-            private boolean deleted = false
-            private boolean ready = false
+            private CountDownLatch latch = new CountDownLatch(names.size())
+            private int[] newVersion = [0] * names.size()
+            private boolean[] deleted = lastVersions.collect{ it == 0 }
+            private boolean[] ready = [false] * names.size()
 
             @Override
             void received(IResource resource, IOpenShiftWatchListener.ChangeType change) {
-                def matcher = resource.name =~ /$name-(\d+)-.*/
+                def matcher = resource.name =~ /($name)-(\d+)-.*/
+                def index = -1
                 if (resource.kind == ResourceKind.POD && matcher.matches()) {
-                    def version = Integer.parseInt(matcher.group(1))
+                    def version = Integer.parseInt(matcher.group(2))
+                    index = names.findIndexOf {it == matcher[0][1]}
                     switch (change) {
                         case IOpenShiftWatchListener.ChangeType.ADDED:
-                            if (version > newVersion) {
-                                newVersion = version
-                                ready = resource.isReady()
+                            if (version > newVersion[index]) {
+                                newVersion[index] = version
+                                ready[index] = resource.isReady()
                             }
                             break
                         case IOpenShiftWatchListener.ChangeType.DELETED:
-                            if (version == lastVersion) {
-                                deleted = true
+                            if (version == lastVersions[index]) {
+                                deleted[index] = true
                             }
                             break
                         case IOpenShiftWatchListener.ChangeType.MODIFIED:
-                            if (version == newVersion) {
-                                ready = resource.isReady()
+                            if (version == newVersion[index]) {
+                                ready[index] = resource.isReady()
                             }
                             break
                     }
                 }
-                if (deleted && ready && newVersion > lastVersion) {
+                if (deleted[index] && ready[index] && newVersion[index] > lastVersions[index]) {
                     latch.countDown()
                 }
             }
@@ -147,7 +150,7 @@ class OpenShiftClient {
         def completed
         def watcher = client.watch(project, listener, ResourceKind.POD)
         try {
-            completed = listener.await(5, TimeUnit.MINUTES)
+            completed = listener.await(10, TimeUnit.MINUTES)
         } finally {
             watcher.stop()
         }
