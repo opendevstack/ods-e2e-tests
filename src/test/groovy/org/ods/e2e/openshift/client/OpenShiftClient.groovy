@@ -97,10 +97,10 @@ class OpenShiftClient {
     }
 
     def waitForDeployment(String name, Integer lastVersion = 0) {
-        return waitForDeployment([name], [lastVersion])
+        return waitForDeployments([name], [lastVersion])
     }
 
-    def waitForDeployment(ArrayList<String> names, ArrayList<Integer> lastVersions) {
+    def waitForDeployments(ArrayList<String> names, ArrayList<Integer> lastVersions) {
         def name = names.join('|')
         def listener = new IOpenShiftWatchListener.OpenShiftWatchListenerAdapter() {
             private CountDownLatch latch = new CountDownLatch(names.size())
