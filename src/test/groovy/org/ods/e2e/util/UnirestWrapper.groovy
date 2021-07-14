@@ -4,7 +4,7 @@ import kong.unirest.GetRequest
 import kong.unirest.HttpRequestWithBody
 import kong.unirest.Unirest
 
-class RestClient extends Unirest {
+class UnirestWrapper extends Unirest {
     def static specHelper = new SpecHelper()
 
     @Override

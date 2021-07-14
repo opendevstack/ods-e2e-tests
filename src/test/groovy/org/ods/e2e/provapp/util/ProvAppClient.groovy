@@ -1,8 +1,7 @@
 package org.ods.e2e.provapp.util
 
 import groovy.json.JsonOutput
-import kong.unirest.Unirest
-import org.ods.e2e.util.RestClient
+import org.ods.e2e.util.UnirestWrapper
 import org.ods.e2e.util.SpecHelper
 
 class ProvAppClient {
@@ -33,7 +32,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project name')
         }
         def url = "${baseProjectURL}/validate?projectName=${projectName}"
-        def rs = RestClient.get(url)
+        def rs = UnirestWrapper.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .asString()
@@ -59,7 +58,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project key')
         }
         def url = "${baseProjectURL}/key/validate?projectKey=${projectKey}"
-        def rs = RestClient.get(url)
+        def rs = UnirestWrapper.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .asString()
@@ -86,7 +85,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project name')
         }
         def url = "${baseProjectURL}/key/generate?name=${name}"
-        def rs = RestClient.get(url)
+        def rs = UnirestWrapper.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .asJson()
@@ -141,7 +140,7 @@ class ProvAppClient {
         if (args.onllyCheckPreconditions) {
             url = "${url}?onlyCheckPreconditions=TRUE"
         }
-        def rs = RestClient.post(url)
+        def rs = UnirestWrapper.post(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -217,7 +216,7 @@ class ProvAppClient {
             throw new IllegalArgumentException('Missing quickstarters data')
         }
         def url = baseProjectURL
-        def rs = RestClient.put(url)
+        def rs = UnirestWrapper.put(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
