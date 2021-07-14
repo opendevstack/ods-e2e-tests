@@ -1,7 +1,7 @@
 package org.ods.e2e.provapp.util
 
 import groovy.json.JsonOutput
-import kong.unirest.Unirest
+import org.ods.e2e.util.UnirestWrapper
 import org.ods.e2e.util.SpecHelper
 
 class ProvAppClient {
@@ -32,8 +32,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project name')
         }
         def url = "${baseProjectURL}/validate?projectName=${projectName}"
-        Unirest.config().verifySsl(false)
-        def rs = Unirest.get(url)
+        def rs = UnirestWrapper.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .asString()
@@ -59,8 +58,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project key')
         }
         def url = "${baseProjectURL}/key/validate?projectKey=${projectKey}"
-        Unirest.config().verifySsl(false)
-        def rs = Unirest.get(url)
+        def rs = UnirestWrapper.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .asString()
@@ -87,8 +85,7 @@ class ProvAppClient {
             throw new NullPointerException('You need to specify the project name')
         }
         def url = "${baseProjectURL}/key/generate?name=${name}"
-        Unirest.config().verifySsl(false)
-        def rs = Unirest.get(url)
+        def rs = UnirestWrapper.get(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .asJson()
@@ -143,8 +140,7 @@ class ProvAppClient {
         if (args.onllyCheckPreconditions) {
             url = "${url}?onlyCheckPreconditions=TRUE"
         }
-        Unirest.config().verifySsl(false)
-        def rs = Unirest.post(url)
+        def rs = UnirestWrapper.post(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -203,7 +199,7 @@ class ProvAppClient {
             }
             try {
                 return createProject(args)
-            } catch (AlreadyExistsException e) {
+            } catch (AlreadyExistsException | RuntimeException e) {
             }
         }
         throw new RuntimeException("Could not generate unique name and key for the project for the prefixes ${args.projectName} and ${args.projectKey}")
@@ -220,8 +216,7 @@ class ProvAppClient {
             throw new IllegalArgumentException('Missing quickstarters data')
         }
         def url = baseProjectURL
-        Unirest.config().verifySsl(false)
-        def rs = Unirest.put(url)
+        def rs = UnirestWrapper.put(url)
                 .basicAuth(user, password)
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")

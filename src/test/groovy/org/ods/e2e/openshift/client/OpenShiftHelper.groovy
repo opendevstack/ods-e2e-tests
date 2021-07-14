@@ -1,7 +1,7 @@
 package org.ods.e2e.openshift.client
 
 
-import kong.unirest.Unirest
+import org.ods.e2e.util.UnirestWrapper
 import org.ods.e2e.util.SpecHelper
 
 class OpenShiftHelper {
@@ -12,11 +12,9 @@ class OpenShiftHelper {
         if (!projectKey?.trim()) {
             throw new IllegalArgumentException("Error: unable to get namespace $projectKey.")
         }
-
-        Unirest.config().verifySsl(false);
         String openshiftUrl = specHelper.applicationProperties."config.openshift.url"
         openshiftUrl = openshiftUrl.endsWith('/') ? openshiftUrl.substring(0, openshiftUrl.size() - 1) : openshiftUrl
-        def response = Unirest.get("$openshiftUrl/api/v1/namespaces/{projectKey}")
+        def response = UnirestWrapper.get("$openshiftUrl/api/v1/namespaces/{projectKey}")
                 .routeParam("projectKey", projectKey.toLowerCase())
                 .header("Accept", "application/json")
                 .header("Authorization", "Bearer " + specHelper.applicationProperties."config.openshift.token")
@@ -37,10 +35,9 @@ class OpenShiftHelper {
             throw new IllegalArgumentException("Error: unable to get namespace $projectKey.")
         }
 
-        Unirest.config().verifySsl(false);
         String openshiftUrl = specHelper.applicationProperties."config.openshift.url"
         openshiftUrl = openshiftUrl.endsWith('/') ? openshiftUrl.substring(0, openshiftUrl.size() - 1) : openshiftUrl
-        def response = Unirest.get("$openshiftUrl/api/v1/watch/namespaces/{projectKey}/pods")
+        def response = UnirestWrapper.get("$openshiftUrl/api/v1/watch/namespaces/{projectKey}/pods")
                 .routeParam("projectKey", projectKey.toLowerCase())
                 .header("Accept", "application/json")
                 .header("Authorization", "Bearer " + specHelper.applicationProperties."config.openshift.token")
