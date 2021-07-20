@@ -1,7 +1,6 @@
 package org.ods.e2e.util
 
 import groovy.json.JsonSlurperClassic
-import kong.unirest.Unirest
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -55,10 +54,7 @@ class SpecHelper {
         if (!projectKey?.trim()) {
             throw new IllegalArgumentException("Error: unable to get fields metadata from Jira. 'projectKey' is undefined.")
         }
-
-        Unirest.config().verifySsl(false);
-
-        def response = Unirest.get(applicationProperties."config.atlassian.jira.url" + "/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields&projectKeys={projectKey}")
+        def response = UnirestWrapper.get(applicationProperties."config.atlassian.jira.url" + "/rest/api/2/issue/createmeta?expand=projects.issuetypes.fields&projectKeys={projectKey}")
                 .routeParam("projectKey", projectKey.toUpperCase())
                 .basicAuth(applicationProperties."config.atlassian.user.name", applicationProperties."config.atlassian.user.password")
                 .header("Accept", "application/json")
@@ -98,10 +94,7 @@ class SpecHelper {
         if (!issueKey?.trim()) {
             throw new IllegalArgumentException("Error: unable to get transitions metadata from Jira. 'issueKey' is undefined.")
         }
-
-        Unirest.config().verifySsl(false);
-
-        def response = Unirest.get(applicationProperties."config.atlassian.jira.url" + "/rest/api/2/issue/{issueKey}/transitions")
+        def response = UnirestWrapper.get(applicationProperties."config.atlassian.jira.url" + "/rest/api/2/issue/{issueKey}/transitions")
                 .routeParam("issueKey", issueKey.toUpperCase())
                 .basicAuth(applicationProperties."config.atlassian.user.name", applicationProperties."config.atlassian.user.password")
                 .header("Accept", "application/json")

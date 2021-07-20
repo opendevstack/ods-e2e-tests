@@ -11,15 +11,26 @@ import com.openshift.restclient.model.IDeploymentConfig
 import com.openshift.restclient.model.IResource
 import org.ods.e2e.util.SpecHelper
 
-import java.sql.Timestamp
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class OpenShiftClient {
     private static applicationProperties = new SpecHelper().getApplicationProperties()
-    private static builder = new ClientBuilder(applicationProperties['config.openshift.url'])
+
+    private static builder = {
+        ClientBuilder clientBuilder =
+        new ClientBuilder(applicationProperties['config.openshift.url'])
             .withUserName(applicationProperties['config.openshift.user.name'])
             .withPassword(applicationProperties['config.openshift.user.password'])
+        String proxyHost = applicationProperties['config.proxy.host']
+        Integer proxyPort = Integer.valueOf(applicationProperties['config.proxy.port'])
+        if( proxyHost?.trim() && proxyPort > 0 ){
+            clientBuilder
+                    .proxy(new Proxy(Proxy.Type.HTTP,
+                            new InetSocketAddress(proxyHost, proxyPort)))
+        }
+        clientBuilder
+    }
 
     private OpenShiftClient(client) {
         this.client = client
