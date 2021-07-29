@@ -30,7 +30,7 @@ class OpenShiftClient {
                             new InetSocketAddress(proxyHost, proxyPort)))
         }
         clientBuilder
-    }
+    }.call()
 
     private OpenShiftClient(client) {
         this.client = client
