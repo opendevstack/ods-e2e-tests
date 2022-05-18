@@ -77,18 +77,10 @@ ext {
 repositories {
     mavenLocal()
     if (environmentVariables.NO_NEXUS) {
-        println("using repositories 'jcenter' and 'mavenCentral', because property no_nexus=$environmentVariables.NO_NEXUS")
-        jcenter()
+        println("using repositories 'mavenCentral', because property no_nexus=$environmentVariables.NO_NEXUS")
         mavenCentral()
     } else {
         println("using nexus repositories")
-        maven() {
-            url "${environmentVariables.NEXUS_URL}/repository/jcenter/"
-            credentials {
-                username = "${environmentVariables.NEXUS_USERNAME}"
-                password = "${environmentVariables.NEXUS_PASSWORD}"
-            }
-        }
 
         maven() {
             url "${environmentVariables.NEXUS_URL}/repository/maven-public/"
