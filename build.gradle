@@ -2,7 +2,7 @@ plugins {
     id "maven"
     id "idea"
     id "groovy"
-    id "com.github.erdi.webdriver-binaries" version "2.2"
+    id "com.github.erdi.webdriver-binaries" version "2.4.1"
     id "com.github.erdi.idea-base" version "2.2"
     id 'com.adarshr.test-logger' version "2.0.0"
 }
@@ -103,27 +103,27 @@ repositories {
 
 dependencies {
     // If using Spock, need to depend on geb-spock
-    testCompile "org.gebish:geb-spock:${gebVersion}"
-    testCompile("org.spockframework:spock-core:1.3-groovy-2.5") {
+    testImplementation "org.gebish:geb-spock:${gebVersion}"
+    testImplementation("org.spockframework:spock-core:1.3-groovy-2.5") {
         exclude group: "org.codehaus.groovy"
     }
 
     // If using JUnit, need to depend on geb-junit (3 or 4)
-    testCompile "org.gebish:geb-junit4:$gebVersion"
+    testImplementation "org.gebish:geb-junit4:$gebVersion"
 
     // Drivers
-    testCompile "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-    testCompile "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-    testCompile "org.seleniumhq.selenium:htmlunit-driver:$htmlunitVersion"
-    testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:htmlunit-driver:$htmlunitVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 
     // Utils
-    testCompile "com.konghq:unirest-java:$unirestVersion:standalone"
+    testImplementation "com.konghq:unirest-java:$unirestVersion:standalone"
 
     // Use of git
-    compile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
-    testCompile "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
-    testCompile "org.yaml:snakeyaml:1.26"
+    implementation "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+    testImplementation "org.eclipse.jgit:org.eclipse.jgit:5.7.0.202003110725-r"
+    testImplementation "org.yaml:snakeyaml:1.26"
 
     // Openshift client
     testImplementation "com.openshift:openshift-restclient-java:$openshiftClientVersion"
