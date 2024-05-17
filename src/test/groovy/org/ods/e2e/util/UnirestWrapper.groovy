@@ -3,6 +3,7 @@ package org.ods.e2e.util
 import kong.unirest.GetRequest
 import kong.unirest.HttpRequestWithBody
 import kong.unirest.Unirest
+import org.apache.http.client.config.CookieSpecs
 
 class UnirestWrapper extends Unirest {
     def static specHelper = new SpecHelper()
@@ -51,5 +52,6 @@ class UnirestWrapper extends Unirest {
             config().proxy(proxyHost, proxyPort.toInteger())
         }
         config().verifySsl(false)
+        config().cookieSpec(CookieSpecs.IGNORE_COOKIES)
     }
 }
