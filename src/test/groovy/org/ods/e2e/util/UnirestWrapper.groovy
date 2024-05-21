@@ -53,5 +53,6 @@ class UnirestWrapper extends Unirest {
         }
         config().verifySsl(false)
         config().cookieSpec(CookieSpecs.IGNORE_COOKIES)
+        config().socketTimeout(180000)
     }
 }
