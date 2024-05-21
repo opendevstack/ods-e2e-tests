@@ -47,8 +47,9 @@ class UnirestWrapper extends Unirest {
     def static configConnection(){
         String proxyHost = specHelper.applicationProperties."config.proxy.host"
         String proxyPort = specHelper.applicationProperties."config.proxy.port"
+        config().reset()
+        config().socketTimeout(180000)
         if(proxyHost && proxyPort) {
-            config().reset()
             config().proxy(proxyHost, proxyPort.toInteger())
         }
         config().verifySsl(false)
